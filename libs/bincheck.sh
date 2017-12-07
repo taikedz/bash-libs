@@ -49,7 +49,7 @@ bincheck:has() {
 #
 # Relative paths are not expanded.
 #
-##/doc
+###/doc
 
 bincheck:path() {
 	local binname="$1"; shift

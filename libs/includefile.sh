@@ -28,7 +28,7 @@
 #
 # We can call this to include the contents of each file:
 #
-# 	doincludes myfile.txt '@@include'
+# 	includefile:include myfile.txt '@@include'
 #
 # The result will be something like
 #
@@ -50,11 +50,11 @@
 #
 # You can specify a colon (":") -separated list of directories wherein to search for files by calling
 #
-# 	doincludes FILE PAT SEARCHPATHS
+# 	includefile:include FILE PAT SEARCHPATHS
 #
 # This will search for the inclusions specified only along the specified paths. Example:
 #
-# 	doincludes myfile.html '//!addstyle' "./importedstyles:$HOME/.local/lib/styles:/etc/htmlthing/styles"
+# 	includefile:include myfile.html '//!addstyle' "./importedstyles:$HOME/.local/lib/styles:/etc/htmlthing/styles"
 # 
 # This will seek to include the files named in the inclusion line of myfile.html first from a local ./importedstyles,
 #  then from a general home configuration, and finally if it has found the file in neither the previous, it will be
@@ -85,7 +85,7 @@ function includefile:include {
 
 		for targetfile in $revintar; do
 			if [[ -z "$targetfile" ]]; then continue; fi
-			local filepath="$(filefrom "$PATHS" "$targetfile")"
+			local filepath="$(searchpaths:file_from "$PATHS" "$targetfile")"
 			if [[ ! -f "$filepath" ]]; then
 				out:warn "Could not find $targetfile in any of $PATHS"
 				return 1

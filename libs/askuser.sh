@@ -4,7 +4,7 @@
 # Present the user with questions on stdout
 ###/doc
 
-#%include bashout.sh
+#%include out.sh
 
 yespat='^(yes|YES|y|Y)$'
 numpat='^[0-9]+$'
@@ -93,7 +93,7 @@ function askuser:choose_multi {
 	return 0
 }
 
-### askuser:choose_one Usage:bbuild
+### askuser:choose Usage:bbuild
 # Ask the user to choose an item
 #
 # Like askuser:choose_multi, but will loop if the user selects more than one item
@@ -102,7 +102,7 @@ function askuser:choose_multi {
 #
 # If the user chooses one item, that item is echoed to stdout
 ###/doc
-function askuser:choose_one {
+function askuser:choose {
 	local mesg=$1; shift
 	while true; do
 		local thechoice="$(askuser:choose_multi "$mesg" "$*")"

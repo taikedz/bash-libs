@@ -25,8 +25,8 @@ HELPCHAR='#'
 function autohelp:print {
 	local USAGESTRING="${1:-}"; shift
 	local TARGETFILE="${1:-}"; shift
-	: ${USAGESTRING=help}
-	: ${TARGETFILE=$0}
+	[[ -n "$USAGESTRING" ]] || USAGESTRING=help
+	[[ -n "$TARGETFILE" ]] || TARGETFILE="$0"
 
         echo -e "\n$(basename "$TARGETFILE")\n===\n"
         local SECSTART='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s+(.+?)\s+Usage:'"$USAGESTRING"'\s*$'
@@ -47,9 +47,8 @@ function autohelp:print {
                 fi
         done < "$TARGETFILE"
 
-        if [[ -f "$insec" ]]; then
+        if [[ "$insec" = true ]]; then
                 echo "WARNING: Non-terminated help block." 1>&2
-		rm "$insec"
         fi
 	echo ""
 }
@@ -59,8 +58,8 @@ function autohelp:print {
 # automatically call help if "--help" is detected in arguments
 #
 ###/doc
-if [[ "$@" =~ --help ]]; then
+if [[ "$*" =~ --help ]]; then
 	cols="$(tput cols)"
-	autohelp:print | fold -w "$cols" -s
+	autohelp:print | fold -w "$cols" -s || autohelp:print
 	exit 0
 fi
