@@ -11,6 +11,30 @@
 #
 ###/doc
 
+function insertfile {
+	local line="$1"
+	local destfile="$2"
+	local sourcefile="$3"
+
+	insertfile:checkargs "$@" || return 1
+
+	local lcount="$(egrep ^ -c "$destfile")"
+
+	if [[ "$1" -le 0 ]]; then
+		insertfile:sedinsert "$destfile" "$sourcefile"
+
+	elif [[ "$1" -gt $lcount ]]; then
+		out:debug "Insertion point $1 > $lcount"
+		breake "cat $sourcefile >> $destfile"
+		cat "$sourcefile" >> "$destfile"
+
+	else
+		insertfile:sedappend "$@"
+	fi
+
+	breake "File insertion over."
+}
+
 function insertfile:sedappend {
 	local line="$1"
 	local destfile="$2"
@@ -42,28 +66,4 @@ function insertfile:checkargs {
 	if [[ ! "$1" =~ ^[0-9]+$ ]]; then echo "Invalid line number"; return 1 ; fi
 	if [[ ! -f "$2" ]]; then echo "Not a file $2" >&2; return 1; fi
 	if [[ ! -f "$3" ]]; then echo "Not a file $3" >&2; return 1; fi
-}
-
-function insertfile {
-	local line="$1"
-	local destfile="$2"
-	local sourcefile="$3"
-
-	insertfile:checkargs "$@" || return 1
-
-	local lcount="$(egrep ^ -c "$destfile")"
-
-	if [[ "$1" -le 0 ]]; then
-		insertfile:sedinsert "$destfile" "$sourcefile"
-
-	elif [[ "$1" -gt $lcount ]]; then
-		out:debug "Insertion point $1 > $lcount"
-		breake "cat $sourcefile >> $destfile"
-		cat "$sourcefile" >> "$destfile"
-
-	else
-		insertfile:sedappend "$@"
-	fi
-
-	breake "File insertion over."
 }

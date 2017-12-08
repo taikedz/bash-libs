@@ -30,6 +30,9 @@ function ensureline {
 	fi
 }
 
+# The following functions are internal, and should not be used.
+# Use the main `ensureline` instead
+
 function ensureline:matches {
 	local FILE="$1"; shift
 	local PATTERN="$1"; shift

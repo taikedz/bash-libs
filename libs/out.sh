@@ -2,6 +2,12 @@
 
 #%include colours.sh
 
+### Console output handlers Usage:bbuild
+#
+# Write data to console stderr using colouring
+#
+###/doc
+
 ### Environment Variables Usage:bbuild
 #
 # MODE_DEBUG : set to 'yes' to enable debugging output
@@ -54,12 +60,37 @@ function out:fail {
 	exit $ERCODE
 }
 
+### out:dump Usage:bbuild
+#
+# Dump stdin contents to console stderr. Requires debug mode.
+#
+# Example
+#
+# 	action_command 2>&1 | out:dump
+#
+###/doc
+
 function out:dump {
 	echo -e -n "${CBPUR}$*" 1>&2
 	echo -e -n "$CPUR" 1>&2
 	cat - 1>&2
 	echo -e -n "$CDEF" 1>&2
 }
+
+### out:break MESSAGE Usage:bbuild
+#
+# Add break points to a script
+#
+# Requires debug mode set to yes
+#
+# When the script runs, the message is printed with a propmt, and execution pauses.
+#
+# Type `exit`, `quit` or `stop` to stop the program. If the breakpoint is in a subshell,
+#  execution from after the subshell will be resumed.
+#
+# Press return to continue execution.
+#
+###/doc
 
 function out:break {
 	[[ "$MODE_DEBUG" = yes ]] || return

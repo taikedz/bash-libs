@@ -1,6 +1,6 @@
 #!/bin/bash
 
-### doinclusions Usage:bbuild
+### includefile.sh Usage:bbuild
 #
 # Utility to allow developer-defined inclusion directives in files being processed.
 #

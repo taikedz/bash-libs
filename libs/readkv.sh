@@ -4,9 +4,9 @@
 #
 # Read a value given the key, from a specified file
 #
-# Usage:
-#
-# 	readkv KEY FILE [DEFAULT]
+###/doc
+
+### readkv KEY FILE [DEFAULT] Usage:bbuild
 #
 # The KEY is the key in the file. A key is identified as starting at the beginning of a line, and ending at the first '=' character
 #
@@ -32,7 +32,7 @@ function readkv {
 	fi
 }
 
-### readkv:require - fail if no file exists Usage:bbuild
+### readkv:require KEY FILE Usage:bbuild
 #
 # Like readkv, but causes a failure if the file does not exist.
 #

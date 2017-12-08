@@ -6,6 +6,16 @@
 #
 ###/doc
 
+# Internal function
+
+### guiout:dialog MODE MESSAGE ... Usage:bbuild-internal
+#
+# Attempts to use one of zenity or xmessage to display a graphical dialog
+#
+# The MODE is one of `info`, `warn` or `fail`
+#
+###/doc
+
 function guiout:dialog {
 	local mode="$1"; shift
 	if [[ -f /usr/bin/zenity ]]; then
@@ -36,7 +46,7 @@ function guiout:dialog {
 	fi
 }
 
-### guiout:fail Usage:bbuild
+### guiout:fail [ERRCODE] MESSAGE ... Usage:bbuild
 #
 # Display a failure dialog, and exit
 #
@@ -52,7 +62,7 @@ function guiout:fail {
 	exit $errcode
 }
 
-### guiout:warn Usage:bbuild
+### guiout:warn MESSAGE Usage:bbuild
 #
 # Display a warning dialog
 #
@@ -62,7 +72,7 @@ function guiout:warn {
 	guiout:dialog warn "$*"
 }
 
-### guiout:info Usage:bbuild
+### guiout:info MESSAGE ... Usage:bbuild
 #
 # Display an info dialog
 #

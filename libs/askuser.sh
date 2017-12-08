@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### askuser Usage:bbuild
-# Present the user with questions on stdout
+# Present the user with questions on stderr
 ###/doc
 
 #%include out.sh
@@ -30,17 +30,17 @@ function askuser:confirm {
 ### askuser:ask Usage:bbuild
 # Ask the user to provide some text
 #
-# returns the entered text
+# Echoes out the entered text
 ###/doc
 function askuser:ask {
 	read -p "$* : " 1>&2
-	echo $REPLY
+	echo "$REPLY"
 }
 
 ### askuser:choose_multi Usage:bbuild
 # Allows the user to choose from multiple choices
 #
-# uchose_multi MESG CHOICESTRING
+# askuser:chose_multi MESG CHOICESTRING
 #
 #
 # MESG is a single string token that will be displayed as prompt
@@ -52,7 +52,7 @@ function askuser:ask {
 # * `"a\\nb\\nc"` - quoted and explicit newline escapes
 # * `"a,b,c"` - quoted and separated with commas
 # * `a , b , c` - not quoted, separated by commas
-# * (and `a`, `b` and `c` on their own lines)
+# * `a`, `b` and `c` on their own lines
 #
 # User input:
 #
@@ -98,7 +98,7 @@ function askuser:choose_multi {
 #
 # Like askuser:choose_multi, but will loop if the user selects more than one item
 #
-# If the user provides no entry, returns 0
+# If the user provides no entry, returns 1
 #
 # If the user chooses one item, that item is echoed to stdout
 ###/doc
@@ -106,10 +106,12 @@ function askuser:choose {
 	local mesg=$1; shift
 	while true; do
 		local thechoice="$(askuser:choose_multi "$mesg" "$*")"
-		local lines=$(echo "$thechoice" | wc -l)
+		local lines=$(echo -n "$thechoice" | wc -l)
 		if [[ $lines = 1 ]]; then
 			echo "$thechoice"
 			return 0
+		elif [[ $lines = 0 ]]; then
+			return 1
 		else
 			out:warn "Too many results"
 		fi

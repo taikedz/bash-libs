@@ -32,6 +32,7 @@ LOG_LEVEL_WARN=0
 LOG_LEVEL_INFO=0
 LOG_LEVEL_DEBUG=0
 
+# Handily determine that the minimal level threshold is met
 function log:islevel {
 	local req_level="$1"; shift
 
@@ -118,7 +119,7 @@ function log:warn {
 	echo -e "$LOGENTITY $(date "+%F %T") WARN: $*" >>"$BBLOGFILE"
 }
 
-### log:fail MESSAGE [CODE] Usage:bbuild
+### log:fail [CODE] MESSAGE Usage:bbuild
 # print a failure message to the log, and exit with CODE
 # CODE must be a number
 # if no code is specified, error code 127 is used
@@ -138,6 +139,18 @@ function log:fail {
 
 	echo "$LOGENTITY $(date "+%F %T") ERROR FAIL: $*" >>"$BBLOGFILE"
 }
+
+### log:dump Usage:bbuild
+#
+# Dump the stdin to the log.
+#
+# Requires level $LOG_LEVEL_DEBUG
+#
+# Example:
+#
+# 	action_command 2>&1 | log:dump
+#
+###/doc
 
 function log:dump {
 	log:debug "$* -------------¬"

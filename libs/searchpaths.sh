@@ -1,10 +1,7 @@
 #!/bin/bash
 
-### Find a file given a path list Usage:bbuild
-#
-# Usage:
-#
-# 	searchpaths:file_from PATHDEF FILE
+# FIXME - set function signature in head of help
+### searchpaths:file_from PATHDEF FILE Usage:bbuild
 #
 # Locate a file along a search path.
 #
@@ -14,7 +11,8 @@
 #  in order of preference of a local lib directory, a profile-wide one, then a system-
 #  wide one.
 #
-# 	searchpaths:file_from "./lib:$HOME/.local/lib:/usr/local/lib" file
+#	MYPATH="./lib:$HOME/.local/lib:/usr/local/lib"
+# 	searchpaths:file_from "$MYPATH" file
 #
 # Echoes the path of the first file found.
 #
@@ -26,7 +24,7 @@ function searchpaths:file_from {
 	local PATHS="$1"; shift
 	local FILE="$1"; shift
 
-	out:debug "file [$FILE] from [$PATHS]"
+	out:debug "Looking for file [$FILE] amongst [$PATHS]"
 
 	for path in $(echo "$PATHS"|tr ':' ' '); do
 		out:debug "Try path: $path"

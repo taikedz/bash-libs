@@ -7,7 +7,7 @@
 #%include abspath.sh
 
 ### this:bin Usage:bbuild
-# The name of the file running
+# The file name of the running script, without its path
 ###/doc
 function this:bin {
 	echo "$(basename "$0")"

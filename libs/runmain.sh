@@ -22,7 +22,7 @@
 #
 ###/doc
 
-function runmain {
+function main:script {
 	local required_name="$1"; shift
 	local funcall="$1"; shift
 	local scriptname="$(basename "$0")"

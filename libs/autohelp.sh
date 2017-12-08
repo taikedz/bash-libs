@@ -18,18 +18,27 @@
 #	#
 #	###/doc
 #
+# You can set a different comment character by setting the 'HELPCHAR' environment variable:
+#
+# 	HELPCHAR=%
+# 	autohelp:print
+#
+# You can set a different help section by specifying the 'SECTION_STRING' variable
+#
+# 	SECTION_STRING=subsection autohelp:print
+#
 ###/doc
 
 HELPCHAR='#'
 
 function autohelp:print {
-	local USAGESTRING="${1:-}"; shift
+	local SECTION_STRING="${1:-}"; shift
 	local TARGETFILE="${1:-}"; shift
-	[[ -n "$USAGESTRING" ]] || USAGESTRING=help
+	[[ -n "$SECTION_STRING" ]] || SECTION_STRING=help
 	[[ -n "$TARGETFILE" ]] || TARGETFILE="$0"
 
         echo -e "\n$(basename "$TARGETFILE")\n===\n"
-        local SECSTART='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s+(.+?)\s+Usage:'"$USAGESTRING"'\s*$'
+        local SECSTART='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s+(.+?)\s+Usage:'"$SECTION_STRING"'\s*$'
         local SECEND='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s*/doc\s*$'
         local insec=false
 
