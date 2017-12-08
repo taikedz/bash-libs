@@ -1,4 +1,4 @@
-### main:script SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
+### runmain SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
 #
 # Runs the function FUNCTION with ARGUMENTS, only if the runtime
 # name of the script matches SCRIPTNAME
@@ -14,7 +14,7 @@
 #
 # 	runmain archiveimages.sh archive_images "$@"
 #
-# When included a different script, the main:script call does not fire the lib's function
+# When included a different script, the runmain call does not fire the lib's function
 #
 # If the lib is compiled/made executable, and named "archiveimages.sh", the function runs.
 #
@@ -22,7 +22,7 @@
 #
 ###/doc
 
-function main:script {
+function runmain {
 	local required_name="$1"; shift
 	local funcall="$1"; shift
 	local scriptname="$(basename "$0")"
