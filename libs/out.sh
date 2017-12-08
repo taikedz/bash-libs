@@ -96,7 +96,7 @@ function out:break {
 	[[ "$MODE_DEBUG" = yes ]] || return
 
 	read -p "${CRED}BREAKPOINT: $* >$CDEF " >&2
-	if [[ "$REPLY" =~ $(echo 'quit|exit|stop') ]]; then
+	if [[ "$REPLY" =~ quit|exit|stop ]]; then
 		out:fail "ABORT"
 	fi
 }
