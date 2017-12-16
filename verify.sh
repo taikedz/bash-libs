@@ -9,7 +9,13 @@ fi
 items=0
 fails=0
 
-for libscript in libs/*.sh; do
+targets=(libs/*.sh)
+
+if [[ "$#" -gt 0 ]]; then
+	targets=("$@")
+fi
+
+for libscript in "${targets[@]}"; do
 	items=$((items+1))
 	bbuild $flags "$libscript" || fails=$((fails+1))
 done
