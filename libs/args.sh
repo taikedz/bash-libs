@@ -99,3 +99,33 @@ function args:has {
 	done
 	return 1
 }
+
+### args:after TOKEN ARGS ... Usage:bbuild
+#
+# Return all tokens after TOKEN via the RETARR_ARGSAFTER
+#
+#	myargs=(one two -- three "four and" five)
+# 	args:after -- "${myargs[@]}"
+#
+# 	for a in "${RETARR_ARGSAFTER}"; do
+# 		echo "$a"
+# 	done
+#
+# The above prints
+#
+# 	three
+# 	four and
+# 	five
+#
+###/doc
+
+function args:after {
+	local token="$1"; shift
+	
+	local current_token="$1"; shift
+	while [[ "$#" -gt 0 ]] && [[ "$current_token" != "$token" ]]; do
+		current_token="$1"; shift
+	done
+
+	RETARR_ARGSAFTER=("$@")
+}
