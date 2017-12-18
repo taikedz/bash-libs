@@ -15,9 +15,8 @@
 #
 ###/doc
 
-
-MODE_DEBUG=no
-MODE_DEBUG_VERBOSE=no
+: ${MODE_DEBUG=no}
+: ${MODE_DEBUG_VERBOSE=no}
 
 ### out:debug MESSAGE Usage:bbuild
 # print a blue debug message to stderr
