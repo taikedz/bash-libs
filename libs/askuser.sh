@@ -37,6 +37,16 @@ function askuser:ask {
 	echo "$REPLY"
 }
 
+### askuser:password Usage:bbuild
+# Ask the user to enter a password (does not echo what is typed)
+#
+# Echoes out the entered text
+###/doc
+function askuser:password {
+	read -s -p "$* : " 1>&2
+	echo "$REPLY"
+}
+
 ### askuser:choose_multi Usage:bbuild
 # Allows the user to choose from multiple choices
 #
