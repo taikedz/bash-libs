@@ -1,6 +1,6 @@
 #%include test.sh includefile.sh
 
-testdir=build-outd
+testdir=tmp-tests
 
 mkdir -p "$testdir"
 
@@ -10,8 +10,8 @@ echo "This is file2"> "$testdir"/file2
 includefile:inittemp "$testdir/file1"
 includefile:include "$testdir"/file1 '#%include' "$testdir"
 
-test:require grep "This is file2" "$testdir"/file1
+test:require grep -q "This is file2" "$testdir"/file1
 
-#rm "$testdir/file1" "$testdir/file2"
+rm "$testdir/file1" "$testdir/file2"
 
 test:report
