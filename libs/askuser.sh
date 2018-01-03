@@ -116,7 +116,7 @@ function askuser:choose {
 	local mesg=$1; shift
 	while true; do
 		local thechoice="$(askuser:choose_multi "$mesg" "$*")"
-		local lines=$(echo -n "$thechoice" | wc -l)
+		local lines=$(echo -n "$thechoice" | grep '$' -c)
 		if [[ $lines = 1 ]]; then
 			echo "$thechoice"
 			return 0
