@@ -4,9 +4,11 @@
 #
 # Utility to allow developer-defined inclusion directives in files being processed.
 #
+# TODO - the handling of duplicates-prevention is working, but it is difficult to maintain. This needs work.
+#
 ###/doc
 
-#%include searchpaths.sh abspath.sh
+#%include searchpaths.sh abspath.sh out.sh
 
 ### includefile:include INFILE PATTERN [SEARCHPATHS] Usage:bbuild
 #
@@ -70,7 +72,7 @@ function includefile:include {
 	local PATHS="$*"
 
 	 while read inline; do
-		out:debug "[36;1mInclusion target: $inline[0m"
+		out:debug "\033[36;1mInclusion target: $inline${CDEF}"
 	 	local pos="${inline%%:*}"
 		inline="${inline#*:}"
 
@@ -109,12 +111,13 @@ function includefile:fileinsert {
 
 	local SKIPFILE="$(includefile:getskipfile "$TARGETFILE")"
 
-	if includefile:registerfile "$SKIPFILE" "$SOURCEFILE"; then
+	if includefile:isregistered "$SKIPFILE" "$SOURCEFILE"; then
 		out:debug "Inserting $SOURCEFILE at $TARGETFILE:$POSITION"
 
 		includefile:docallback "$SOURCEFILE" "$TARGETFILE"
 
 		sed "$POSITION r $SOURCEFILE" -i "$TARGETFILE"
+		includefile:registerfile "$SKIPFILE" "$SOURCEFILE"
 	fi
 }
 
@@ -129,17 +132,31 @@ function includefile:inittemp {
 	echo > "$(includefile:getskipfile "$1")"
 }
 
+# Only set the skipdir once per session
+function includefile:setskipdir() {
+	if [[ -z "${INCLUDEFILE_skipdir:-}" ]]; then
+		out:debug "Setting new skipdir"
+		#export INCLUDEFILE_skipdir="$(mktemp -d /tmp/bbinclude.XXX)"
+		export INCLUDEFILE_skipdir="/tmp/bbinclude-$(whoami)"
+	fi
+	out:debug "Skipdir is ${INCLUDEFILE_skipdir:-}"
+}
+
+function includefile:ensureskipdir() {
+	includefile:setskipdir
+	mkdir -p "${INCLUDEFILE_skipdir}"
+}
+
 # Get skipfile for path
 # getskipfile TARGETPATH
 # prints a temp file path in /tmp
 function includefile:getskipfile {
-	local tmpdir=/tmp/bbinclude
-	mkdir -p "$tmpdir"
+	includefile:ensureskipdir
 	
 	local hash="$(echo "$1"|sha1sum)"
 	hash="${hash:0:6}"
 
-	local skipfile="$tmpdir/$hash"
+	local skipfile="$INCLUDEFILE_skipdir/$hash"
 	touch "$skipfile"
 	echo "$skipfile"
 }
@@ -172,3 +189,4 @@ function includefile:isregistered {
 
 	return 1
 }
+
