@@ -79,10 +79,3 @@ test:report() {
 
 	return "$TEST_testfailurecount"
 }
-
-if [[ "$*" =~ --verbose ]]; then
-	MODE_DEBUG=yes
-	MODE_DEBUG_VERBOSE=yes
-fi
-
-out:info "---- Running test script [$0] ---"
