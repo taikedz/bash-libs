@@ -37,31 +37,37 @@ set_targets() {
 	fi
 }
 
+rmfile() {
+	[[ "${norm:-}" = true ]] && return || :
+
+	rm "$@"
+}
+
 run_verification() {
 	for libscript in "${targets[@]}"; do
 		local scriptname="$(basename "$libscript")"
 
 		items=$((items+1))
 		"$BBEXEC" ${bbflags:-} "$libscript" || {
-			rm "/tmp/$scriptname"
+			rmfile "/tmp/$scriptname"
 			fails=$((fails+1))
 			continue
 		}
 
 		if [[ ! "$runtests" = yes ]]; then
-			rm "/tmp/$scriptname"
+			rmfile "/tmp/$scriptname"
 			continue
 		fi
 
 		local testname="test-$scriptname"
 		if [[ -f "tests/$testname" ]]; then
 			"$BBEXEC" "tests/$testname"
-			bash "/tmp/$testname" || fails=$((fails+1))
-			rm "/tmp/$testname"
+			MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || fails=$((fails+1))
+			rmfile "/tmp/$testname"
 		else
 			echo -e "\033[33;1mWarning: there is no tests/$testname test file.\033[0m"
 		fi
-		rm "/tmp/$scriptname"
+		rmfile "/tmp/$scriptname"
 	done
 }
 

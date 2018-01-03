@@ -10,14 +10,19 @@
 
 #%include searchpaths.sh abspath.sh out.sh
 
-### includefile:include INFILE PATTERN [SEARCHPATHS] Usage:bbuild
+### File inclusion Usage:bbuild
 #
 # Inserts the contents of the files specified on lines matched by PATTERN into the stream of INFILE
 # at the location they are declared.
 #
 # Inclusion directives must stand alone on their lines.
 #
-# Example:
+# Example use:
+#
+# 	includefile:inittemp file-to-parse.txt
+# 	includefile:include file-to-parse.txt '@@include' ./templates:$HOME/templates:/var/lib/html/templates
+#
+# Example of effect:
 #
 # 	This is some content in the FILE called myfile.txt
 #
@@ -66,6 +71,16 @@
 #
 ###/doc
 
+### includefile:include INFILE PATTERN [SEARCHPATHS] Usage:bbuild
+#
+# Search INFILE for PATTERNS that denote an inclusion driective
+#
+# For each path after the inclusion directive, search in SEARCHPATHS
+#  if found, check that it has not been included already during the run
+#  if not previously included, insert it at the given position.
+#
+###/doc
+
 function includefile:include {
 	local INFILE="$1"; shift
 	local PATTERN="$1"; shift
@@ -95,6 +110,7 @@ function includefile:include {
 			includefile:fileinsert "$filepath" "$pos" "$INFILE"
 		done
 
+		# Remove the inclusion directive itself (line $pos exactly)
 		sed "$pos d" -i "$INFILE"
 	 done < <(grep -P "^$PATTERN" "$INFILE" -n | sort -r -n)
 }
@@ -105,19 +121,22 @@ function includefile:include {
 #
 ###/doc
 function includefile:fileinsert {
-	local SOURCEFILE="$(abspath:simple $1)"; shift
+	local SOURCEFILE="$(abspath:simple "$1")"; shift
 	local POSITION="$1"; shift
 	local TARGETFILE="$1"; shift
 
 	local SKIPFILE="$(includefile:getskipfile "$TARGETFILE")"
 
-	if includefile:isregistered "$SKIPFILE" "$SOURCEFILE"; then
+	if ! includefile:isregistered "$SKIPFILE" "$SOURCEFILE"; then
 		out:debug "Inserting $SOURCEFILE at $TARGETFILE:$POSITION"
 
 		includefile:docallback "$SOURCEFILE" "$TARGETFILE"
 
 		sed "$POSITION r $SOURCEFILE" -i "$TARGETFILE"
 		includefile:registerfile "$SKIPFILE" "$SOURCEFILE"
+		out:debug " ... added $SROUCEFILE"
+	else
+		out:debug "[$SOURCEFILE] was already registered"
 	fi
 }
 
@@ -127,36 +146,31 @@ function includefile:docallback {
 	fi
 }
 
-# Initialize the temp file
+### includefile:inittemp Usage:bbuild
+# Initialize the skip file
+#
+# This is the file that tracks files already previously included.
+#
+# This must be called on TARGET before your script calls
+# 	includefile:include TARGET
+# otherwise data from previous runs will remain.
+#
+###/doc
 function includefile:inittemp {
 	echo > "$(includefile:getskipfile "$1")"
-}
-
-# Only set the skipdir once per session
-function includefile:setskipdir() {
-	if [[ -z "${INCLUDEFILE_skipdir:-}" ]]; then
-		out:debug "Setting new skipdir"
-		#export INCLUDEFILE_skipdir="$(mktemp -d /tmp/bbinclude.XXX)"
-		export INCLUDEFILE_skipdir="/tmp/bbinclude-$(whoami)"
-	fi
-	out:debug "Skipdir is ${INCLUDEFILE_skipdir:-}"
-}
-
-function includefile:ensureskipdir() {
-	includefile:setskipdir
-	mkdir -p "${INCLUDEFILE_skipdir}"
 }
 
 # Get skipfile for path
 # getskipfile TARGETPATH
 # prints a temp file path in /tmp
 function includefile:getskipfile {
-	includefile:ensureskipdir
+	local tmpdir="/tmp/bbinclude-$(whoami)"
+	mkdir -p "$tmpdir"
 	
 	local hash="$(echo "$1"|sha1sum)"
 	hash="${hash:0:6}"
 
-	local skipfile="$INCLUDEFILE_skipdir/$hash"
+	local skipfile="$tmpdir/$hash"
 	touch "$skipfile"
 	echo "$skipfile"
 }

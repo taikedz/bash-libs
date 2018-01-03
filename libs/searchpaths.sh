@@ -1,4 +1,4 @@
-#!/bin/bash
+#%include out.sh
 
 # FIXME - set function signature in head of help
 ### searchpaths:file_from PATHDEF FILE Usage:bbuild
