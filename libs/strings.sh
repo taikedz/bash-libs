@@ -6,20 +6,29 @@
 
 ### strings:join JOINER STRINGS ... Usage:bbuild
 #
-# Join multiple strings, separate by the JOINER string
+# Join multiple strings, separated by the JOINER string
 #
 ###/doc
 
 strings:join() {
+	# joiner can be any string
 	local joiner="$1"; shift
 
-	local destring=""
+	# so we use an array to collect the token parts
+	local destring=(:)
 
 	for token in "$@"; do
-		destring="${destring:-}${joiner}${token}"
+		destring[${#destring[@]}]="$joiner"
+		destring[${#destring[@]}]="$token"
 	done
 
-	echo "${destring:1}"
+	local finalstring=""
+	# first remove holder token and initial join token
+	#   before iterating
+	for item in "${destring[@]:2}"; do
+		finalstring="${finalstring}${item}"
+	done
+	echo "$finalstring"
 }
 
 ### strings:split SPLITTER STRING Usage:bbuild

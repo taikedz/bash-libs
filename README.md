@@ -25,7 +25,7 @@ Specify libraries explicitly:
 
 Run corresponding tests:
 
-	dotest=y ./verify
+	runtests=true ./verify
 
 Run shellcheck after building a library (pass flags to `bbuild`):
 
@@ -33,6 +33,6 @@ Run shellcheck after building a library (pass flags to `bbuild`):
 
 Compile the `version.sh` library, shellcheck it, and run its tests:
 
-	bbflags=-c dotest=y ./verify libs/version.sh
+	bbflags=-c runtests=true ./verify libs/version.sh
 
 Any combination of the above should be possible.

@@ -19,16 +19,6 @@ set_executable() {
 	echo "Build using \`$BBEXEC\` command"
 }
 
-check_runtests() {
-	runtests=no
-
-	if [[ "${dotest:-}" =~ ^(y|Y|yes|YES)$ ]]; then
-		runtests=yes
-	else
-		echo -e "\033[33;1mYou can run tests by setting the env var \`\$dotest\` to \`y\` \033[0m"
-	fi
-}
-
 set_targets() {
 	targets=(libs/*.sh)
 
@@ -54,7 +44,7 @@ run_verification() {
 			continue
 		}
 
-		if [[ ! "$runtests" = yes ]]; then
+		if [[ ! "${runtests:-}" = true ]]; then
 			rmfile "/tmp/$scriptname"
 			continue
 		fi
@@ -73,7 +63,6 @@ run_verification() {
 
 main() {
 	set_executable
-	check_runtests
 	set_targets "$@"
 	run_verification
 

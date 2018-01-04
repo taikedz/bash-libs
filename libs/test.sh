@@ -40,10 +40,13 @@ test:fail() {
 ###/doc
 
 test:require() {
-	if "$@" ; then
-		test:ok "TRUE : $*"
+	local result=:
+	result="$("$@")"
+	if [[ "$?" = 0 ]] ; then
+		test:ok "REQUIRE: $*"
 	else
-		test:fail "TRUE : $*"
+		test:fail "REQUIRE: $*"
+		echo "$result" | sed 's/^/  /'
 	fi
 }
 
@@ -56,10 +59,13 @@ test:require() {
 ###/doc
 
 test:forbid() {
-	if "$@" ; then
-		test:fail "FALSE: $*"
+	local result=:
+	result="$("$@")"
+	if [[ "$?" = 0 ]] ; then
+		test:fail "FORBID : $*"
+		echo "$res => $result" | sed 's/^/  /'
 	else
-		test:ok "FALSE: $*"
+		test:ok "FORBID : $*"
 	fi
 }
 

@@ -10,20 +10,20 @@
 
 ### Environment Variables Usage:bbuild
 #
-# MODE_DEBUG : set to 'yes' to enable debugging output
-# MODE_DEBUG_VERBOSE : set to 'yes' to enable command echoing
+# MODE_DEBUG : set to 'true' to enable debugging output
+# MODE_DEBUG_VERBOSE : set to 'true' to enable command echoing
 #
 ###/doc
 
-: ${MODE_DEBUG=no}
-: ${MODE_DEBUG_VERBOSE=no}
+: ${MODE_DEBUG=false}
+: ${MODE_DEBUG_VERBOSE=false}
 
 ### out:debug MESSAGE Usage:bbuild
 # print a blue debug message to stderr
-# only prints if MODE_DEBUG is set to "yes"
+# only prints if MODE_DEBUG is set to "true"
 ###/doc
 function out:debug {
-	if [[ "$MODE_DEBUG" = yes ]]; then
+	if [[ "$MODE_DEBUG" = true ]]; then
 		echo -e "${CBBLU}DEBUG:$CBLU$*$CDEF" 1>&2
 	fi
 }
@@ -80,7 +80,7 @@ function out:dump {
 #
 # Add break points to a script
 #
-# Requires debug mode set to yes
+# Requires debug mode set to true
 #
 # When the script runs, the message is printed with a propmt, and execution pauses.
 #
@@ -92,7 +92,7 @@ function out:dump {
 ###/doc
 
 function out:break {
-	[[ "$MODE_DEBUG" = yes ]] || return
+	[[ "$MODE_DEBUG" = true ]] || return
 
 	read -p "${CRED}BREAKPOINT: $* >$CDEF " >&2
 	if [[ "$REPLY" =~ quit|exit|stop ]]; then
@@ -100,4 +100,4 @@ function out:break {
 	fi
 }
 
-[[ "$MODE_DEBUG_VERBOSE" = yes ]] && set -x || :
+[[ "$MODE_DEBUG_VERBOSE" = true ]] && set -x || :
