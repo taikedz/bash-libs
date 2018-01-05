@@ -79,9 +79,15 @@ test:report() {
 	local reportcmd=out:info
 	if [[ "$TEST_testfailurecount" -gt 0 ]]; then
 		reportcmd=out:warn
+
+	elif [[ "$TEST_testfailurecount" -ge $((TEST_testsran / 2)) ]]; then
+		reportcmd=out:fail
+		[[ "$TEST_testsran" -gt 0 ]] || TEST_testfailurecount=1
 	fi
 
+	( # Don't bail on out:fail
 	"$reportcmd" "--- Ran $TEST_testsran tests with $TEST_testfailurecount failures"
+	)
 
 	return "$TEST_testfailurecount"
 }
