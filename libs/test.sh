@@ -28,14 +28,15 @@ test:ok() {
 test:fail() {
 	echo -e "${CBRED}FAIL${CDEF} $*"
 	TEST_testsran=$((TEST_testsran+1))
-	TEST_testfailurecount=$((TESTS_testfailurecount+1))
+	TEST_testfailurecount=$((TEST_testfailurecount+1))
 }
 
 ### test:require COMMAND ARGS ... Usage:bbuild
 #
 # Runs the command with arguments; if the command returns 0 then success
 #
-# If the command returns non-zero, then a failure is reported
+# If the command returns non-zero, then a failure is reported, and the
+#  command's output is printed
 #
 ###/doc
 
@@ -45,14 +46,15 @@ test:require() {
 	if [[ "$?" = 0 ]] ; then
 		test:ok "REQUIRE: $*"
 	else
-		test:fail "REQUIRE: $*"
-		echo "$result" | sed 's/^/  /'
+		test:fail "REQUIRE: [$*]"
+		echo -e "<<< ---\n$result\n--- >>>"
 	fi
 }
 
 ### test:require COMMAND ARGS ... Usage:bbuild
 #
-# Runs the command with arguments; if the command returns 0 then a failure is reported
+# Runs the command with arguments; if the command returns 0 then a failure
+#  is reported, and the command's output is printed
 #
 # If the command returns non-zero, then success
 #
