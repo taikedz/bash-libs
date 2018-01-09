@@ -24,7 +24,7 @@
 ###/doc
 function out:debug {
 	if [[ "$MODE_DEBUG" = true ]]; then
-		echo -e "${CBBLU}DEBUG:$CBLU$*$CDEF" 1>&2
+		echo -e "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
 	fi
 }
 
@@ -39,7 +39,37 @@ function out:info {
 # print a yellow warning message to stderr
 ###/doc
 function out:warn {
-	echo -e "${CBYEL}WARN:$CYEL $*$CDEF" 1>&2
+	echo -e "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
+}
+
+### out:defer MESSAGE Usage:bbuild
+# Store a message in the output buffer for later use
+###/doc
+function out:defer {
+	OUTPUT_BUFFER_defer="${OUTPUT_BUFFER_defer}\n$*"
+}
+
+### out:flush HANDLER Usage:bbuild
+#
+# Pass the output buffer to the command defined by HANDLER
+# and empty the buffer
+#
+# Examples:
+#
+# 	out:flush echo -e
+#
+# 	out:flush out:warn
+#
+# (escaped newlines are added in the buffer, so `-e` option is
+#  needed to process the escape sequences)
+#
+###/doc
+function out:flush {
+	[[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer:-}"
+
+	[[ -n "${OUTPUT_BUFFER_defer:-}" ]] || return
+
+	"$@" "$OUTPUT_BUFFER_defer"
 }
 
 ### out:fail [CODE] MESSAGE Usage:bbuild
@@ -55,7 +85,7 @@ function out:fail {
 		ERCODE="$1"; shift
 	fi
 
-	echo -e "${CBRED}ERROR FAIL:$CRED$*$CDEF" 1>&2
+	echo -e "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
 	exit $ERCODE
 }
 
