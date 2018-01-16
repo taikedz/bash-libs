@@ -1,9 +1,9 @@
 #!/bin/bash
 
-### autohelp:print Usage:bbuild
+### autohelp:print [ SECTION [FILE] ] Usage:bbuild
 # Write your help as documentation comments in your script
 #
-# If you need to output the help from a running script, call the
+# If you need to output the help from your script, or a file, call the
 # `autohelp:print` function and it will print the help documentation
 # in the current script to stdout
 #
@@ -18,14 +18,19 @@
 #	#
 #	###/doc
 #
+# You can set a different help section by specifying a subsection
+#
+# 	autohelp:print section2
+#
+# > This would print a section defined in this way:
+#
+# 	### Some title Usage:section2
+# 	# <some content>
+# 	###/doc
+#
 # You can set a different comment character by setting the 'HELPCHAR' environment variable:
 #
 # 	HELPCHAR=%
-# 	autohelp:print
-#
-# You can set a different help section by specifying the 'SECTION_STRING' variable
-#
-# 	SECTION_STRING=subsection autohelp:print
 #
 ###/doc
 
@@ -62,13 +67,45 @@ function autohelp:print {
 	echo ""
 }
 
-### automatic help Usage:main
+### autohelp:paged Usage:bbuild
 #
-# automatically call help if "--help" is detected in arguments
+# Display the help in the pager defined in the PAGER environment variable
 #
 ###/doc
-if [[ "$*" =~ --help ]]; then
-	cols="$(tput cols)"
-	autohelp:print | fold -w "$cols" -s || autohelp:print
-	exit 0
-fi
+function autohelp:paged {
+	: ${PAGER=less}
+	autohelp:print "$@" | $PAGER
+}
+
+### autohelp:check Usage:bbuild
+#
+# Automatically print help and exit if "--help" is detected in arguments
+#
+# Example use:
+#
+#	#!/bin/bash
+#
+#	### Some help Usage:help
+#	#
+#	# Some help text
+#	#
+#	###/doc
+#
+#	#%include autohelp.sh
+#
+#	main() {
+#		autohelp:check "$@"
+#
+#		# now add your code
+#	}
+#
+#	main "$@"
+#
+###/doc
+autohelp:check() {
+	if [[ "$*" =~ --help ]]; then
+		cols="$(tput cols)"
+		autohelp:print | fold -w "$cols" -s || autohelp:print
+		exit 0
+	fi
+}

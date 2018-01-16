@@ -18,6 +18,12 @@
 : ${MODE_DEBUG=false}
 : ${MODE_DEBUG_VERBOSE=false}
 
+# Internal
+function out:buffer_initialize {
+	OUTPUT_BUFFER_defer=(:)
+}
+out:buffer_initialize
+
 ### out:debug MESSAGE Usage:bbuild
 # print a blue debug message to stderr
 # only prints if MODE_DEBUG is set to "true"
@@ -46,10 +52,10 @@ function out:warn {
 # Store a message in the output buffer for later use
 ###/doc
 function out:defer {
-	OUTPUT_BUFFER_defer="${OUTPUT_BUFFER_defer}\n$*"
+	OUTPUT_BUFFER_defer[${#OUTPUT_BUFFER_defer[@]}]="$*"
 }
 
-### out:flush HANDLER Usage:bbuild
+### out:flush HANDLER ... Usage:bbuild
 #
 # Pass the output buffer to the command defined by HANDLER
 # and empty the buffer
@@ -65,11 +71,15 @@ function out:defer {
 #
 ###/doc
 function out:flush {
-	[[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer:-}"
+	[[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer[*]}"
 
-	[[ -n "${OUTPUT_BUFFER_defer:-}" ]] || return
+	[[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return
 
-	"$@" "$OUTPUT_BUFFER_defer"
+	for buffer_line in "${OUTPUT_BUFFER_defer[@]:1}"; do
+		"$@" "$buffer_line"
+	done
+
+	out:buffer_initalize
 }
 
 ### out:fail [CODE] MESSAGE Usage:bbuild
@@ -87,6 +97,15 @@ function out:fail {
 
 	echo -e "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
 	exit $ERCODE
+}
+
+### out:error MESSAGE Usage:bbuild
+# print a red error message to stderr
+#
+# unlike out:fail, does not cause script exit
+###/doc
+function out:error {
+	echo -e "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
 
 ### out:dump Usage:bbuild
@@ -110,14 +129,14 @@ function out:dump {
 #
 # Add break points to a script
 #
-# Requires debug mode set to true
+# Requires MODE_DEBUG set to true
 #
 # When the script runs, the message is printed with a propmt, and execution pauses.
 #
+# Press return to continue execution.
+#
 # Type `exit`, `quit` or `stop` to stop the program. If the breakpoint is in a subshell,
 #  execution from after the subshell will be resumed.
-#
-# Press return to continue execution.
 #
 ###/doc
 
@@ -130,4 +149,6 @@ function out:break {
 	fi
 }
 
-[[ "$MODE_DEBUG_VERBOSE" = true ]] && set -x || :
+if [[ "$MODE_DEBUG_VERBOSE" = true ]]; then
+	set -x
+fi
