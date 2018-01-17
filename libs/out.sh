@@ -79,7 +79,7 @@ function out:flush {
 		"$@" "$buffer_line"
 	done
 
-	out:buffer_initalize
+	out:buffer_initialize
 }
 
 ### out:fail [CODE] MESSAGE Usage:bbuild
