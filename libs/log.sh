@@ -36,7 +36,7 @@ LOG_LEVEL_DEBUG=0
 function log:islevel {
 	local req_level="$1"; shift
 
-	[[ "$LOG_LEVEL" -ge "$req_levl" ]]
+	[[ "$LOG_LEVEL" -ge "$req_level" ]]
 }
 
 ### log:use_file LOGFILE Usage:bbuild

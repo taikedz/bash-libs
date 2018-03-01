@@ -1,10 +1,21 @@
 cd "$(dirname "$0")"
 
+### Verification script Usage:help
+# Build scripts and run unit tests
+#
+# [runtests=false] [bbflags='-c'] ./verify [LIBFILES ...]
+#
+# Any LIBFILE must be in the form of "./lib/FILENAME"
+###/doc
+
+. libs/autohelp.sh
+
 export BUILDOUTD=/tmp
 export BBPATH=libs/
 
 items=0
 fails=0
+runtests=true
 
 set_executable() {
 	if [[ -z "${BBEXEC:-}" ]]; then
@@ -70,5 +81,10 @@ main() {
 
 	exit "$fails"
 }
+
+if [[ "$*" =~ --help ]]; then
+	autohelp:print
+	exit 0
+fi
 
 main "$@"

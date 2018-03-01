@@ -11,7 +11,7 @@ You need to have installed bash-builder to run verification of scripts; or, run 
 	git clone https://github.com/taikedz/bash-builder
 	export BBEXEC="$PWD/bash-builder/bootstrap/bootstrap-bbuild5"
 
-To simply test the build of all libraries, run:
+To test the build of all libraries and run unit tests, run:
 
 	./verify.sh
 
@@ -23,16 +23,16 @@ Specify libraries explicitly:
 
 	./verify.sh libs/args.sh libs/out.sh
 
-Run corresponding tests:
+You can deactivate unit tests:
 
-	runtests=true ./verify
+	runtests=false ./verify
 
 Run shellcheck after building a library (pass flags to `bbuild`):
 
 	bbflags=-c ./verify
 
-Compile the `version.sh` library, shellcheck it, and run its tests:
+Compile the `version.sh` library and shellcheck it, without its tests:
 
-	bbflags=-c runtests=true ./verify libs/version.sh
+	bbflags=-c runtests=false ./verify libs/version.sh
 
 Any combination of the above should be possible.

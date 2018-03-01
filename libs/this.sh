@@ -17,5 +17,5 @@ function this:bin {
 # The absolute path of the directory in which the command is running
 ###/doc
 function this:bindir {
-	echo "$(abspath:simple "$(dirname "$0")" )"
+	echo "$(abspath:path "$(dirname "$0")" )"
 }

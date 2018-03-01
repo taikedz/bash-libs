@@ -1,49 +1,47 @@
 #!/bin/bash
 
-### abspath Usage:bbuild
+### abspath:path RELATIVEPATH [ MAX ] Usage:bbuild
 # Returns the absolute path of a file/directory
 #
-# Exposes two functions
-#
-#     abspath:path
-#     abspath:simple
-#
-# Do not use the python-based 'abspath:path' for intensitve resolution;
-# instead, use native 'abspath:simple' which is at least 170 times
-# more efficient, at the cost of perhaps being potentially
-# dumber (simply collapses '/./' and '/../').
-# 
-# Neither utility expands softlinks.
-#
-# If python is not found, abspath:path falls back to abspath:simple systematically.
+# MAX defines the maximum number of "../" relative items to process
+#   default is 50
 ###/doc
 
 function abspath:path {
-	local newvar=${1//"'"/"\\'"}
-	(
-		set +eu
-		if which python >/dev/null 2>&1; then
-			python  -c "import os ; print os.path.abspath('$newvar')"
-		elif which python3 >/dev/null 2>&1 ; then
-			python3 -c "import os ; print(os.path.abspath('$newvar') )"
-		else
-			abspath:simple "$newvar"
-		fi
-	)
+	local workpath="$1" ; shift
+	local max="${1:-50}" ; shift
+
+	if [[ "${workpath:0:1}" != "/" ]]; then workpath="$PWD/$workpath"; fi
+
+	workpath="$(abspath:collapse "$workpath")"
+	abspath:resolve_dotdot "$workpath" "$max" | sed -r 's|(.)/$|\1|'
 }
 
-# More efficient by a factor of at least 170:1
-# compared to spinning up a python process every time
-function abspath:simple {
-	local workpath="$1"
-	if [[ "${workpath:0:1}" != "/" ]]; then workpath="$PWD/$workpath"; fi
-	for x in {1..50}; do # set a limit on how many iterations - only very stupid paths will get us here.
-		if [[ "$workpath" =~ '/../' ]] || [[ "$workpath" =~ '/./' ]]; then
-			workpath="$(echo "$workpath"|sed -r -e 's#/./#/#g' -e 's#([^/]+)/../#\1/#g' -e 's#/.$##' -e 's#([^/]+)/..$#\1#' )"
-		else
+function abspath:collapse {
+	echo "$1" | sed -r 's|/\./|/|g ; s|/\.$|| ; s|/+|/|g'
+}
+
+function abspath:resolve_dotdot {
+	local workpath="$1"; shift
+	local max="$1"; shift
+
+	# Set a limit on how many iterations to perform
+	# Only very obnoxious paths should fail
+	for x in $(seq 1 $max); do
+		# No more dot-dots - good to go
+		if [[ ! "$workpath" =~ /\.\.(/|$) ]]; then
 			echo "$workpath"
 			return 0
 		fi
+
+		# Starts with an up-one at root - unresolvable
+		if [[ "$workpath" =~ ^/\.\.(/|$) ]]; then
+			return 1
+		fi
+
+		workpath="$(echo "$workpath"|sed -r 's@[^/]+/\.\.(/|$)@@')"
 	done
-	return 1 # hopefully we never get here
+
+	# A very obnoxious path was used.
+	return 2
 }

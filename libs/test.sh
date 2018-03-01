@@ -44,9 +44,12 @@ test:require() {
 	local result=:
 	result="$("$@")"
 	if [[ "$?" = 0 ]] ; then
-		test:ok "REQUIRE: $*"
+		test:ok "REQUIRE: [ $* ]"
+		if [[ "${ECHO_OK:-}" = true ]]; then
+			echo -e "<--\n$result\n-->"
+		fi
 	else
-		test:fail "REQUIRE: [$*]"
+		test:fail "REQUIRE: [ $* ]"
 		echo -e "<<< ---\n$result\n--- >>>"
 	fi
 }
@@ -64,10 +67,10 @@ test:forbid() {
 	local result=:
 	result="$("$@")"
 	if [[ "$?" = 0 ]] ; then
-		test:fail "FORBID : $*"
+		test:fail "FORBID : [ $* ]"
 		echo "$res => $result" | sed 's/^/  /'
 	else
-		test:ok "FORBID : $*"
+		test:ok "FORBID : [ $* ]"
 	fi
 }
 
@@ -79,17 +82,14 @@ test:forbid() {
 
 test:report() {
 	local reportcmd=out:info
-	if [[ "$TEST_testfailurecount" -gt 0 ]]; then
+	if [[ "$TEST_testsran" -lt 1 ]]; then
 		reportcmd=out:warn
 
-	elif [[ "$TEST_testfailurecount" -ge $((TEST_testsran / 2)) ]]; then
-		reportcmd=out:fail
-		[[ "$TEST_testsran" -gt 0 ]] || TEST_testfailurecount=1
+	elif [[ "$TEST_testfailurecount" -gt 0 ]]; then
+		reportcmd=out:error
 	fi
 
-	( # Don't bail on out:fail
 	"$reportcmd" "--- Ran $TEST_testsran tests with $TEST_testfailurecount failures"
-	)
 
 	return "$TEST_testfailurecount"
 }

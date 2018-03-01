@@ -11,14 +11,14 @@ test_args() {
 
 test_bool() {
 	local result="$1"; shift
-	args:get "$@"
+	args:has "$@"
 	local res="$?"
 
 	echo "$res"
 	[[ "$res" = "$result" ]]
 }
 
-arguments=(-m hello --message "this is a long message" -t)
+arguments=(-m hello --message="this is a long message" -t)
 
 test:require test_args hello -m "${arguments[@]}"
 test:require test_args "this is a long message" --message "${arguments[@]}"

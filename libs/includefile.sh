@@ -121,7 +121,7 @@ function includefile:include {
 #
 ###/doc
 function includefile:fileinsert {
-	local SOURCEFILE="$(abspath:simple "$1")"; shift
+	local SOURCEFILE="$(abspath:path "$1")"; shift
 	local POSITION="$1"; shift
 	local TARGETFILE="$1"; shift
 

@@ -10,6 +10,11 @@
 #
 # Given a TOKEN, find the argument value
 #
+# Typically called with the parent's arguments
+#
+# 	args:get --key "$@"
+# 	args:get -k "$@"
+#
 # If TOKEN is an int, returns the argument at that index (starts at 1, negative numbers count from end backwards)
 #
 # If TOKEN starts with two dashes ("--"), expect the value to be supplied after an equal sign
@@ -77,6 +82,10 @@ function args:get_long {
 ### args:has TOKEN ARGS ... Usage:bbuild
 #
 # Determines whether TOKEN is present on its own in ARGS
+#
+# Typically called with the parent's arguments
+#
+# 	args:has thing "$@"
 #
 # Returns 0 on success for example
 #

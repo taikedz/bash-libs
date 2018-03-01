@@ -1,3 +1,5 @@
-#%include test.sh colours.sh
+#%include test.sh colours.sh out.sh
 
-test:report
+#test:report
+
+out:info "colours.sh simply defines strings - no tests"
