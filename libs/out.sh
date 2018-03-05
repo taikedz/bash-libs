@@ -34,6 +34,25 @@ function out:debug {
 	fi
 }
 
+### out:debug:fork [MARKER] Usage:bbuild
+#
+# Pipe the data coming through stdin to stdout
+#
+# If debug mode is on, *also* write the same data to stderr, each line preceded by MARKER
+#
+# Insert this debug fork into pipes to see their output
+#
+###/doc
+function out:debug:fork {
+	if [[ "$MODE_DEBUG" = true ]]; then
+		local MARKER="${1:-DEBUG: }"; shift || :
+
+		cat - | sed -r "s/^/$MARKER/" | tee -a /dev/stderr
+	else
+		cat -
+	fi
+}
+
 ### out:info MESSAGE Usage:bbuild
 # print a green informational message to stderr
 ###/doc
