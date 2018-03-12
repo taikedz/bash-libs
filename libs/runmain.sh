@@ -23,8 +23,8 @@
 ###/doc
 
 function runmain {
-	local required_name="$1"; shift
-	local funcall="$1"; shift
+	local required_name="$1"; shift || :
+	local funcall="$1"; shift || :
 	local scriptname="$(basename "$0")"
 
 	if [[ "$required_name" = "$scriptname" ]]; then

@@ -52,7 +52,7 @@ bincheck:has() {
 ###/doc
 
 bincheck:path() {
-	local binname="$1"; shift
+	local binname="$1"; shift || :
 
 	[[ "$binname" =~ / ]] && { 
 		# A relative path cannot be resolved, just check existence

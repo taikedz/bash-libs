@@ -82,8 +82,8 @@
 ###/doc
 
 function includefile:include {
-	local INFILE="$1"; shift
-	local PATTERN="$1"; shift
+	local INFILE="$1"; shift || :
+	local PATTERN="$1"; shift || :
 	local PATHS="$*"
 
 	 while read inline; do
@@ -121,9 +121,9 @@ function includefile:include {
 #
 ###/doc
 function includefile:fileinsert {
-	local SOURCEFILE="$(abspath:path "$1")"; shift
-	local POSITION="$1"; shift
-	local TARGETFILE="$1"; shift
+	local SOURCEFILE="$(abspath:path "$1")"; shift || :
+	local POSITION="$1"; shift || :
+	local TARGETFILE="$1"; shift || :
 
 	local SKIPFILE="$(includefile:getskipfile "$TARGETFILE")"
 
@@ -179,8 +179,8 @@ function includefile:getskipfile {
 # Register that a file has previously been included
 # Returns 1 if already registered
 function includefile:registerfile {
-	local SKIPFILE="$1"; shift
-	local TARGETFILE="$1"; shift
+	local SKIPFILE="$1"; shift || :
+	local TARGETFILE="$1"; shift || :
 
 	if includefile:isregistered "$SKIPFILE" "$TARGETFILE"; then
 		return 1
@@ -194,8 +194,8 @@ function includefile:registerfile {
 # returns 0 if yes
 # returns 1 otherwise
 function includefile:isregistered {
-	local SKIPFILE="$1"; shift
-	local TARGETFILE="$1"; shift
+	local SKIPFILE="$1"; shift || :
+	local TARGETFILE="$1"; shift || :
 
 	if grep -P -q "^$TARGETFILE$" "$SKIPFILE"; then
 		return 0

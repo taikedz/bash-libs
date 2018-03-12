@@ -37,8 +37,8 @@
 HELPCHAR='#'
 
 function autohelp:print {
-	local SECTION_STRING="${1:-}"; shift
-	local TARGETFILE="${1:-}"; shift
+	local SECTION_STRING="${1:-}"; shift || :
+	local TARGETFILE="${1:-}"; shift || :
 	[[ -n "$SECTION_STRING" ]] || SECTION_STRING=help
 	[[ -n "$TARGETFILE" ]] || TARGETFILE="$0"
 

@@ -38,8 +38,8 @@ osid:__value() {
 # Get the distro's shortname
 ###/doc
 osid:name() {
-	osid:__value "${ID:-}" && return || :
-	osid:__value "${DISTRIB_ID:-}" && return || :
+	osid:__value "${ID:-}" && return 0 || :
+	osid:__value "${DISTRIB_ID:-}" && return 0 || :
 	return 1
 }
 
@@ -48,8 +48,8 @@ osid:name() {
 # Get the distro's version number
 ###/doc
 osid:version() {
-	osid:__value "${VERSION_ID:-}" && return || :
-	osid:__value "${DISTRIB_RELEASE:-}" && return || :
+	osid:__value "${VERSION_ID:-}" && return 0 || :
+	osid:__value "${DISTRIB_RELEASE:-}" && return 0 || :
 	return 1
 }
 
@@ -58,8 +58,8 @@ osid:version() {
 # Get the long version name of the distro
 ###/doc
 osid:fullname() {
-	osid:__value "${NAME:-}" && return || :
-	osid:__value "${DISTRIB_ID:-}" && return || :
+	osid:__value "${NAME:-}" && return 0 || :
+	osid:__value "${DISTRIB_ID:-}" && return 0 || :
 	return 1
 }
 
@@ -68,7 +68,7 @@ osid:fullname() {
 # Get the name-and-version string for the distro
 ###/doc
 osid:nameversion() {
-	osid:__value "${DISTRIB_DESCRIPTION:-}" && return || :
-	osid:__value "${PRETTY_NAME:-}" && return || :
+	osid:__value "${DISTRIB_DESCRIPTION:-}" && return 0 || :
+	osid:__value "${PRETTY_NAME:-}" && return 0 || :
 	return 1
 }

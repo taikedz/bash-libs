@@ -34,6 +34,25 @@ function out:debug {
 	fi
 }
 
+### out:debug:fork [MARKER] Usage:bbuild
+#
+# Pipe the data coming through stdin to stdout
+#
+# If debug mode is on, *also* write the same data to stderr, each line preceded by MARKER
+#
+# Insert this debug fork into pipes to see their output
+#
+###/doc
+function out:debug:fork {
+	if [[ "$MODE_DEBUG" = true ]]; then
+		local MARKER="${1:-DEBUG: }"; shift || :
+
+		cat - | sed -r "s/^/$MARKER/" | tee -a /dev/stderr
+	else
+		cat -
+	fi
+}
+
 ### out:info MESSAGE Usage:bbuild
 # print a green informational message to stderr
 ###/doc
@@ -73,7 +92,7 @@ function out:defer {
 function out:flush {
 	[[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer[*]}"
 
-	[[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return
+	[[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return 0
 
 	for buffer_line in "${OUTPUT_BUFFER_defer[@]:1}"; do
 		"$@" "$buffer_line"
@@ -92,7 +111,7 @@ function out:fail {
 	local numpat='^[0-9]+$'
 
 	if [[ "$1" =~ $numpat ]]; then
-		ERCODE="$1"; shift
+		ERCODE="$1"; shift || :
 	fi
 
 	echo -e "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
@@ -141,7 +160,7 @@ function out:dump {
 ###/doc
 
 function out:break {
-	[[ "$MODE_DEBUG" = true ]] || return
+	[[ "$MODE_DEBUG" = true ]] || return 0
 
 	read -p "${CRED}BREAKPOINT: $* >$CDEF " >&2
 	if [[ "$REPLY" =~ quit|exit|stop ]]; then

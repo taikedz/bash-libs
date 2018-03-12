@@ -12,7 +12,7 @@
 
 strings:join() {
 	# joiner can be any string
-	local joiner="$1"; shift
+	local joiner="$1"; shift || :
 
 	# so we use an array to collect the token parts
 	local destring=(:)
@@ -40,8 +40,8 @@ strings:join() {
 ###/doc
 
 strings:split() {
-	local splitter="$1"; shift
-	local string_to_split="$1"; shift
+	local splitter="$1"; shift || :
+	local string_to_split="$1"; shift || :
 
 	local items=("")
 

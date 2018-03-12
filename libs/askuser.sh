@@ -77,7 +77,7 @@ function askuser:password {
 # If the user selects nothing, then function returns 1 and an empty stdout
 ###/doc
 function askuser:choose_multi {
-	local mesg=$1; shift
+	local mesg=$1; shift || :
 	local choices=$(echo "$*"|sed -r 's/ *, */\n/g')
 	out:debug "CHOICES: $choices"
 
@@ -113,7 +113,7 @@ function askuser:choose_multi {
 # If the user chooses one item, that item is echoed to stdout
 ###/doc
 function askuser:choose {
-	local mesg=$1; shift
+	local mesg=$1; shift || :
 	while true; do
 		local thechoice="$(askuser:choose_multi "$mesg" "$*")"
 		local lines=$(echo -n "$thechoice" | grep '$' -c)

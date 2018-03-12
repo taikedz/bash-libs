@@ -19,8 +19,8 @@
 ###/doc
 
 version:gt() {
-	local version1="$1"; shift
-	local version2="$1"; shift
+	local version1="$1"; shift || :
+	local version2="$1"; shift || :
 
 	version:validate "$version1" || return 1
 	version:validate "$version2" || return 1
@@ -51,8 +51,8 @@ version:gt() {
 ###/doc
 
 version:next() {
-	local vsection="$1"; shift
-	local sversion="$1"; shift
+	local vsection="$1"; shift || :
+	local sversion="$1"; shift || :
 
 	version:validate "$sversion" || return 1
 

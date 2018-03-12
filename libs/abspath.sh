@@ -8,8 +8,8 @@
 ###/doc
 
 function abspath:path {
-	local workpath="$1" ; shift
-	local max="${1:-50}" ; shift
+	local workpath="$1" ; shift || :
+	local max="${1:-50}" ; shift || :
 
 	if [[ "${workpath:0:1}" != "/" ]]; then workpath="$PWD/$workpath"; fi
 
@@ -22,8 +22,8 @@ function abspath:collapse {
 }
 
 function abspath:resolve_dotdot {
-	local workpath="$1"; shift
-	local max="$1"; shift
+	local workpath="$1"; shift || :
+	local max="$1"; shift || :
 
 	# Set a limit on how many iterations to perform
 	# Only very obnoxious paths should fail

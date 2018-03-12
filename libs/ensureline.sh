@@ -20,8 +20,8 @@
 ###/doc
 
 function ensureline {
-	local file="$1"; shift
-	local pattern="$1"; shift
+	local file="$1"; shift || :
+	local pattern="$1"; shift || :
 
 	if grep -P "^$pattern$" "$file" -q ; then
 		ensureline:matches "$file" "$pattern" "$@"
@@ -34,9 +34,9 @@ function ensureline {
 # Use the main `ensureline` instead
 
 function ensureline:matches {
-	local FILE="$1"; shift
-	local PATTERN="$1"; shift
-	local LINEDATA="$1"; shift
+	local FILE="$1"; shift || :
+	local PATTERN="$1"; shift || :
+	local LINEDATA="$1"; shift || :
 
 	#TODO - add support to specify a start line, and a range?
 
@@ -44,9 +44,9 @@ function ensureline:matches {
 }
 
 function ensureline:add {
-	local FILE="$1"; shift
-	local PATTERN="$1"; shift
-	local LINEDATA="$1"; shift
+	local FILE="$1"; shift || :
+	local PATTERN="$1"; shift || :
+	local LINEDATA="$1"; shift || :
 
 	echo "$LINEDATA" >> "$FILE"
 }

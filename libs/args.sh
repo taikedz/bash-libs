@@ -30,7 +30,7 @@
 ###/doc
 
 function args:get {
-	local seek="$1"; shift
+	local seek="$1"; shift || :
 
 	if [[ "$seek" =~ $PAT_num ]]; then
 		local arguments=("$@")
@@ -54,26 +54,26 @@ function args:get {
 }
 
 function args:get_short {
-	local token="$1"; shift
+	local token="$1"; shift || :
 	while [[ -n "$*" ]]; do
-		local item="$1"; shift
+		local item="$1"; shift || :
 
 		if [[ "$item" = "$token" ]]; then
 			echo "$1"
-			return
+			return 0
 		fi
 	done
 	return 1
 }
 
 function args:get_long {
-	local token="$1"; shift
+	local token="$1"; shift || :
 	local tokenpat="^$token=(.*)$"
 
 	for item in "$@"; do
 		if [[ "$item" =~ $tokenpat ]]; then
 			echo "${BASH_REMATCH[1]}"
-			return
+			return 0
 		fi
 	done
 	return 1
@@ -100,7 +100,7 @@ function args:get_long {
 ###/doc
 
 function args:has {
-	local token="$1"; shift
+	local token="$1"; shift || :
 	for item in "$@"; do
 		if [[ "$token" = "$item" ]]; then
 			return 0
@@ -129,11 +129,11 @@ function args:has {
 ###/doc
 
 function args:after {
-	local token="$1"; shift
+	local token="$1"; shift || :
 	
-	local current_token="$1"; shift
+	local current_token="$1"; shift || :
 	while [[ "$#" -gt 0 ]] && [[ "$current_token" != "$token" ]]; do
-		current_token="$1"; shift
+		current_token="$1"; shift || :
 	done
 
 	RETARR_ARGSAFTER=("$@")

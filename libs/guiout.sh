@@ -17,7 +17,7 @@
 ###/doc
 
 function guiout:dialog {
-	local mode="$1"; shift
+	local mode="$1"; shift || :
 	if [[ -f /usr/bin/zenity ]]; then
 		case "$mode" in
 		info)
@@ -56,7 +56,7 @@ function guiout:fail {
 	local errcode=127
 	numpat="^[0-9]$"
 	if [[ "$1" =~ $numpat ]] ; then
-		errcode="$1"; shift
+		errcode="$1"; shift || :
 	fi
 	guiout:dialog fail "$*"
 	exit $errcode

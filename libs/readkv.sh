@@ -17,11 +17,11 @@
 ###/doc
 
 function readkv {
-	local thekey=$1 ; shift
-	local thefile=$1; shift
+	local thekey=$1 ; shift || :
+	local thefile=$1; shift || :
 	local thedefault=
 	if [[ -n "${1+x}" ]]; then
-		thedefault="$1"; shift
+		thedefault="$1"; shift || :
 	fi
 
 	local res=$(egrep "^$thekey"'\s*=' "$thefile"|sed -r "s/^$thekey"'\s*=\s*//')

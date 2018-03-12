@@ -21,8 +21,8 @@
 ###/doc
 
 function searchpaths:file_from {
-	local PATHS="$1"; shift
-	local FILE="$1"; shift
+	local PATHS="$1"; shift || :
+	local FILE="$1"; shift || :
 
 	out:debug "Looking for file [$FILE] amongst [$PATHS]"
 
@@ -31,7 +31,7 @@ function searchpaths:file_from {
 		local fpath="$path/$FILE"
 		if [[ -f "$fpath" ]]; then
 			echo "$fpath"
-			return
+			return 0
 		else
 			out:debug "No $fpath"
 		fi
