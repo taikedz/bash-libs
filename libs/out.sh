@@ -162,7 +162,8 @@ function out:dump {
 function out:break {
 	[[ "$MODE_DEBUG" = true ]] || return 0
 
-	read -p "${CRED}BREAKPOINT: $* >$CDEF " >&2
+	echo -en "${CRED}BREAKPOINT: $* >$CDEF " >&2
+	read
 	if [[ "$REPLY" =~ quit|exit|stop ]]; then
 		out:fail "ABORT"
 	fi

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#%bbtags w:deprecated w:use_includefile2
+
 ### includefile.sh Usage:bbuild
 #
 # Utility to allow developer-defined inclusion directives in files being processed.
