@@ -30,7 +30,7 @@ out:buffer_initialize
 ###/doc
 function out:debug {
 	if [[ "$MODE_DEBUG" = true ]]; then
-		echo -e "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
+		echo "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
 	fi
 }
 
@@ -57,14 +57,14 @@ function out:debug:fork {
 # print a green informational message to stderr
 ###/doc
 function out:info {
-	echo -e "$CGRN$*$CDEF" 1>&2
+	echo "$CGRN$*$CDEF" 1>&2
 }
 
 ### out:warn MESSAGE Usage:bbuild
 # print a yellow warning message to stderr
 ###/doc
 function out:warn {
-	echo -e "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
+	echo "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
 }
 
 ### out:defer MESSAGE Usage:bbuild
@@ -114,7 +114,7 @@ function out:fail {
 		ERCODE="$1"; shift || :
 	fi
 
-	echo -e "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
+	echo "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
 	exit $ERCODE
 }
 
@@ -124,7 +124,7 @@ function out:fail {
 # unlike out:fail, does not cause script exit
 ###/doc
 function out:error {
-	echo -e "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
+	echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
 
 ### out:dump Usage:bbuild
@@ -138,10 +138,10 @@ function out:error {
 ###/doc
 
 function out:dump {
-	echo -e -n "${CBPUR}$*" 1>&2
-	echo -e -n "$CPUR" 1>&2
+	echo -n "${CBPUR}$*" 1>&2
+	echo -n "$CPUR" 1>&2
 	cat - 1>&2
-	echo -e -n "$CDEF" 1>&2
+	echo -n "$CDEF" 1>&2
 }
 
 ### out:break MESSAGE Usage:bbuild

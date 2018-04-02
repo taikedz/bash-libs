@@ -11,6 +11,8 @@
 #
 ###/doc
 
+#%bbtags w:deprecated w:use_insertfile2
+
 function insertfile {
 	local line="$1"
 	local destfile="$2"
@@ -25,14 +27,14 @@ function insertfile {
 
 	elif [[ "$1" -gt $lcount ]]; then
 		out:debug "Insertion point $1 > $lcount"
-		breake "cat $sourcefile >> $destfile"
+		out:break "cat $sourcefile >> $destfile"
 		cat "$sourcefile" >> "$destfile"
 
 	else
 		insertfile:sedappend "$@"
 	fi
 
-	breake "File insertion over."
+	out:break "File insertion over."
 }
 
 function insertfile:sedappend {
@@ -40,7 +42,7 @@ function insertfile:sedappend {
 	local destfile="$2"
 	local sourcefile="$3"
 
-	breake sed "$line r $sourcefile" -i "$destfile"
+	out:break sed "$line r $sourcefile" -i "$destfile"
 	sed "$line r $sourcefile" -i "$destfile"
 }
 
@@ -48,7 +50,7 @@ function insertfile:sedinsert {
 	local destfile="$1"
 	local sourcefile="$2"
 
-	breake sed "1 {
+	out:break sed "1 {
 		h
 		r $sourcefile
 		g

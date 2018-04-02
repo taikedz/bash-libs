@@ -9,7 +9,7 @@
 ###/doc
 
 function isroot {
-	[[ "$UID" = 0 ]] || (uname -o | grep -i cygwin -q)
+	[[ "$UID" = 0 ]] || isroot:cygwin
 }
 
 ### isroot:cygwin Usage:bbuild
