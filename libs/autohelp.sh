@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: autohelp.sh @ %COMMITHASH%
 
 ### autohelp:print [ SECTION [FILE] ] Usage:bbuild
 # Write your help as documentation comments in your script

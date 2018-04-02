@@ -1,3 +1,5 @@
+##bash-libs: searchpaths.sh @ %COMMITHASH%
+
 #%include out.sh
 
 # FIXME - set function signature in head of help

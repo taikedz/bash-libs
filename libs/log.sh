@@ -1,3 +1,5 @@
+##bash-libs: log.sh @ %COMMITHASH%
+
 #%include args.sh
 
 ### Logging facility Usage:bbuild

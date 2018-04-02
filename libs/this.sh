@@ -1,3 +1,5 @@
+##bash-libs: this.sh @ %COMMITHASH%
+
 ### this: Info about the current command Usage:bbuild
 #
 # Get information about the current running app.

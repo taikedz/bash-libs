@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: bincheck.sh @ %COMMITHASH%
 
 ### bincheck:get COMMANDS ... Usage:bbuild
 #
@@ -70,4 +70,3 @@ bincheck:path() {
 	
 	} || echo "$binname"
 }
-

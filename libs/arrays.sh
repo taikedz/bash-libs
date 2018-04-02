@@ -1,3 +1,5 @@
+##bash-libs: arrays.sh @ %COMMITHASH%
+
 ### Arrays Library Usage:bbuild
 #
 # Lib for handling array serialization

@@ -1,3 +1,5 @@
+##bash-libs: insertfile.sh @ %COMMITHASH%
+
 ### Insert file contents Usage:bbuild
 # 
 # insertfile LINE DESTFILE SOURCEFILE

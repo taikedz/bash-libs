@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: abspath.sh @ %COMMITHASH%
 
 ### abspath:path RELATIVEPATH [ MAX ] Usage:bbuild
 # Returns the absolute path of a file/directory

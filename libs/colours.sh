@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: colours.sh @ %COMMITHASH%
 
 ### Colours for bash Usage:bbuild
 # A series of colour flags for use in outputs.

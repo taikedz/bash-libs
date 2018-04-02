@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: isroot.sh @ %COMMITHASH%
 
 #%include out.sh
 

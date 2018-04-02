@@ -1,3 +1,5 @@
+##bash-libs: strings.sh @ %COMMITHASH%
+
 ### Strings library Usage:bbuild
 #
 # More advanced string manipulation functions.

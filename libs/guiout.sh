@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: guiout.sh @ %COMMITHASH%
 
 ### GUI Dialogs (guiout) Usage:bbuild
 # 

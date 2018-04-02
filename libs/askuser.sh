@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: askuser.sh @ %COMMITHASH%
 
 ### askuser Usage:bbuild
 # Present the user with questions on stderr
@@ -127,4 +127,3 @@ function askuser:choose {
 		fi
 	done
 }
-

@@ -1,3 +1,5 @@
+##bash-libs: osid.sh @ %COMMITHASH%
+
 ### OS ID Usage:bbuild
 #
 # Identify the operating system

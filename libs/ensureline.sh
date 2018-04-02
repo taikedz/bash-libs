@@ -1,3 +1,5 @@
+##bash-libs: ensureline.sh @ %COMMITHASH%
+
 ### ensureline Usage:bbuild
 #
 # Utility for manipulating config files (and other files where all similar lines need to match).

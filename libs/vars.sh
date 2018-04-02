@@ -1,3 +1,5 @@
+##bash-libs: vars.sh @ %COMMITHASH%
+
 ### Vars library Usage:bbuild
 #
 # Functions for checking variables

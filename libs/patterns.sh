@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: patterns.sh @ %COMMITHASH%
 
 ### Useful patterns Usage:bbuild
 #

@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: includefile.sh @ %COMMITHASH%
 
 #%bbtags w:deprecated w:use_includefile2
 
@@ -205,4 +205,3 @@ function includefile:isregistered {
 
 	return 1
 }
-

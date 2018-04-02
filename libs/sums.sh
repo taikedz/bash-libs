@@ -1,3 +1,5 @@
+##bash-libs: sums.sh @ %COMMITHASH%
+
 #%include out.sh
 
 ### hsum Usage:bbuild
@@ -76,4 +78,3 @@ hsum:sum() {
 	fi
 		
 }
-

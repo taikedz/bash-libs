@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: out.sh @ %COMMITHASH%
 
 #%include colours.sh
 

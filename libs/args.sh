@@ -1,3 +1,5 @@
+##bash-libs: args.sh @ %COMMITHASH%
+
 #%include patterns.sh
 
 ### args Usage:bbuild

@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: readkv.sh @ %COMMITHASH%
 
 ### Key Value Pair Reader Usage:bbuild
 #

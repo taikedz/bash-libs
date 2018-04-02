@@ -1,3 +1,5 @@
+##bash-libs: runmain.sh @ %COMMITHASH%
+
 ### runmain SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
 #
 # Runs the function FUNCTION with ARGUMENTS, only if the runtime

@@ -1,3 +1,5 @@
+##bash-libs: safe.sh @ %COMMITHASH%
+
 ### Safe mode Usage:bbuild
 #
 # Set safe mode options

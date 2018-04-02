@@ -1,4 +1,4 @@
-#!/bin/bash
+##bash-libs: varify.sh @ %COMMITHASH%
 
 ### Varify Usage:bbuild
 # Make a string into a valid variable name or file name

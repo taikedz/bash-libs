@@ -1,3 +1,5 @@
+##bash-libs: test.sh @ %COMMITHASH%
+
 #%include out.sh
 
 ### Tests library Usage:bbuild

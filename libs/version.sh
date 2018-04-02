@@ -1,3 +1,5 @@
+##bash-libs: version.sh @ %COMMITHASH%
+
 ### Version Tool Usage:bbuild
 #
 # Functions for handling version numbers.
