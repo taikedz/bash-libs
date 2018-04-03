@@ -38,13 +38,11 @@ includefile:process() {
 	cat "$target" > "$workfile"
 	
 	while includefile:_has_inclusion_line "$workfile"; do
-		includefile:_process_first_inclusion "$workfile" > "$dumpfile"
+		includefile:_process_first_inclusion "$workfile" > "$dumpfile" || return 1
 		cat "$dumpfile" > "$workfile"
 	done
 
 	cat "$workfile"
-
-	#rm "$workfile" "$dumpfile"
 }
 
 ### includefile:_process_first_inclusion TARGET Usage:internal
@@ -97,6 +95,7 @@ includefile:_cat_once() {
 
 		fullpath="$(searchpaths:file_from "$INCLUDEFILE_paths" "$item")"
 		if [[ -z "$fullpath" ]]; then
+			INCLUDEFILE_failed="$item"
 			return 1
 		fi
 		
