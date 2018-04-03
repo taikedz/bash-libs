@@ -23,7 +23,7 @@ export BUILDOUTD=/tmp
 export BBPATH=libs/
 
 items=0
-fails=0
+VER_fails=0
 : ${runtests=true}
 
 set_executable() {
@@ -56,7 +56,7 @@ run_build_test() {
 	local scriptname="$1"; shift
 
 	"$BBEXEC" ${bbflags:-} "$libscript" || {
-		fails=$((fails+1))
+		VER_fails=$((VER_fails+1))
 		continue
 	}
 }
@@ -70,8 +70,9 @@ run_unit_tests() {
 
 	if [[ -f "$testsfile" ]]; then
 		"$BBEXEC" "$testsfile"
-		MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || fails=$((fails+1))
+		MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
 	else
+		VER_fails=$((VER_fails+1))
 		out:warn "There is no $testsfile test file."
 	fi
 }
@@ -98,10 +99,10 @@ main() {
 	run_verification
 
 	echo -e "\n\n\n"
-	local endmsg="Verification --- Built $items items with $fails failures."
+	local endmsg="Verification --- Built $items items with $VER_fails failures."
 
-	if [[ "$fails" -gt 0 ]]; then
-		out:fail "$fails" "$endmsg"
+	if [[ "$VER_fails" -gt 0 ]]; then
+		out:fail "$VER_fails" "$endmsg"
 	else
 		out:info "$endmsg"
 	fi

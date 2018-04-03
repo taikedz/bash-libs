@@ -13,7 +13,7 @@
 #  that will be searched for wil then be "./tests/test-SOMEFILE"
 ###/doc
 
-#!/bin/bash
+##bash-libs: autohelp.sh @ d4f2e817-modified
 
 ### autohelp:print [ SECTION [FILE] ] Usage:bbuild
 # Write your help as documentation comments in your script
@@ -124,8 +124,57 @@ autohelp:check() {
 		exit 0
 	fi
 }
-#!/bin/bash
+##bash-libs: out.sh @ d4f2e817-modified
 
+##bash-libs: colours.sh @ d4f2e817-modified
+
+### Colours for bash Usage:bbuild
+# A series of colour flags for use in outputs.
+#
+# Example:
+# 	
+# 	echo -e "${CRED}Some red text ${CBBLU} some blue text $CDEF some text in the terminal's default colour")
+#
+# Requires processing of escape characters.
+#
+# Colours available:
+#
+# CRED, CBRED, HLRED -- red, bold red, highlight red
+# CGRN, CBGRN, HLGRN -- green, bold green, highlight green
+# CYEL, CBYEL, HLYEL -- yellow, bold yellow, highlight yellow
+# CBLU, CBBLU, HLBLU -- blue, bold blue, highlight blue
+# CPUR, CBPUR, HLPUR -- purple, bold purple, highlight purple
+# CTEA, CBTEA, HLTEA -- teal, bold teal, highlight teal
+#
+# CDEF -- switches to the terminal default
+# CUNL -- add underline
+#
+# Note that highlight and underline must be applied or re-applied after specifying a colour.
+#
+###/doc
+
+export CRED=$(echo -e "\033[0;31m")
+export CGRN=$(echo -e "\033[0;32m")
+export CYEL=$(echo -e "\033[0;33m")
+export CBLU=$(echo -e "\033[0;34m")
+export CPUR=$(echo -e "\033[0;35m")
+export CTEA=$(echo -e "\033[0;36m")
+
+export CBRED=$(echo -e "\033[1;31m")
+export CBGRN=$(echo -e "\033[1;32m")
+export CBYEL=$(echo -e "\033[1;33m")
+export CBBLU=$(echo -e "\033[1;34m")
+export CBPUR=$(echo -e "\033[1;35m")
+export CBTEA=$(echo -e "\033[1;36m")
+
+export HLRED=$(echo -e "\033[41m")
+export HLGRN=$(echo -e "\033[42m")
+export HLYEL=$(echo -e "\033[43m")
+export HLBLU=$(echo -e "\033[44m")
+export HLPUR=$(echo -e "\033[45m")
+export HLTEA=$(echo -e "\033[46m")
+
+export CDEF=$(echo -e "\033[0m")
 
 ### Console output handlers Usage:bbuild
 #
@@ -155,7 +204,7 @@ out:buffer_initialize
 ###/doc
 function out:debug {
 	if [[ "$MODE_DEBUG" = true ]]; then
-		echo -e "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
+		echo "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
 	fi
 }
 
@@ -182,14 +231,14 @@ function out:debug:fork {
 # print a green informational message to stderr
 ###/doc
 function out:info {
-	echo -e "$CGRN$*$CDEF" 1>&2
+	echo "$CGRN$*$CDEF" 1>&2
 }
 
 ### out:warn MESSAGE Usage:bbuild
 # print a yellow warning message to stderr
 ###/doc
 function out:warn {
-	echo -e "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
+	echo "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
 }
 
 ### out:defer MESSAGE Usage:bbuild
@@ -217,7 +266,7 @@ function out:defer {
 function out:flush {
 	[[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer[*]}"
 
-	[[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return
+	[[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return 0
 
 	for buffer_line in "${OUTPUT_BUFFER_defer[@]:1}"; do
 		"$@" "$buffer_line"
@@ -236,10 +285,10 @@ function out:fail {
 	local numpat='^[0-9]+$'
 
 	if [[ "$1" =~ $numpat ]]; then
-		ERCODE="$1"; shift
+		ERCODE="$1"; shift || :
 	fi
 
-	echo -e "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
+	echo "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
 	exit $ERCODE
 }
 
@@ -249,7 +298,7 @@ function out:fail {
 # unlike out:fail, does not cause script exit
 ###/doc
 function out:error {
-	echo -e "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
+	echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
 
 ### out:dump Usage:bbuild
@@ -263,10 +312,10 @@ function out:error {
 ###/doc
 
 function out:dump {
-	echo -e -n "${CBPUR}$*" 1>&2
-	echo -e -n "$CPUR" 1>&2
+	echo -n "${CBPUR}$*" 1>&2
+	echo -n "$CPUR" 1>&2
 	cat - 1>&2
-	echo -e -n "$CDEF" 1>&2
+	echo -n "$CDEF" 1>&2
 }
 
 ### out:break MESSAGE Usage:bbuild
@@ -285,9 +334,10 @@ function out:dump {
 ###/doc
 
 function out:break {
-	[[ "$MODE_DEBUG" = true ]] || return
+	[[ "$MODE_DEBUG" = true ]] || return 0
 
-	read -p "${CRED}BREAKPOINT: $* >$CDEF " >&2
+	echo -en "${CRED}BREAKPOINT: $* >$CDEF " >&2
+	read
 	if [[ "$REPLY" =~ quit|exit|stop ]]; then
 		out:fail "ABORT"
 	fi
@@ -296,55 +346,8 @@ function out:break {
 if [[ "$MODE_DEBUG_VERBOSE" = true ]]; then
 	set -x
 fi
-#!/bin/bash
+##bash-libs: runmain.sh @ d4f2e817-modified
 
-### Colours for bash Usage:bbuild
-# A series of colour flags for use in outputs.
-#
-# Example:
-# 	
-# 	echo -e "${CRED}Some red text ${CBBLU} some blue text $CDEF some text in the terminal's default colour"
-#
-# Requires processing of escape characters.
-#
-# Colours available:
-#
-# CRED, CBRED, HLRED -- red, bold red, highlight red
-# CGRN, CBGRN, HLGRN -- green, bold green, highlight green
-# CYEL, CBYEL, HLYEL -- yellow, bold yellow, highlight yellow
-# CBLU, CBBLU, HLBLU -- blue, bold blue, highlight blue
-# CPUR, CBPUR, HLPUR -- purple, bold purple, highlight purple
-# CTEA, CBTEA, HLTEA -- teal, bold teal, highlight teal
-#
-# CDEF -- switches to the terminal default
-# CUNL -- add underline
-#
-# Note that highlight and underline must be applied or re-applied after specifying a colour.
-#
-###/doc
-
-export CRED="\033[0;31m"
-export CGRN="\033[0;32m"
-export CYEL="\033[0;33m"
-export CBLU="\033[0;34m"
-export CPUR="\033[0;35m"
-export CTEA="\033[0;36m"
-
-export CBRED="\033[1;31m"
-export CBGRN="\033[1;32m"
-export CBYEL="\033[1;33m"
-export CBBLU="\033[1;34m"
-export CBPUR="\033[1;35m"
-export CBTEA="\033[1;36m"
-
-export HLRED="\033[41m"
-export HLGRN="\033[42m"
-export HLYEL="\033[43m"
-export HLBLU="\033[44m"
-export HLPUR="\033[45m"
-export HLTEA="\033[46m"
-
-export CDEF="\033[0m"
 ### runmain SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
 #
 # Runs the function FUNCTION with ARGUMENTS, only if the runtime
@@ -370,8 +373,8 @@ export CDEF="\033[0m"
 ###/doc
 
 function runmain {
-	local required_name="$1"; shift
-	local funcall="$1"; shift
+	local required_name="$1"; shift || :
+	local funcall="$1"; shift || :
 	local scriptname="$(basename "$0")"
 
 	if [[ "$required_name" = "$scriptname" ]]; then
@@ -384,7 +387,7 @@ export BUILDOUTD=/tmp
 export BBPATH=libs/
 
 items=0
-fails=0
+VER_fails=0
 : ${runtests=true}
 
 set_executable() {
@@ -417,7 +420,7 @@ run_build_test() {
 	local scriptname="$1"; shift
 
 	"$BBEXEC" ${bbflags:-} "$libscript" || {
-		fails=$((fails+1))
+		VER_fails=$((VER_fails+1))
 		continue
 	}
 }
@@ -431,8 +434,9 @@ run_unit_tests() {
 
 	if [[ -f "$testsfile" ]]; then
 		"$BBEXEC" "$testsfile"
-		MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || fails=$((fails+1))
+		MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
 	else
+		VER_fails=$((VER_fails+1))
 		out:warn "There is no $testsfile test file."
 	fi
 }
@@ -459,10 +463,10 @@ main() {
 	run_verification
 
 	echo -e "\n\n\n"
-	local endmsg="Verification --- Built $items items with $fails failures."
+	local endmsg="Verification --- Built $items items with $VER_fails failures."
 
-	if [[ "$fails" -gt 0 ]]; then
-		out:fail "$fails" "$endmsg"
+	if [[ "$VER_fails" -gt 0 ]]; then
+		out:fail "$VER_fails" "$endmsg"
 	else
 		out:info "$endmsg"
 	fi

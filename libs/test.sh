@@ -86,6 +86,7 @@ test:report() {
 	local reportcmd=out:info
 	if [[ "$TEST_testsran" -lt 1 ]]; then
 		reportcmd=out:warn
+		TEST_testfailurecount=1
 
 	elif [[ "$TEST_testfailurecount" -gt 0 ]]; then
 		reportcmd=out:error
