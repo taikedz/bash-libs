@@ -8,10 +8,10 @@ echo -e "1 one\n1 two\n1 three" > "$testdir/file1"
 echo "target-line" > "$testdir/file2"
 
 test_insert() {
-	local line="$1"; shift
-	local check="$1"; shift
+    local line="$1"; shift
+    local check="$1"; shift
 
-	[[ $(insertfile $line "$testdir/file1" "$testdir/file2" | grep "target-line" -n | cut -d: -f1) = $check ]]
+    [[ $(insertfile $line "$testdir/file1" "$testdir/file2" | grep "target-line" -n | cut -d: -f1) = $check ]]
 }
 
 test:require test_insert 0 1

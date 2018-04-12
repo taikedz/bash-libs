@@ -27,85 +27,85 @@ VER_fails=0
 : ${runtests=true}
 
 set_executable() {
-	if [[ -z "${BBEXEC:-}" ]]; then
-		export BBEXEC=bbuild
-	fi
+    if [[ -z "${BBEXEC:-}" ]]; then
+        export BBEXEC=bbuild
+    fi
 
-	if [[ ! -f "$BBEXEC" ]] && ! which "$BBEXEC" >/dev/null 2>/dev/null; then
-		out:fail 1 "Cannot use [$BBEXEC] to run builds - no such file or command"
-	fi
+    if [[ ! -f "$BBEXEC" ]] && ! which "$BBEXEC" >/dev/null 2>/dev/null; then
+        out:fail 1 "Cannot use [$BBEXEC] to run builds - no such file or command"
+    fi
 
-	out:info "Build using \`$BBEXEC\` command"
+    out:info "Build using \`$BBEXEC\` command"
 }
 
 set_targets() {
-	targets=(libs/*.sh)
+    targets=(libs/*.sh)
 
-	if [[ "$#" -gt 0 ]]; then
-		targets=("$@")
-	fi
+    if [[ "$#" -gt 0 ]]; then
+        targets=("$@")
+    fi
 }
 
 rmfile() {
-	[[ "${norm:-}" = true ]] && return || :
+    [[ "${norm:-}" = true ]] && return || :
 
-	rm "$@" || :
+    rm "$@" || :
 }
 
 run_build_test() {
-	local scriptname="$1"; shift
+    local scriptname="$1"; shift
 
-	"$BBEXEC" ${bbflags:-} "$libscript" || {
-		VER_fails=$((VER_fails+1))
-		continue
-	}
+    "$BBEXEC" ${bbflags:-} "$libscript" || {
+        VER_fails=$((VER_fails+1))
+        continue
+    }
 }
 
 run_unit_tests() {
-	[[ "${runtests:-}" = true ]] || return
+    [[ "${runtests:-}" = true ]] || return
 
-	local scriptname="$1"; shift
-	local testname="test-$scriptname"
-	local testsfile="tests/$testname"
+    local scriptname="$1"; shift
+    local testname="test-$scriptname"
+    local testsfile="tests/$testname"
 
-	if [[ -f "$testsfile" ]]; then
-		"$BBEXEC" "$testsfile"
-		MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
-	else
-		VER_fails=$((VER_fails+1))
-		out:warn "There is no $testsfile test file."
-	fi
+    if [[ -f "$testsfile" ]]; then
+        "$BBEXEC" "$testsfile"
+        MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
+    else
+        VER_fails=$((VER_fails+1))
+        out:warn "There is no $testsfile test file."
+    fi
 }
 
 run_verification() {
-	for libscript in "${targets[@]}"; do
-		local scriptname="$(basename "$libscript")"
+    for libscript in "${targets[@]}"; do
+        local scriptname="$(basename "$libscript")"
 
-		items=$((items+1))
+        items=$((items+1))
 
-		run_build_test "$scriptname"
+        run_build_test "$scriptname"
 
-		run_unit_tests "$scriptname"
+        run_unit_tests "$scriptname"
 
-		rmfile "/tmp/$scriptname"
-	done
+        rmfile "/tmp/$scriptname"
+    done
 }
 
 main() {
-	autohelp:check "$@"
+    autohelp:check "$@"
 
-	set_executable
-	set_targets "$@"
-	run_verification
+    set_executable
+    set_targets "$@"
+    run_verification
 
-	echo -e "\n\n\n"
-	local endmsg="Verification --- Built $items items with $VER_fails failures."
+    echo -e "\n\n\n"
+    local endmsg="Verification --- Built $items items with $VER_fails failures."
 
-	if [[ "$VER_fails" -gt 0 ]]; then
-		out:fail "$VER_fails" "$endmsg"
-	else
-		out:info "$endmsg"
-	fi
+    if [[ "$VER_fails" -gt 0 ]]; then
+        out:fail "$VER_fails" "$endmsg"
+    else
+        out:info "$endmsg"
+    fi
 }
 
 time runmain verify.sh main "$@"

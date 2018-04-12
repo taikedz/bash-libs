@@ -24,96 +24,96 @@ set -euo pipefail
 ###/doc
 
 function abspath:path {
-	local workpath="$1" ; shift || :
-	local max="${1:-50}" ; shift || :
+    local workpath="$1" ; shift || :
+    local max="${1:-50}" ; shift || :
 
-	if [[ "${workpath:0:1}" != "/" ]]; then workpath="$PWD/$workpath"; fi
+    if [[ "${workpath:0:1}" != "/" ]]; then workpath="$PWD/$workpath"; fi
 
-	workpath="$(abspath:collapse "$workpath")"
-	abspath:resolve_dotdot "$workpath" "$max" | sed -r 's|(.)/$|\1|'
+    workpath="$(abspath:collapse "$workpath")"
+    abspath:resolve_dotdot "$workpath" "$max" | sed -r 's|(.)/$|\1|'
 }
 
 function abspath:collapse {
-	echo "$1" | sed -r 's|/\./|/|g ; s|/\.$|| ; s|/+|/|g'
+    echo "$1" | sed -r 's|/\./|/|g ; s|/\.$|| ; s|/+|/|g'
 }
 
 function abspath:resolve_dotdot {
-	local workpath="$1"; shift || :
-	local max="$1"; shift || :
+    local workpath="$1"; shift || :
+    local max="$1"; shift || :
 
-	# Set a limit on how many iterations to perform
-	# Only very obnoxious paths should fail
-	for x in $(seq 1 $max); do
-		# No more dot-dots - good to go
-		if [[ ! "$workpath" =~ /\.\.(/|$) ]]; then
-			echo "$workpath"
-			return 0
-		fi
+    # Set a limit on how many iterations to perform
+    # Only very obnoxious paths should fail
+    for x in $(seq 1 $max); do
+        # No more dot-dots - good to go
+        if [[ ! "$workpath" =~ /\.\.(/|$) ]]; then
+            echo "$workpath"
+            return 0
+        fi
 
-		# Starts with an up-one at root - unresolvable
-		if [[ "$workpath" =~ ^/\.\.(/|$) ]]; then
-			return 1
-		fi
+        # Starts with an up-one at root - unresolvable
+        if [[ "$workpath" =~ ^/\.\.(/|$) ]]; then
+            return 1
+        fi
 
-		workpath="$(echo "$workpath"|sed -r 's@[^/]+/\.\.(/|$)@@')"
-	done
+        workpath="$(echo "$workpath"|sed -r 's@[^/]+/\.\.(/|$)@@')"
+    done
 
-	# A very obnoxious path was used.
-	return 2
+    # A very obnoxious path was used.
+    return 2
 }
 # ===========================================================================
 
 tarsh:unpack() {
-	trap tarsh:cleanup EXIT SIGINT
+    trap tarsh:cleanup EXIT SIGINT
 
-	if [[ "$TSH_D" != /tmp ]] && [[ -d "$TARSH_unpackdir" ]]; then
-		# not an auto-cleaning dir
-		# and some version exists
-		return
-	fi
+    if [[ "$TSH_D" != /tmp ]] && [[ -d "$TARSH_unpackdir" ]]; then
+        # not an auto-cleaning dir
+        # and some version exists
+        return
+    fi
 
-	mkdir -p "$TARSH_unpackdir"
+    mkdir -p "$TARSH_unpackdir"
 
-	hashline=$(egrep --binary-files=text -n "^$TARSH_binhash$" "$0" | cut -d: -f1)
+    hashline=$(egrep --binary-files=text -n "^$TARSH_binhash$" "$0" | cut -d: -f1)
 
-	tail -n +"$((hashline + 1))" "$0" | tar xz -C "$TARSH_unpackdir"
+    tail -n +"$((hashline + 1))" "$0" | tar xz -C "$TARSH_unpackdir"
 }
 
 tarsh:run() {
-	PATH="$TARSH_unpackdir/bin:$PATH" TARWD="$TARSH_unpackdir" "$TARSH_unpackdir/bin/main.sh" "$@"
+    PATH="$TARSH_unpackdir/bin:$PATH" TARWD="$TARSH_unpackdir" "$TARSH_unpackdir/bin/main.sh" "$@"
 }
 
 tarsh:cleanup() {
-	if [[ -d "$TARSH_unpackdir" ]] && [[ "$TSH_D" = ./ ]] && [[ "${TARSH_noclean:-}" != true ]]; then
-		rm -r "$TARSH_unpackdir"
-	fi
+    if [[ -d "$TARSH_unpackdir" ]] && [[ "$TSH_D" = ./ ]] && [[ "${TARSH_noclean:-}" != true ]]; then
+        rm -r "$TARSH_unpackdir"
+    fi
 }
 
 tarsh:modecheck() {
-	if [[ "${1:-}" = ":unpack" ]]; then
-		tarsh:unpack
-		TARSH_noclean=true
-		exit
-	fi
+    if [[ "${1:-}" = ":unpack" ]]; then
+        tarsh:unpack
+        TARSH_noclean=true
+        exit
+    fi
 }
 
 tarsh:set_unpack_destination() {
-	: ${TSH_D=./}
+    : ${TSH_D=./}
 }
 
 main() {
 
-	tarsh:set_unpack_destination
+    tarsh:set_unpack_destination
 
-	TARSH_binhash="%TARSH_ID%"
+    TARSH_binhash="%TARSH_ID%"
 
-	TARSH_unpackdir="$(abspath:path "$TSH_D/$(basename "$0")-$TARSH_binhash.d")"
+    TARSH_unpackdir="$(abspath:path "$TSH_D/$(basename "$0")-$TARSH_binhash.d")"
 
-	tarsh:modecheck "$@"
+    tarsh:modecheck "$@"
 
-	tarsh:unpack
+    tarsh:unpack
 
-	tarsh:run "$@"
+    tarsh:run "$@"
 
 }
 

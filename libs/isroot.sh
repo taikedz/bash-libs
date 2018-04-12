@@ -9,7 +9,7 @@
 ###/doc
 
 function isroot {
-	[[ "$UID" = 0 ]] || isroot:cygwin
+    [[ "$UID" = 0 ]] || isroot:cygwin
 }
 
 ### isroot:cygwin Usage:bbuild
@@ -21,7 +21,7 @@ function isroot {
 ###/doc
 
 function isroot:cygwin {
-	uname -o | grep -i cygwin -q
+    uname -o | grep -i cygwin -q
 }
 
 ### isroot:require MESSAGE Usage:bbuild
@@ -29,5 +29,5 @@ function isroot:cygwin {
 # print message and exit
 ###/doc
 function isroot:require {
-	isroot || out:fail "$*"
+    isroot || out:fail "$*"
 }

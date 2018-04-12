@@ -6,22 +6,22 @@ mkdir -p "$testdir"
 rline="replacement line"
 
 init_test_file() {
-	tf="$testdir/targetfile"
+    tf="$testdir/targetfile"
 
-	echo -e "One\nTwo\n#Three\nFour" > "$tf"
+    echo -e "One\nTwo\n#Three\nFour" > "$tf"
 }
 
 ecount() {
-	local pattern="$1"; shift
-	local count="$1"; shift
+    local pattern="$1"; shift
+    local count="$1"; shift
 
-	ensureline "$tf" "$pattern" "$rline"
-	cat "$tf"
-	[[ $(grep "$rline" "$tf" -c) = $count ]]
+    ensureline "$tf" "$pattern" "$rline"
+    cat "$tf"
+    [[ $(grep "$rline" "$tf" -c) = $count ]]
 }
 
 islast() {
-	ecount "$1" 1 && [[ $(tail -n 1 "$tf") = "$rline" ]]
+    ecount "$1" 1 && [[ $(tail -n 1 "$tf") = "$rline" ]]
 }
 
 init_test_file

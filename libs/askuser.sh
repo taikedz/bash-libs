@@ -19,12 +19,12 @@ blankpat='^ *$'
 # returns 1 otherwise
 ###/doc
 function askuser:confirm {
-	read -p "$* [y/N] > " 1>&2
-	if [[ "$REPLY" =~ $yespat ]]; then
-		return 0
-	else
-		return 1
-	fi
+    read -p "$* [y/N] > " 1>&2
+    if [[ "$REPLY" =~ $yespat ]]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 ### askuser:ask Usage:bbuild
@@ -33,8 +33,8 @@ function askuser:confirm {
 # Echoes out the entered text
 ###/doc
 function askuser:ask {
-	read -p "$* : " 1>&2
-	echo "$REPLY"
+    read -p "$* : " 1>&2
+    echo "$REPLY"
 }
 
 ### askuser:password Usage:bbuild
@@ -43,8 +43,8 @@ function askuser:ask {
 # Echoes out the entered text
 ###/doc
 function askuser:password {
-	read -s -p "$* : " 1>&2
-	echo "$REPLY"
+    read -s -p "$* : " 1>&2
+    echo "$REPLY"
 }
 
 ### askuser:choose_multi Usage:bbuild
@@ -77,30 +77,30 @@ function askuser:password {
 # If the user selects nothing, then function returns 1 and an empty stdout
 ###/doc
 function askuser:choose_multi {
-	local mesg=$1; shift || :
-	local choices=$(echo "$*"|sed -r 's/ *, */\n/g')
-	out:debug "CHOICES: $choices"
+    local mesg=$1; shift || :
+    local choices=$(echo "$*"|sed -r 's/ *, */\n/g')
+    out:debug "CHOICES: $choices"
 
-	out:info "$mesg:" 
-	local choicelist="$(echo -e "$choices"|egrep '^' -n| sed 's/:/: /')"
-	echo "$choicelist" 1>&2
-	
-	local sel=$(askuser:ask "Choice")
-	if [[ "$sel" =~ $blankpat ]]; then
-		return 1
+    out:info "$mesg:" 
+    local choicelist="$(echo -e "$choices"|egrep '^' -n| sed 's/:/: /')"
+    echo "$choicelist" 1>&2
+    
+    local sel=$(askuser:ask "Choice")
+    if [[ "$sel" =~ $blankpat ]]; then
+        return 1
 
-	elif [[ "$sel" =~ $numpat ]] || [[ "$sel" =~ $rangepat ]]; then
-		out:debug "Number choice [$sel]"
-		echo -e "$choices" | sed -n "$sel p"
-	
-	elif [[ "$sel" =~ $listpat ]]; then
-		echo "$choicelist" | egrep "^${sel// /|}:" | sed -r 's/^[0-9]+: //'
+    elif [[ "$sel" =~ $numpat ]] || [[ "$sel" =~ $rangepat ]]; then
+        out:debug "Number choice [$sel]"
+        echo -e "$choices" | sed -n "$sel p"
+    
+    elif [[ "$sel" =~ $listpat ]]; then
+        echo "$choicelist" | egrep "^${sel// /|}:" | sed -r 's/^[0-9]+: //'
 
-	else
-		out:debug "Pattern choice [$sel]"
-		echo -e "$choices"  |egrep "$(echo "$sel"|tr " " '|')"
-	fi
-	return 0
+    else
+        out:debug "Pattern choice [$sel]"
+        echo -e "$choices"  |egrep "$(echo "$sel"|tr " " '|')"
+    fi
+    return 0
 }
 
 ### askuser:choose Usage:bbuild
@@ -113,17 +113,17 @@ function askuser:choose_multi {
 # If the user chooses one item, that item is echoed to stdout
 ###/doc
 function askuser:choose {
-	local mesg=$1; shift || :
-	while true; do
-		local thechoice="$(askuser:choose_multi "$mesg" "$*")"
-		local lines=$(echo -n "$thechoice" | grep '$' -c)
-		if [[ $lines = 1 ]]; then
-			echo "$thechoice"
-			return 0
-		elif [[ $lines = 0 ]]; then
-			return 1
-		else
-			out:warn "Too many results"
-		fi
-	done
+    local mesg=$1; shift || :
+    while true; do
+        local thechoice="$(askuser:choose_multi "$mesg" "$*")"
+        local lines=$(echo -n "$thechoice" | grep '$' -c)
+        if [[ $lines = 1 ]]; then
+            echo "$thechoice"
+            return 0
+        elif [[ $lines = 0 ]]; then
+            return 1
+        else
+            out:warn "Too many results"
+        fi
+    done
 }

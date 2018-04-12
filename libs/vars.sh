@@ -14,29 +14,29 @@
 #
 # Returns the number of missing variables.
 #
-#	myvarA=one
-#	myvarB=
-#	myvarC=three
+#    myvarA=one
+#    myvarB=
+#    myvarC=three
 #
-#	missing="$(vars:require myvarA myvarB myvarC)"
+#    missing="$(vars:require myvarA myvarB myvarC)"
 #
-#	if [[ -n "$missing" ]]; then
-#		out:fail "Variables were not set : [$missing]"
-#	fi
+#    if [[ -n "$missing" ]]; then
+#        out:fail "Variables were not set : [$missing]"
+#    fi
 #
 ###/doc
 
 vars:require() {
-	local missing=(:)
+    local missing=(:)
 
-	for varname in "$@"; do
-		echo "[[ -n "\$$varname" ]]" | bash || {
-			missing[${#missing[@]}]="$varname"
-		}
-	done
+    for varname in "$@"; do
+        echo "[[ -n "\$$varname" ]]" | bash || {
+            missing[${#missing[@]}]="$varname"
+        }
+    done
 
-	missing=("${missing[@]:1}")
+    missing=("${missing[@]:1}")
 
-	echo "${missing[*]}"
-	return "${#missing[@]}"
+    echo "${missing[*]}"
+    return "${#missing[@]}"
 }

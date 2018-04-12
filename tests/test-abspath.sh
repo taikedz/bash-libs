@@ -1,25 +1,25 @@
 #%include test.sh abspath.sh
 
 test_path() {
-	local result="$1"; shift
+    local result="$1"; shift
 
-	local got="$(abspath:path "$@")"
+    local got="$(abspath:path "$@")"
 
-	echo "$got"
+    echo "$got"
 
-	[[ "$got" = "$result" ]]
+    [[ "$got" = "$result" ]]
 }
 
 test_py() {
-	out:info "  test abspath:path"
-	time for x in {1..1000}; do
-		abspath:path . >/dev/null
-	done
+    out:info "  test abspath:path"
+    time for x in {1..1000}; do
+        abspath:path . >/dev/null
+    done
 
-	out:info "  test python"
-	time for x in {1..1000}; do
-		python -c "import os; os.path.abspath('.')"
-	done
+    out:info "  test python"
+    time for x in {1..1000}; do
+        python -c "import os; os.path.abspath('.')"
+    done
 }
 
 test:require test_path "$PWD"                       ""

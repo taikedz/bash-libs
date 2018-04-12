@@ -19,18 +19,18 @@
 ###/doc
 
 bincheck:get() {
-	local BINEXE=
-	for binname in "$@"; do
-		# Some implementations of `which` print error messages
-		# Not useful here.
-		BINEXE=$(which "$binname" 2>/dev/null)
+    local BINEXE=
+    for binname in "$@"; do
+        # Some implementations of `which` print error messages
+        # Not useful here.
+        BINEXE=$(which "$binname" 2>/dev/null)
 
-		if [[ -n "$BINEXE" ]]; then
-			echo "$BINEXE"
-			return 0
-		fi
-	done
-	return 1
+        if [[ -n "$BINEXE" ]]; then
+            echo "$BINEXE"
+            return 0
+        fi
+    done
+    return 1
 }
 
 ### bincheck:has NAMES ... Usage:bbuild
@@ -40,7 +40,7 @@ bincheck:get() {
 ###/doc
 
 bincheck:has() {
-	[[ -n "$(bincheck:get "$@")" ]]
+    [[ -n "$(bincheck:get "$@")" ]]
 }
 
 ### bincheck:path NAME Usage:bbuild
@@ -52,21 +52,21 @@ bincheck:has() {
 ###/doc
 
 bincheck:path() {
-	local binname="$1"; shift || :
+    local binname="$1"; shift || :
 
-	[[ "$binname" =~ / ]] && { 
-		# A relative path cannot be resolved, just check existence
-		[[ -e "$binname" ]] && echo "$binname" || return 1
+    [[ "$binname" =~ / ]] && { 
+        # A relative path cannot be resolved, just check existence
+        [[ -e "$binname" ]] && echo "$binname" || return 1
 
-	} || binname="$(which "$binname" 2>/dev/null)"
+    } || binname="$(which "$binname" 2>/dev/null)"
 
-	# `which` failed
-	[[ -n "$binname" ]] || return 1
+    # `which` failed
+    [[ -n "$binname" ]] || return 1
 
-	[[ -h "$binname" ]] && {
+    [[ -h "$binname" ]] && {
 
-		local pointedname="$(ls -l "$binname"|grep -oP "$binname.+"|sed "s|$binname -> ||")"
-		bincheck:path "$pointedname" ; return "$?"
-	
-	} || echo "$binname"
+        local pointedname="$(ls -l "$binname"|grep -oP "$binname.+"|sed "s|$binname -> ||")"
+        bincheck:path "$pointedname" ; return "$?"
+    
+    } || echo "$binname"
 }

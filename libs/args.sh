@@ -32,53 +32,53 @@
 ###/doc
 
 function args:get {
-	local seek="$1"; shift || :
+    local seek="$1"; shift || :
 
-	if [[ "$seek" =~ $PAT_num ]]; then
-		local arguments=("$@")
+    if [[ "$seek" =~ $PAT_num ]]; then
+        local arguments=("$@")
 
-		# Get the index starting at 1
-		local n=$((seek-1))
-		# but do not affect wrap-arounds
-		[[ "$n" -ge 0 ]] || n=$((n+1))
+        # Get the index starting at 1
+        local n=$((seek-1))
+        # but do not affect wrap-arounds
+        [[ "$n" -ge 0 ]] || n=$((n+1))
 
-		echo "${arguments[$n]}"
+        echo "${arguments[$n]}"
 
-	elif [[ "$seek" =~ ^--.+ ]]; then
-		args:get_long "$seek" "$@"
+    elif [[ "$seek" =~ ^--.+ ]]; then
+        args:get_long "$seek" "$@"
 
-	elif [[ "$seek" =~ ^-[a-zA-Z0-9]$ ]]; then
-		args:get_short "$seek" "$@"
+    elif [[ "$seek" =~ ^-[a-zA-Z0-9]$ ]]; then
+        args:get_short "$seek" "$@"
 
-	else
-		return 1
-	fi
+    else
+        return 1
+    fi
 }
 
 function args:get_short {
-	local token="$1"; shift || :
-	while [[ -n "$*" ]]; do
-		local item="$1"; shift || :
+    local token="$1"; shift || :
+    while [[ -n "$*" ]]; do
+        local item="$1"; shift || :
 
-		if [[ "$item" = "$token" ]]; then
-			echo "$1"
-			return 0
-		fi
-	done
-	return 1
+        if [[ "$item" = "$token" ]]; then
+            echo "$1"
+            return 0
+        fi
+    done
+    return 1
 }
 
 function args:get_long {
-	local token="$1"; shift || :
-	local tokenpat="^$token=(.*)$"
+    local token="$1"; shift || :
+    local tokenpat="^$token=(.*)$"
 
-	for item in "$@"; do
-		if [[ "$item" =~ $tokenpat ]]; then
-			echo "${BASH_REMATCH[1]}"
-			return 0
-		fi
-	done
-	return 1
+    for item in "$@"; do
+        if [[ "$item" =~ $tokenpat ]]; then
+            echo "${BASH_REMATCH[1]}"
+            return 0
+        fi
+    done
+    return 1
 }
 
 ### args:has TOKEN ARGS ... Usage:bbuild
@@ -102,20 +102,20 @@ function args:get_long {
 ###/doc
 
 function args:has {
-	local token="$1"; shift || :
-	for item in "$@"; do
-		if [[ "$token" = "$item" ]]; then
-			return 0
-		fi
-	done
-	return 1
+    local token="$1"; shift || :
+    for item in "$@"; do
+        if [[ "$token" = "$item" ]]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
 ### args:after TOKEN ARGS ... Usage:bbuild
 #
 # Return all tokens after TOKEN via the RETARR_ARGSAFTER
 #
-#	myargs=(one two -- three "four and" five)
+#    myargs=(one two -- three "four and" five)
 # 	args:after -- "${myargs[@]}"
 #
 # 	for a in "${RETARR_ARGSAFTER}"; do
@@ -131,12 +131,12 @@ function args:has {
 ###/doc
 
 function args:after {
-	local token="$1"; shift || :
-	
-	local current_token="$1"; shift || :
-	while [[ "$#" -gt 0 ]] && [[ "$current_token" != "$token" ]]; do
-		current_token="$1"; shift || :
-	done
+    local token="$1"; shift || :
+    
+    local current_token="$1"; shift || :
+    while [[ "$#" -gt 0 ]] && [[ "$current_token" != "$token" ]]; do
+        current_token="$1"; shift || :
+    done
 
-	RETARR_ARGSAFTER=("$@")
+    RETARR_ARGSAFTER=("$@")
 }

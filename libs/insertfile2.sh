@@ -11,11 +11,11 @@
 ###/doc
 
 function insertfile {
-	local line="$1"
-	local destfile="$2"
-	local sourcefile="$3"
+    local line="$1"
+    local destfile="$2"
+    local sourcefile="$3"
 
-	head -n "$line" "$destfile"
-	cat "$sourcefile"
-	tail -n +"$((line + 1))" "$destfile"
+    head -n "$line" "$destfile"
+    cat "$sourcefile"
+    tail -n +"$((line + 1))" "$destfile"
 }

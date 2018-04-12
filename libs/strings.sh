@@ -13,24 +13,24 @@
 ###/doc
 
 strings:join() {
-	# joiner can be any string
-	local joiner="$1"; shift || :
+    # joiner can be any string
+    local joiner="$1"; shift || :
 
-	# so we use an array to collect the token parts
-	local destring=(:)
+    # so we use an array to collect the token parts
+    local destring=(:)
 
-	for token in "$@"; do
-		destring[${#destring[@]}]="$joiner"
-		destring[${#destring[@]}]="$token"
-	done
+    for token in "$@"; do
+        destring[${#destring[@]}]="$joiner"
+        destring[${#destring[@]}]="$token"
+    done
 
-	local finalstring=""
-	# first remove holder token and initial join token
-	#   before iterating
-	for item in "${destring[@]:2}"; do
-		finalstring="${finalstring}${item}"
-	done
-	echo "$finalstring"
+    local finalstring=""
+    # first remove holder token and initial join token
+    #   before iterating
+    for item in "${destring[@]:2}"; do
+        finalstring="${finalstring}${item}"
+    done
+    echo "$finalstring"
 }
 
 ### strings:split SPLITTER STRING Usage:bbuild
@@ -42,21 +42,21 @@ strings:join() {
 ###/doc
 
 strings:split() {
-	local splitter="$1"; shift || :
-	local string_to_split="$1"; shift || :
+    local splitter="$1"; shift || :
+    local string_to_split="$1"; shift || :
 
-	local items=("")
+    local items=("")
 
-	while [[ -n "$string_to_split" ]]; do
-		if [[ ! "$string_to_split" =~ "${splitter}" ]]; then
-			items[${#items[@]}]="$string_to_split"
-			break
-		fi
+    while [[ -n "$string_to_split" ]]; do
+        if [[ ! "$string_to_split" =~ "${splitter}" ]]; then
+            items[${#items[@]}]="$string_to_split"
+            break
+        fi
 
-		local token="$(echo "$string_to_split"|sed -r "s${splitter}.*$")"
-		items[${#items[@]}]="$token"
-		string_to_split="$(echo "$string_to_split"|sed "s^${token}${splitter}")"
-	done
+        local token="$(echo "$string_to_split"|sed -r "s${splitter}.*$")"
+        items[${#items[@]}]="$token"
+        string_to_split="$(echo "$string_to_split"|sed "s^${token}${splitter}")"
+    done
 
-	STRINGS_ARR_SPLITS=("${items[@]:1}")
+    STRINGS_ARR_SPLITS=("${items[@]:1}")
 }

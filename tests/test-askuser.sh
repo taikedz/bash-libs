@@ -1,28 +1,28 @@
 #%include test.sh askuser.sh
 
 test_input() {
-	local input="$1"; shift
+    local input="$1"; shift
 
-	echo "$input" | "$@" 
+    echo "$input" | "$@" 
 }
 
 test_input_response() {
-	local expect="$1"; shift
+    local expect="$1"; shift
 
-	local response="$(test_input "$@" "choice" "$choice_list" 2>/dev/null)"
+    local response="$(test_input "$@" "choice" "$choice_list" 2>/dev/null)"
 
-	echo "$response"
+    echo "$response"
 
-	[[ "$expect" = "$response" ]]
+    [[ "$expect" = "$response" ]]
 }
 
 test_input_return() {
-	local expect_res="$1"; shift
+    local expect_res="$1"; shift
 
-	test_input "$@" "choice" "$choice_list" 2>/dev/null
-	local res="$?"
+    test_input "$@" "choice" "$choice_list" 2>/dev/null
+    local res="$?"
 
-	[[ "$res" = "$expect_res" ]]
+    [[ "$res" = "$expect_res" ]]
 }
 
 choice_1="Alice Alisson"

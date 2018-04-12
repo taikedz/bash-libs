@@ -49,9 +49,9 @@ LOG_LEVEL_DEBUG=3
 
 # Handily determine that the minimal level threshold is met
 function log:islevel {
-	local req_level="$1"; shift || :
+    local req_level="$1"; shift || :
 
-	[[ "$LOG_LEVEL" -ge "$req_level" ]]
+    [[ "$LOG_LEVEL" -ge "$req_level" ]]
 }
 
 ### log:get_level ARGS ... Usage:bbuild
@@ -75,26 +75,26 @@ function log:islevel {
 ###/doc
 
 function log:get_level {
-	local level="$(args:get --log "$@")"
+    local level="$(args:get --log "$@")"
 
-	if [[ -z "$level" ]]; then
-		return 0
-	fi
+    if [[ -z "$level" ]]; then
+        return 0
+    fi
 
-	case "$level" in
-	0|fail)
-		LOG_LEVEL="$LOG_LEVEL_FAIL" ;;
-	1|warn)
-		LOG_LEVEL="$LOG_LEVEL_WARN" ;;
-	2|info)
-		LOG_LEVEL="$LOG_LEVEL_INFO" ;;
-	3|debug)
-		LOG_LEVEL="$LOG_LEVEL_DEBUG" ;;
-	*)
-		return 1
-	esac
+    case "$level" in
+    0|fail)
+        LOG_LEVEL="$LOG_LEVEL_FAIL" ;;
+    1|warn)
+        LOG_LEVEL="$LOG_LEVEL_WARN" ;;
+    2|info)
+        LOG_LEVEL="$LOG_LEVEL_INFO" ;;
+    3|debug)
+        LOG_LEVEL="$LOG_LEVEL_DEBUG" ;;
+    *)
+        return 1
+    esac
 
-	return 0
+    return 0
 }
 
 ### log:use_file LOGFILE Usage:bbuild
@@ -103,27 +103,27 @@ function log:get_level {
 # If this fails, log is sent to stderr and code 1 is returned
 ###/doc
 function log:use_file {
-	local target_file="$1"; shift || :
-	local standard_outputs="/dev/(stdout|stderr)"
-	local res=0
+    local target_file="$1"; shift || :
+    local standard_outputs="/dev/(stdout|stderr)"
+    local res=0
 
-	if [[ ! "$target_file" =~ $standard_outputs ]]; then
+    if [[ ! "$target_file" =~ $standard_outputs ]]; then
 
-		echo "$LOGENTITY $(date +"%F %T") Selecting log file" >> "$target_file" || {
-			res=1
-			local msg="Could not set the log file to [$target_file] ; moving to stderr"
+        echo "$LOGENTITY $(date +"%F %T") Selecting log file" >> "$target_file" || {
+            res=1
+            local msg="Could not set the log file to [$target_file] ; moving to stderr"
 
-			if [[ "$BBLOGFILE" != /dev/stderr ]]; then
-				# leave a trace of this in the last log file
-				log:warn "$msg" || :
-			fi
+            if [[ "$BBLOGFILE" != /dev/stderr ]]; then
+                # leave a trace of this in the last log file
+                log:warn "$msg" || :
+            fi
 
-			export BBLOGFILE=/dev/stderr
-			log:warn "$msg"
-		}
-	fi
-	export BBLOGFILE="$target_file"
-	return $res
+            export BBLOGFILE=/dev/stderr
+            log:warn "$msg"
+        }
+    fi
+    export BBLOGFILE="$target_file"
+    return $res
 }
 
 ### log:use_cwd Usage:bbuild
@@ -133,8 +133,8 @@ function log:use_file {
 # If could not log in a local file, falls back to stderr and returns code 1
 ###/doc
 function log:use_cwd {
-	log:use_file "$PWD/$LOGENTITY.log"
-	return "$?"
+    log:use_file "$PWD/$LOGENTITY.log"
+    return "$?"
 }
 
 ### log:use_var Usage:bbuild
@@ -149,28 +149,28 @@ function log:use_cwd {
 # Returns code 1 if location in /var/log could not be used
 ###/doc
 function log:use_var {
-	local logdir="/var/log/$LOGENTITY"
-	local logfile="$(whoami)-$UID-$HOSTNAME.log"
-	local tgtlog="$logdir/$logfile"
+    local logdir="/var/log/$LOGENTITY"
+    local logfile="$(whoami)-$UID-$HOSTNAME.log"
+    local tgtlog="$logdir/$logfile"
 
-	(mkdir -p "$logdir" && touch "$tgtlog") || {
-		out:warn "Could not create [$logfile] in [$logdir] - logging locally"
-		log:use_cwd
-		return 1
-	}
+    (mkdir -p "$logdir" && touch "$tgtlog") || {
+        out:warn "Could not create [$logfile] in [$logdir] - logging locally"
+        log:use_cwd
+        return 1
+    }
 
-	log:use_file "$tgtlog"
+    log:use_file "$tgtlog"
 }
 
 ### log:debug MESSAGE Usage:bbuild
 # Print a debug message to the log
 ###/doc
 function log:debug {
-	log:islevel "$LOG_LEVEL_DEBUG" || return 0
+    log:islevel "$LOG_LEVEL_DEBUG" || return 0
 
-	if [[ "$MODE_DEBUG" = yes ]]; then
-		echo -e "$LOGENTITY $(date "+%F %T") DEBUG: $*" >>"$BBLOGFILE"
-	fi
+    if [[ "$MODE_DEBUG" = yes ]]; then
+        echo -e "$LOGENTITY $(date "+%F %T") DEBUG: $*" >>"$BBLOGFILE"
+    fi
 }
 
 ### log:debug:fork [MARKER] Usage:bbuild
@@ -183,41 +183,41 @@ function log:debug {
 #
 ###/doc
 function log:debug:fork {
-	if log:islevel "$LOG_LEVEL_DEBUG"; then
-		local MARKER="${1:-PIPEDUMP}"; shift || :
-		MARKER="$(date "+%F %T") $MARKER :"
+    if log:islevel "$LOG_LEVEL_DEBUG"; then
+        local MARKER="${1:-PIPEDUMP}"; shift || :
+        MARKER="$(date "+%F %T") $MARKER :"
 
-		cat - | sed -r "s/^/$MARKER/" | tee -a "$BBLOGFILE"
-	else
-		cat -
-	fi
+        cat - | sed -r "s/^/$MARKER/" | tee -a "$BBLOGFILE"
+    else
+        cat -
+    fi
 }
 
 ### log:info MESSAGE Usage:bbuild
 # print an informational message to the log
 ###/doc
 function log:info {
-	log:islevel "$LOG_LEVEL_INFO" || return 0
+    log:islevel "$LOG_LEVEL_INFO" || return 0
 
-	echo -e "$LOGENTITY $(date "+%F %T") INFO: $*" >>"$BBLOGFILE"
+    echo -e "$LOGENTITY $(date "+%F %T") INFO: $*" >>"$BBLOGFILE"
 }
 
 ### log:warn MESSAGE Usage:bbuild
 # print a warning message to the log
 ###/doc
 function log:warn {
-	log:islevel "$LOG_LEVEL_WARN" || return 0
+    log:islevel "$LOG_LEVEL_WARN" || return 0
 
-	echo -e "$LOGENTITY $(date "+%F %T") WARN: $*" >>"$BBLOGFILE"
+    echo -e "$LOGENTITY $(date "+%F %T") WARN: $*" >>"$BBLOGFILE"
 }
 
 ### log:fail [CODE] MESSAGE Usage:bbuild
 # print a failure-level message to the log
 ###/doc
 function log:fail {
-	log:islevel "$LOG_LEVEL_FAIL" || return 0
+    log:islevel "$LOG_LEVEL_FAIL" || return 0
 
-	echo "$LOGENTITY $(date "+%F %T") FAIL: $*" >>"$BBLOGFILE"
+    echo "$LOGENTITY $(date "+%F %T") FAIL: $*" >>"$BBLOGFILE"
 }
 
 ### log:dump Usage:bbuild
@@ -233,7 +233,7 @@ function log:fail {
 ###/doc
 
 function log:dump {
-	log:debug "$* -------------¬"
-	log:debug "$(cat -)"
-	log:debug "______________/"
+    log:debug "$* -------------¬"
+    log:debug "$(cat -)"
+    log:debug "______________/"
 }

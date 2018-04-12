@@ -3,11 +3,11 @@
 # This is stupid....
 
 expect_ok() {
-	"$@" | grep ' OK '
+    "$@" | grep ' OK '
 }
 
 expect_fail() {
-	"$@" | grep 'FAIL'
+    "$@" | grep 'FAIL'
 }
 
 test:require true

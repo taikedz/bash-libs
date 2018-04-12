@@ -4,31 +4,31 @@
 #TODO further tests required around out:break and out:dump
 
 test_out() {
-	local expect="$1"; shift
+    local expect="$1"; shift
 
-	local result="$("$@" 2>&1)"
+    local result="$("$@" 2>&1)"
 
-	echo "$result"
+    echo "$result"
 
-	[[ "$result" = "$expect" ]]
+    [[ "$result" = "$expect" ]]
 }
 
 test_defer() {
-	local expect="$1"; shift
+    local expect="$1"; shift
 
-	local result="$(
-	out:defer three
-	echo "one"
-	out:defer four
-	echo "two"
-	out:flush echo
-	)"
+    local result="$(
+    out:defer three
+    echo "one"
+    out:defer four
+    echo "two"
+    out:flush echo
+    )"
 
-	result="$(echo "$result"|xargs echo)"
+    result="$(echo "$result"|xargs echo)"
 
-	echo "$result"
+    echo "$result"
 
-	[[ "$result" = "$expect" ]]
+    [[ "$result" = "$expect" ]]
 }
 
 test_text="Hello world"

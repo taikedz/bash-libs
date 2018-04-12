@@ -84,37 +84,37 @@
 ###/doc
 
 function includefile:include {
-	local INFILE="$1"; shift || :
-	local PATTERN="$1"; shift || :
-	local PATHS="$*"
+    local INFILE="$1"; shift || :
+    local PATTERN="$1"; shift || :
+    local PATHS="$*"
 
-	 while read inline; do
-		out:debug "\033[36;1mInclusion target: $inline${CDEF}"
-	 	local pos="${inline%%:*}"
-		inline="${inline#*:}"
+    while read inline; do
+        out:debug "\033[36;1mInclusion target: $inline${CDEF}"
+        local pos="${inline%%:*}"
+        inline="${inline#*:}"
 
-		local inclusiontargets="${inline#$PATTERN }"
+        local inclusiontargets="${inline#$PATTERN }"
 
-		# reverse inclusion targets
-		# to insert always at same line, but preserve order of declaration
-		local revintar=
-		for targetfile in $inclusiontargets ; do
-			revintar="$targetfile $revintar"
-		done
+        # reverse inclusion targets
+        # to insert always at same line, but preserve order of declaration
+        local revintar=
+        for targetfile in $inclusiontargets ; do
+            revintar="$targetfile $revintar"
+        done
 
-		for targetfile in $revintar; do
-			if [[ -z "$targetfile" ]]; then continue; fi
-			local filepath="$(searchpaths:file_from "$PATHS" "$targetfile")"
-			if [[ ! -f "$filepath" ]]; then
-				out:warn "Could not find $targetfile in any of $PATHS"
-				return 1
-			fi
-			includefile:fileinsert "$filepath" "$pos" "$INFILE"
-		done
+        for targetfile in $revintar; do
+            if [[ -z "$targetfile" ]]; then continue; fi
+            local filepath="$(searchpaths:file_from "$PATHS" "$targetfile")"
+            if [[ ! -f "$filepath" ]]; then
+                out:warn "Could not find $targetfile in any of $PATHS"
+                return 1
+            fi
+            includefile:fileinsert "$filepath" "$pos" "$INFILE"
+        done
 
-		# Remove the inclusion directive itself (line $pos exactly)
-		sed "$pos d" -i "$INFILE"
-	 done < <(grep -P "^$PATTERN" "$INFILE" -n | sort -r -n)
+        # Remove the inclusion directive itself (line $pos exactly)
+        sed "$pos d" -i "$INFILE"
+     done < <(grep -P "^$PATTERN" "$INFILE" -n | sort -r -n)
 }
 
 ### includefile:fileinsert SOURCEFILE POSITION TARGETFILE Usage:bbuild
@@ -123,29 +123,29 @@ function includefile:include {
 #
 ###/doc
 function includefile:fileinsert {
-	local SOURCEFILE="$(abspath:path "$1")"; shift || :
-	local POSITION="$1"; shift || :
-	local TARGETFILE="$1"; shift || :
+    local SOURCEFILE="$(abspath:path "$1")"; shift || :
+    local POSITION="$1"; shift || :
+    local TARGETFILE="$1"; shift || :
 
-	local SKIPFILE="$(includefile:getskipfile "$TARGETFILE")"
+    local SKIPFILE="$(includefile:getskipfile "$TARGETFILE")"
 
-	if ! includefile:isregistered "$SKIPFILE" "$SOURCEFILE"; then
-		out:debug "Inserting $SOURCEFILE at $TARGETFILE:$POSITION"
+    if ! includefile:isregistered "$SKIPFILE" "$SOURCEFILE"; then
+        out:debug "Inserting $SOURCEFILE at $TARGETFILE:$POSITION"
 
-		includefile:docallback "$SOURCEFILE" "$TARGETFILE"
+        includefile:docallback "$SOURCEFILE" "$TARGETFILE"
 
-		sed "$POSITION r $SOURCEFILE" -i "$TARGETFILE"
-		includefile:registerfile "$SKIPFILE" "$SOURCEFILE"
-		out:debug " ... added $SROUCEFILE"
-	else
-		out:debug "[$SOURCEFILE] was already registered"
-	fi
+        sed "$POSITION r $SOURCEFILE" -i "$TARGETFILE"
+        includefile:registerfile "$SKIPFILE" "$SOURCEFILE"
+        out:debug " ... added $SROUCEFILE"
+    else
+        out:debug "[$SOURCEFILE] was already registered"
+    fi
 }
 
 function includefile:docallback {
-	if [[ -n "$FILEINCLUDES_CALLBACK" ]]; then
-		"$FILEINCLUDES_CALLBACK" "$@"
-	fi
+    if [[ -n "$FILEINCLUDES_CALLBACK" ]]; then
+        "$FILEINCLUDES_CALLBACK" "$@"
+    fi
 }
 
 ### includefile:inittemp Usage:bbuild
@@ -159,36 +159,36 @@ function includefile:docallback {
 #
 ###/doc
 function includefile:inittemp {
-	echo > "$(includefile:getskipfile "$1")"
+    echo > "$(includefile:getskipfile "$1")"
 }
 
 # Get skipfile for path
 # getskipfile TARGETPATH
 # prints a temp file path in /tmp
 function includefile:getskipfile {
-	local tmpdir="/tmp/bbinclude-$(whoami)"
-	mkdir -p "$tmpdir"
-	
-	local hash="$(echo "$1"|sha1sum)"
-	hash="${hash:0:6}"
+    local tmpdir="/tmp/bbinclude-$(whoami)"
+    mkdir -p "$tmpdir"
+    
+    local hash="$(echo "$1"|sha1sum)"
+    hash="${hash:0:6}"
 
-	local skipfile="$tmpdir/$hash"
-	touch "$skipfile"
-	echo "$skipfile"
+    local skipfile="$tmpdir/$hash"
+    touch "$skipfile"
+    echo "$skipfile"
 }
 
 # Internal method
 # Register that a file has previously been included
 # Returns 1 if already registered
 function includefile:registerfile {
-	local SKIPFILE="$1"; shift || :
-	local TARGETFILE="$1"; shift || :
+    local SKIPFILE="$1"; shift || :
+    local TARGETFILE="$1"; shift || :
 
-	if includefile:isregistered "$SKIPFILE" "$TARGETFILE"; then
-		return 1
-	fi
+    if includefile:isregistered "$SKIPFILE" "$TARGETFILE"; then
+        return 1
+    fi
 
-	echo "$TARGETFILE" >> "$SKIPFILE"
+    echo "$TARGETFILE" >> "$SKIPFILE"
 }
 
 # Internal method
@@ -196,12 +196,12 @@ function includefile:registerfile {
 # returns 0 if yes
 # returns 1 otherwise
 function includefile:isregistered {
-	local SKIPFILE="$1"; shift || :
-	local TARGETFILE="$1"; shift || :
+    local SKIPFILE="$1"; shift || :
+    local TARGETFILE="$1"; shift || :
 
-	if grep -P -q "^$TARGETFILE$" "$SKIPFILE"; then
-		return 0
-	fi
+    if grep -P -q "^$TARGETFILE$" "$SKIPFILE"; then
+        return 0
+    fi
 
-	return 1
+    return 1
 }

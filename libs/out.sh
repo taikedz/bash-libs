@@ -20,7 +20,7 @@
 
 # Internal
 function out:buffer_initialize {
-	OUTPUT_BUFFER_defer=(:)
+    OUTPUT_BUFFER_defer=(:)
 }
 out:buffer_initialize
 
@@ -29,9 +29,9 @@ out:buffer_initialize
 # only prints if MODE_DEBUG is set to "true"
 ###/doc
 function out:debug {
-	if [[ "$MODE_DEBUG" = true ]]; then
-		echo "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
-	fi
+    if [[ "$MODE_DEBUG" = true ]]; then
+        echo "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
+    fi
 }
 
 ### out:debug:fork [MARKER] Usage:bbuild
@@ -44,34 +44,34 @@ function out:debug {
 #
 ###/doc
 function out:debug:fork {
-	if [[ "$MODE_DEBUG" = true ]]; then
-		local MARKER="${1:-DEBUG: }"; shift || :
+    if [[ "$MODE_DEBUG" = true ]]; then
+        local MARKER="${1:-DEBUG: }"; shift || :
 
-		cat - | sed -r "s/^/$MARKER/" | tee -a /dev/stderr
-	else
-		cat -
-	fi
+        cat - | sed -r "s/^/$MARKER/" | tee -a /dev/stderr
+    else
+        cat -
+    fi
 }
 
 ### out:info MESSAGE Usage:bbuild
 # print a green informational message to stderr
 ###/doc
 function out:info {
-	echo "$CGRN$*$CDEF" 1>&2
+    echo "$CGRN$*$CDEF" 1>&2
 }
 
 ### out:warn MESSAGE Usage:bbuild
 # print a yellow warning message to stderr
 ###/doc
 function out:warn {
-	echo "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
+    echo "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
 }
 
 ### out:defer MESSAGE Usage:bbuild
 # Store a message in the output buffer for later use
 ###/doc
 function out:defer {
-	OUTPUT_BUFFER_defer[${#OUTPUT_BUFFER_defer[@]}]="$*"
+    OUTPUT_BUFFER_defer[${#OUTPUT_BUFFER_defer[@]}]="$*"
 }
 
 ### out:flush HANDLER ... Usage:bbuild
@@ -90,15 +90,15 @@ function out:defer {
 #
 ###/doc
 function out:flush {
-	[[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer[*]}"
+    [[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer[*]}"
 
-	[[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return 0
+    [[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return 0
 
-	for buffer_line in "${OUTPUT_BUFFER_defer[@]:1}"; do
-		"$@" "$buffer_line"
-	done
+    for buffer_line in "${OUTPUT_BUFFER_defer[@]:1}"; do
+        "$@" "$buffer_line"
+    done
 
-	out:buffer_initialize
+    out:buffer_initialize
 }
 
 ### out:fail [CODE] MESSAGE Usage:bbuild
@@ -107,15 +107,15 @@ function out:flush {
 # if no code is specified, error code 127 is used
 ###/doc
 function out:fail {
-	local ERCODE=127
-	local numpat='^[0-9]+$'
+    local ERCODE=127
+    local numpat='^[0-9]+$'
 
-	if [[ "$1" =~ $numpat ]]; then
-		ERCODE="$1"; shift || :
-	fi
+    if [[ "$1" =~ $numpat ]]; then
+        ERCODE="$1"; shift || :
+    fi
 
-	echo "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
-	exit $ERCODE
+    echo "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
+    exit $ERCODE
 }
 
 ### out:error MESSAGE Usage:bbuild
@@ -124,7 +124,7 @@ function out:fail {
 # unlike out:fail, does not cause script exit
 ###/doc
 function out:error {
-	echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
+    echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
 
 ### out:dump Usage:bbuild
@@ -138,10 +138,10 @@ function out:error {
 ###/doc
 
 function out:dump {
-	echo -n "${CBPUR}$*" 1>&2
-	echo -n "$CPUR" 1>&2
-	cat - 1>&2
-	echo -n "$CDEF" 1>&2
+    echo -n "${CBPUR}$*" 1>&2
+    echo -n "$CPUR" 1>&2
+    cat - 1>&2
+    echo -n "$CDEF" 1>&2
 }
 
 ### out:break MESSAGE Usage:bbuild
@@ -160,15 +160,15 @@ function out:dump {
 ###/doc
 
 function out:break {
-	[[ "$MODE_DEBUG" = true ]] || return 0
+    [[ "$MODE_DEBUG" = true ]] || return 0
 
-	echo -en "${CRED}BREAKPOINT: $* >$CDEF " >&2
-	read
-	if [[ "$REPLY" =~ quit|exit|stop ]]; then
-		out:fail "ABORT"
-	fi
+    echo -en "${CRED}BREAKPOINT: $* >$CDEF " >&2
+    read
+    if [[ "$REPLY" =~ quit|exit|stop ]]; then
+        out:fail "ABORT"
+    fi
 }
 
 if [[ "$MODE_DEBUG_VERBOSE" = true ]]; then
-	set -x
+    set -x
 fi

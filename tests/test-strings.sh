@@ -2,24 +2,24 @@
 #%include strings.sh
 
 test_join() {
-	local result="$1"; shift
-	local joined="$(strings:join "$@")"
-	
-	echo "$joined"
+    local result="$1"; shift
+    local joined="$(strings:join "$@")"
+    
+    echo "$joined"
 
-	[[ "$result" = "$joined" ]] && return 0
-	return 1
+    [[ "$result" = "$joined" ]] && return 0
+    return 1
 }
 
 test_split() {
-	local idx="$1"; shift
-	local match="$1"; shift
-	
-	strings:split "$@"
+    local idx="$1"; shift
+    local match="$1"; shift
+    
+    strings:split "$@"
 
-	echo "${STRINGS_ARR_SPLITS[$idx]}"
+    echo "${STRINGS_ARR_SPLITS[$idx]}"
 
-	[[ "${STRINGS_ARR_SPLITS[$idx]}" = "$match" ]]
+    [[ "${STRINGS_ARR_SPLITS[$idx]}" = "$match" ]]
 }
 
 test:require test_join "a+b+c" + a b c

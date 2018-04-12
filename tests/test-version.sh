@@ -4,17 +4,17 @@
 #%include test.sh
 
 test_gt() {
-	if version:gt "$1" "$2"; then
-		return 0
-	else
-		return 1
-	fi
+    if version:gt "$1" "$2"; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 test_next() {
-	local nextv="$(version:next "$1" "$2")"
+    local nextv="$(version:next "$1" "$2")"
 
-	[[ "$nextv" = "$3" ]]
+    [[ "$nextv" = "$3" ]]
 }
 
 test:require test_gt 3.2.1 3.2.0

@@ -17,19 +17,19 @@
 ###/doc
 
 function readkv {
-	local thekey=$1 ; shift || :
-	local thefile=$1; shift || :
-	local thedefault=
-	if [[ -n "${1+x}" ]]; then
-		thedefault="$1"; shift || :
-	fi
+    local thekey=$1 ; shift || :
+    local thefile=$1; shift || :
+    local thedefault=
+    if [[ -n "${1+x}" ]]; then
+        thedefault="$1"; shift || :
+    fi
 
-	local res=$(egrep "^$thekey"'\s*=' "$thefile"|sed -r "s/^$thekey"'\s*=\s*//')
-	if [[ -z "$res" ]]; then
-		echo "$thedefault"
-	else
-		echo "$res"
-	fi
+    local res=$(egrep "^$thekey"'\s*=' "$thefile"|sed -r "s/^$thekey"'\s*=\s*//')
+    if [[ -z "$res" ]]; then
+        echo "$thedefault"
+    else
+        echo "$res"
+    fi
 }
 
 ### readkv:require KEY FILE Usage:bbuild
@@ -39,16 +39,16 @@ function readkv {
 ###/doc
 
 function readkv:require {
-	if [[ -z "${2+x}" ]]; then
-		out:fail "No file specified to read [$*]"
-	fi
+    if [[ -z "${2+x}" ]]; then
+        out:fail "No file specified to read [$*]"
+    fi
 
-	if [[ ! -f "$2" ]] ; then
-		out:fail "No such file $2 !"
-	fi
+    if [[ ! -f "$2" ]] ; then
+        out:fail "No such file $2 !"
+    fi
 
-	if ! head -n 1 "$2" > /dev/null; then
-		out:fail "Could not read $2"
-	fi
-	readkv "$@"
+    if ! head -n 1 "$2" > /dev/null; then
+        out:fail "Could not read $2"
+    fi
+    readkv "$@"
 }

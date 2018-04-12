@@ -1,21 +1,21 @@
 #%include test.sh args.sh
 
 test_args() {
-	local result="$1"; shift
+    local result="$1"; shift
 
-	local got="$(args:get "$@")"
-	echo "$got"
+    local got="$(args:get "$@")"
+    echo "$got"
 
-	[[ "$got" = "$result" ]]
+    [[ "$got" = "$result" ]]
 }
 
 test_bool() {
-	local result="$1"; shift
-	args:has "$@"
-	local res="$?"
+    local result="$1"; shift
+    args:has "$@"
+    local res="$?"
 
-	echo "$res"
-	[[ "$res" = "$result" ]]
+    echo "$res"
+    [[ "$res" = "$result" ]]
 }
 
 arguments=(-m hello --message="this is a long message" -t)

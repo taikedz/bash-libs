@@ -25,7 +25,7 @@
 # * underscore ("_")
 ###/doc
 function varify:var {
-	echo "$*" | sed -r 's/[^a-zA-Z0-9_]/_/g'
+    echo "$*" | sed -r 's/[^a-zA-Z0-9_]/_/g'
 }
 
 ### varify:fil Usage:bbuild
@@ -43,5 +43,5 @@ function varify:var {
 #
 ###/doc
 function varify:fil {
-	echo "$*" | sed -r 's/[^a-zA-Z0-9_.-]/_/g'
+    echo "$*" | sed -r 's/[^a-zA-Z0-9_.-]/_/g'
 }
