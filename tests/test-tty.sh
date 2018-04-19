@@ -24,8 +24,6 @@ test_ispipe() {
     fi
 }
 
-test:forbid tty:is_interactive
-
 detect_pipe
 test:forbid test_ispipe
 test:require inpipe tty:is_pipe

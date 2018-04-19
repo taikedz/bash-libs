@@ -23,7 +23,7 @@
 #
 # Note that highlight and underline must be applied or re-applied after specifying a colour.
 #
-# If the session is detected as non-interactive, or in a pipe, colours will be turned off.
+# If the session is detected as being in a pipe, colours will be turned off.
 #   You can override this by calling `colours:check --color=always` at the start of your script
 #
 ###/doc
@@ -48,7 +48,7 @@ colours:check() {
 }
 
 colours:auto() {
-    if tty:is_pipe || ! tty:is_interactive ; then
+    if tty:is_pipe ; then
         COLOURS_ON=false
     else
         COLOURS_ON=true
@@ -59,7 +59,7 @@ colours:auto() {
 }
 
 colours:define() {
-    if [[ "$COLOURS_ON" = true ]]; then
+    if [[ "$COLOURS_ON" = false ]]; then
 
         export CRED=''
         export CGRN=''
