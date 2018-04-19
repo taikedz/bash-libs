@@ -1,5 +1,7 @@
 #!/bin/bash
 
+##bash-libs: tarheader.sh @ %COMMITHASH%
+
 set -euo pipefail
 
 ### Extraction header Usage:bbuild

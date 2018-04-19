@@ -23,27 +23,93 @@
 #
 # Note that highlight and underline must be applied or re-applied after specifying a colour.
 #
+# If the session is detected as non-interactive, or in a pipe, colours will be turned off.
+#   You can override this by calling `colours:check --color=always` at the start of your script
+#
 ###/doc
 
-export CRED=$(echo -e "\033[0;31m")
-export CGRN=$(echo -e "\033[0;32m")
-export CYEL=$(echo -e "\033[0;33m")
-export CBLU=$(echo -e "\033[0;34m")
-export CPUR=$(echo -e "\033[0;35m")
-export CTEA=$(echo -e "\033[0;36m")
+#%include tty.sh
 
-export CBRED=$(echo -e "\033[1;31m")
-export CBGRN=$(echo -e "\033[1;32m")
-export CBYEL=$(echo -e "\033[1;33m")
-export CBBLU=$(echo -e "\033[1;34m")
-export CBPUR=$(echo -e "\033[1;35m")
-export CBTEA=$(echo -e "\033[1;36m")
+### colours:check ARGS Usage:bbuild
+#
+# Check the args to see if there's a `--color=always` or `--color=never`
+#   and reload the colours appropriately
+#
+###/doc
+colours:check() {
+    if [[ "$*" =~ --color=always ]]; then
+        COLOURS_ON=true
+    elif [[ "$*" =~ --color=never ]]; then
+        COLOURS_ON=false
+    fi
 
-export HLRED=$(echo -e "\033[41m")
-export HLGRN=$(echo -e "\033[42m")
-export HLYEL=$(echo -e "\033[43m")
-export HLBLU=$(echo -e "\033[44m")
-export HLPUR=$(echo -e "\033[45m")
-export HLTEA=$(echo -e "\033[46m")
+    colours:define
+    return 0
+}
 
-export CDEF=$(echo -e "\033[0m")
+colours:auto() {
+    if tty:is_pipe || ! tty:is_interactive ; then
+        COLOURS_ON=false
+    else
+        COLOURS_ON=true
+    fi
+
+    colours:define
+    return 0
+}
+
+colours:define() {
+    if [[ "$COLOURS_ON" = true ]]; then
+
+        export CRED=''
+        export CGRN=''
+        export CYEL=''
+        export CBLU=''
+        export CPUR=''
+        export CTEA=''
+
+        export CBRED=''
+        export CBGRN=''
+        export CBYEL=''
+        export CBBLU=''
+        export CBPUR=''
+        export CBTEA=''
+
+        export HLRED=''
+        export HLGRN=''
+        export HLYEL=''
+        export HLBLU=''
+        export HLPUR=''
+        export HLTEA=''
+
+        export CDEF=''
+
+    else
+
+        export CRED=$(echo -e "\033[0;31m")
+        export CGRN=$(echo -e "\033[0;32m")
+        export CYEL=$(echo -e "\033[0;33m")
+        export CBLU=$(echo -e "\033[0;34m")
+        export CPUR=$(echo -e "\033[0;35m")
+        export CTEA=$(echo -e "\033[0;36m")
+
+        export CBRED=$(echo -e "\033[1;31m")
+        export CBGRN=$(echo -e "\033[1;32m")
+        export CBYEL=$(echo -e "\033[1;33m")
+        export CBBLU=$(echo -e "\033[1;34m")
+        export CBPUR=$(echo -e "\033[1;35m")
+        export CBTEA=$(echo -e "\033[1;36m")
+
+        export HLRED=$(echo -e "\033[41m")
+        export HLGRN=$(echo -e "\033[42m")
+        export HLYEL=$(echo -e "\033[43m")
+        export HLBLU=$(echo -e "\033[44m")
+        export HLPUR=$(echo -e "\033[45m")
+        export HLTEA=$(echo -e "\033[46m")
+
+        export CDEF=$(echo -e "\033[0m")
+
+    fi
+}
+
+colours:auto
