@@ -3,7 +3,7 @@
 last_commit() {
     local commit="$(git log -n 1|head -n 1|cut -f2 -d' ')"
 
-    echo "${commit:0:8}$(git_status)"
+    echo "${commit:0:8}$(git_status) ($BASHLIBS_VERSION)"
 }
 
 git_status() {
@@ -24,18 +24,36 @@ copy_lib() {
     chmod 644 "$file_dest"
 }
 
-cd "$(dirname "$0")"
+checkout_target() {
+    if [[ -z "$*" ]]; then return 0; fi
 
-if [[ "$UID" == 0 ]]; then
-    : ${libs=/usr/local/lib/bbuild}
-else
-    : ${libs="$HOME/.local/lib/bbuild"}
-fi
+    git checkout "$1" || {
+        echo "Could not checkout commit at [$1]"
+        exit 1
+    }
+}
 
-mkdir -p "$libs"
+main() {
+    cd "$(dirname "$0")"
 
-for libfile in libs/*.sh ; do
-    copy_lib "$libfile" "$libs/"
-done
+    checkout_target "$@"
 
-echo -e "\033[32;1mSuccessfully installed libraries to [$libs]\033[0m"
+    if [[ "$UID" == 0 ]]; then
+        : ${libs="/usr/local/lib/bbuild"}
+    else
+        : ${libs="$HOME/.local/lib/bbuild"}
+    fi
+
+    mkdir -p "$libs"
+
+    # populate BASHLIBS_VERSION
+    . versionrc
+
+    for libfile in libs/*.sh ; do
+        copy_lib "$libfile" "$libs/"
+    done
+
+    echo -e "\033[32;1mSuccessfully installed libraries to [$libs]\033[0m"
+}
+
+main "$@"

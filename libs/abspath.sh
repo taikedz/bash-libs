@@ -27,7 +27,8 @@ function abspath:resolve_dotdot {
 
     # Set a limit on how many iterations to perform
     # Only very obnoxious paths should fail
-    for x in $(seq 1 $max); do
+    local obnoxious_counter
+    for obnoxious_counter in $(seq 1 $max); do
         # No more dot-dots - good to go
         if [[ ! "$workpath" =~ /\.\.(/|$) ]]; then
             echo "$workpath"
