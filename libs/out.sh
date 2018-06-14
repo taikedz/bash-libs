@@ -8,51 +8,6 @@
 #
 ###/doc
 
-### Environment Variables Usage:bbuild
-#
-# MODE_DEBUG : set to 'true' to enable debugging output
-# MODE_DEBUG_VERBOSE : set to 'true' to enable command echoing
-#
-###/doc
-
-: ${MODE_DEBUG=false}
-: ${MODE_DEBUG_VERBOSE=false}
-
-# Internal
-function out:buffer_initialize {
-    OUTPUT_BUFFER_defer=(:)
-}
-out:buffer_initialize
-
-### out:debug MESSAGE Usage:bbuild
-# print a blue debug message to stderr
-# only prints if MODE_DEBUG is set to "true"
-###/doc
-function out:debug {
-    if [[ "$MODE_DEBUG" = true ]]; then
-        echo "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
-    fi
-}
-
-### out:debug:fork [MARKER] Usage:bbuild
-#
-# Pipe the data coming through stdin to stdout
-#
-# If debug mode is on, *also* write the same data to stderr, each line preceded by MARKER
-#
-# Insert this debug fork into pipes to see their output
-#
-###/doc
-function out:debug:fork {
-    if [[ "$MODE_DEBUG" = true ]]; then
-        local MARKER="${1:-DEBUG: }"; shift || :
-
-        cat - | sed -r "s/^/$MARKER/" | tee -a /dev/stderr
-    else
-        cat -
-    fi
-}
-
 ### out:info MESSAGE Usage:bbuild
 # print a green informational message to stderr
 ###/doc
@@ -73,6 +28,12 @@ function out:warn {
 function out:defer {
     OUTPUT_BUFFER_defer[${#OUTPUT_BUFFER_defer[@]}]="$*"
 }
+
+# Internal
+function out:buffer_initialize {
+    OUTPUT_BUFFER_defer=(:)
+}
+out:buffer_initialize
 
 ### out:flush HANDLER ... Usage:bbuild
 #
@@ -126,49 +87,3 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
-
-### out:dump Usage:bbuild
-#
-# Dump stdin contents to console stderr. Requires debug mode.
-#
-# Example
-#
-# 	action_command 2>&1 | out:dump
-#
-###/doc
-
-function out:dump {
-    echo -n "${CBPUR}$*" 1>&2
-    echo -n "$CPUR" 1>&2
-    cat - 1>&2
-    echo -n "$CDEF" 1>&2
-}
-
-### out:break MESSAGE Usage:bbuild
-#
-# Add break points to a script
-#
-# Requires MODE_DEBUG set to true
-#
-# When the script runs, the message is printed with a propmt, and execution pauses.
-#
-# Press return to continue execution.
-#
-# Type `exit`, `quit` or `stop` to stop the program. If the breakpoint is in a subshell,
-#  execution from after the subshell will be resumed.
-#
-###/doc
-
-function out:break {
-    [[ "$MODE_DEBUG" = true ]] || return 0
-
-    echo -en "${CRED}BREAKPOINT: $* >$CDEF " >&2
-    read
-    if [[ "$REPLY" =~ quit|exit|stop ]]; then
-        out:fail "ABORT"
-    fi
-}
-
-if [[ "$MODE_DEBUG_VERBOSE" = true ]]; then
-    set -x
-fi

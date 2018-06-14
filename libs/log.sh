@@ -168,9 +168,7 @@ function log:use_var {
 function log:debug {
     log:islevel "$LOG_LEVEL_DEBUG" || return 0
 
-    if [[ "$MODE_DEBUG" = yes ]]; then
-        echo -e "$LOGENTITY $(date "+%F %T") DEBUG: $*" >>"$BBLOGFILE"
-    fi
+    echo -e "$LOGENTITY $(date "+%F %T") DEBUG: $*" >>"$BBLOGFILE"
 }
 
 ### log:debug:fork [MARKER] Usage:bbuild
