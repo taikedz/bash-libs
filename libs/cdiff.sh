@@ -1,20 +1,21 @@
 #%include colours.sh
 
 cdiff() {
-    echo -e "< $1\n> $2" | colorize
-    diff "$1" "$2" | colorize
+    diff -u "$1" "$2" | colorize
 }
 
 colorize() {
     local line
 
     while read line; do
-        if [[ "$line" =~ ^\> ]]; then
+        if [[ "$line" =~ ^\+ ]]; then
             echo "${CBGRN}$line"
-        elif [[ "$line" =~ ^\< ]]; then
+        elif [[ "$line" =~ ^- ]]; then
             echo "${CBRED}$line"
-        else
+        elif [[ "$line" =~ @@ ]]; then
             echo "${CBYEL}$line"
+        else
+            echo "${CDEF}$line"
         fi
     done
     echo "${CDEF}"
