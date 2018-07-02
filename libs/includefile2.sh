@@ -99,10 +99,10 @@ includefile:_cat_once() {
             return 1
         fi
         
-        out:debug "$item => $fullpath"
+        debug:print "$item => $fullpath"
         b64t=";$(echo "$fullpath" | base64 -w 0);"
         if [[  "$INCLUDEFILE_tracker" =~ "$b64t" ]]; then
-            out:debug "\033[33;1m    Skip re-inclusion of [$item] (is in '$INCLUDEFILE_tracker')"
+            debug:print "\033[33;1m    Skip re-inclusion of [$item] (is in '$INCLUDEFILE_tracker')"
             continue
         fi
 

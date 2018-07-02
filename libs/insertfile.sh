@@ -28,7 +28,7 @@ function insertfile {
         insertfile:sedinsert "$destfile" "$sourcefile"
 
     elif [[ "$1" -gt $lcount ]]; then
-        out:debug "Insertion point $1 > $lcount"
+        debug:print "Insertion point $1 > $lcount"
         out:break "cat $sourcefile >> $destfile"
         cat "$sourcefile" >> "$destfile"
 

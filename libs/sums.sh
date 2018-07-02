@@ -47,14 +47,14 @@ hsum:sum() {
                 x=$(echo "$x*$tb"|bc)
 
             else
-                out:debug "Could not act on magnitude [$magnitude]"
+                debug:print "Could not act on magnitude [$magnitude]"
                 return 1
             fi
 
-            out:debug "$qtty -> Adding $x to $sumtotal"
+            debug:print "$qtty -> Adding $x to $sumtotal"
             sumtotal=$(echo "$sumtotal + $x"|bc)
         else
-            out:debug "Ignoring $qtty"
+            debug:print "Ignoring $qtty"
         fi
     done
 

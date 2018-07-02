@@ -31,15 +31,15 @@ version:gt() {
     read v2x v2y v2z < <(echo "$version2"|sed 's/\./ /g')
 
     # if lesser fail, if greater succeed, if equal, check minor
-    out:debug "Check major $v1x > $v2x ?"
+    debug:print "Check major $v1x > $v2x ?"
     [[ "$v1x" -gt "$v2x" ]] && return 0 || :
     [[ "$v1x" -lt "$v2x" ]] && return 1 || :
 
-    out:debug "Check minor $v1y > $v2y ?"
+    debug:print "Check minor $v1y > $v2y ?"
     [[ "$v1y" -gt "$v2y" ]] && return 0 || :
     [[ "$v1y" -lt "$v2y" ]] && return 1 || :
 
-    out:debug "Check patch $v1z > $v2z ?"
+    debug:print "Check patch $v1z > $v2z ?"
     # At this point, equality of the patch version is also a disqualifier.
     [[ "$v1z" -gt "$v2z" ]] && return 0 || :
     [[ "$v1z" -le "$v2z" ]] && return 1 || :
@@ -73,7 +73,7 @@ version:next() {
     patch)
         vz=$((vz+1)) ;;
     *)
-        out:debug "Invalid version section [$vesction]"
+        debug:print "Invalid version section [$vesction]"
         return 1
         ;;
     esac
@@ -84,7 +84,7 @@ version:next() {
 
 version:validate() {
     [[ "$1" =~ [0-9]+\.[0-9]+\.[0-9]+ ]] || {
-        out:debug "Invalid version string [$1]"
+        debug:print "Invalid version string [$1]"
         return 1
     }
     return 0
