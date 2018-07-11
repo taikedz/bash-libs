@@ -17,16 +17,17 @@
 ###/doc
 
 function readkv {
-    local thekey=$1 ; shift || :
-    local thefile=$1; shift || :
-    local thedefault=
-    if [[ -n "${1+x}" ]]; then
+    local thedefault thekey thefile
+    thekey="$1" ; shift
+    thefile="$1"; shift
+
+    if [[ -n "${1:-}" ]]; then
         thedefault="$1"; shift || :
     fi
 
-    local res=$(egrep "^$thekey"'\s*=' "$thefile"|sed -r "s/^$thekey"'\s*=\s*//')
+    local res="$(readkv:meaningful_data "$thefile"|egrep "^$thekey"'\s*='|sed -r "s/^$thekey"'\s*=\s*//')"
     if [[ -z "$res" ]]; then
-        echo "$thedefault"
+        echo "${thedefault:-}"
     else
         echo "$res"
     fi
@@ -39,7 +40,7 @@ function readkv {
 ###/doc
 
 function readkv:require {
-    if [[ -z "${2+x}" ]]; then
+    if [[ -z "${2:-}" ]]; then
         out:fail "No file specified to read [$*]"
     fi
 
@@ -51,4 +52,11 @@ function readkv:require {
         out:fail "Could not read $2"
     fi
     readkv "$@"
+}
+
+### readkv:moeaningful_data FILE Usage:bbuild
+# Dump the file contents, stripping meaningless data (empty lines and comment lines)
+###/doc
+readkv:meaningful_data() {
+    grep -v -P '^\s*(#.*)?$' "$1"
 }
