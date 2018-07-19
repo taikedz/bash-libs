@@ -33,6 +33,15 @@ checkout_target() {
     }
 }
 
+load_bashlibs_version() {
+    local tagpat='(?<=tag: )[0-9.]+'
+    BASHLIBS_VERSION="$(git log --oneline -n 1 --decorate=short | grep -oP "$tagpat")"
+
+    if [[ -z "$BASHLIBS_VERSION" ]]; then
+        BASHLIBS_VERSION="after $(git log --oneline --decorate=short | grep -oP "$tagpat" -m 1)"
+    fi
+}
+
 main() {
     cd "$(dirname "$0")"
 
@@ -46,7 +55,7 @@ main() {
 
     mkdir -p "$libs"
 
-    BASHLIBS_VERSION="$(git log --oneline -n 1 --decorate=short | grep -oP '(?<=tag: )[0-9.]+')"
+    load_bashlibs_version
 
     for libfile in libs/*.sh ; do
         copy_lib "$libfile" "$libs/"
