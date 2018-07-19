@@ -46,8 +46,7 @@ main() {
 
     mkdir -p "$libs"
 
-    # populate BASHLIBS_VERSION
-    . versionrc
+    BASHLIBS_VERSION="$(git log --oneline -n 1 --decorate=short | grep -oP '(?<=tag: )[0-9.]+')"
 
     for libfile in libs/*.sh ; do
         copy_lib "$libfile" "$libs/"
