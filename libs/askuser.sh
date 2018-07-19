@@ -79,7 +79,6 @@ function askuser:password {
 function askuser:choose_multi {
     local mesg=$1; shift || :
     local choices=$(echo "$*"|sed -r 's/ *, */\n/g')
-    debug:print "CHOICES: $choices"
 
     out:info "$mesg:" 
     local choicelist="$(echo -e "$choices"|egrep '^' -n| sed 's/:/: /')"
@@ -90,14 +89,12 @@ function askuser:choose_multi {
         return 1
 
     elif [[ "$sel" =~ $numpat ]] || [[ "$sel" =~ $rangepat ]]; then
-        debug:print "Number choice [$sel]"
         echo -e "$choices" | sed -n "$sel p"
     
     elif [[ "$sel" =~ $listpat ]]; then
         echo "$choicelist" | egrep "^${sel// /|}:" | sed -r 's/^[0-9]+: //'
 
     else
-        debug:print "Pattern choice [$sel]"
         echo -e "$choices"  |egrep "$(echo "$sel"|tr " " '|')"
     fi
     return 0

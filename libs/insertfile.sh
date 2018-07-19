@@ -28,15 +28,11 @@ function insertfile {
         insertfile:sedinsert "$destfile" "$sourcefile"
 
     elif [[ "$1" -gt $lcount ]]; then
-        debug:print "Insertion point $1 > $lcount"
-        out:break "cat $sourcefile >> $destfile"
         cat "$sourcefile" >> "$destfile"
 
     else
         insertfile:sedappend "$@"
     fi
-
-    out:break "File insertion over."
 }
 
 function insertfile:sedappend {
@@ -44,7 +40,6 @@ function insertfile:sedappend {
     local destfile="$2"
     local sourcefile="$3"
 
-    out:break sed "$line r $sourcefile" -i "$destfile"
     sed "$line r $sourcefile" -i "$destfile"
 }
 
@@ -52,12 +47,6 @@ function insertfile:sedinsert {
     local destfile="$1"
     local sourcefile="$2"
 
-    out:break sed "1 {
-        h
-        r $sourcefile
-        g
-        N
-    }" -i "$destfile"
     sed "1 {
         h
         r $sourcefile

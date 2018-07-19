@@ -89,7 +89,6 @@ function includefile:include {
     local PATHS="$*"
 
     while read inline; do
-        debug:print "\033[36;1mInclusion target: $inline${CDEF}"
         local pos="${inline%%:*}"
         inline="${inline#*:}"
 
@@ -130,15 +129,11 @@ function includefile:fileinsert {
     local SKIPFILE="$(includefile:getskipfile "$TARGETFILE")"
 
     if ! includefile:isregistered "$SKIPFILE" "$SOURCEFILE"; then
-        debug:print "Inserting $SOURCEFILE at $TARGETFILE:$POSITION"
 
         includefile:docallback "$SOURCEFILE" "$TARGETFILE"
 
         sed "$POSITION r $SOURCEFILE" -i "$TARGETFILE"
         includefile:registerfile "$SKIPFILE" "$SOURCEFILE"
-        debug:print " ... added $SROUCEFILE"
-    else
-        debug:print "[$SOURCEFILE] was already registered"
     fi
 }
 
