@@ -14,48 +14,44 @@
 # Recipients of the serialized array must use the deserialization
 #  function on each token to retrive its original content.
 #
-# This library is implemented purely with bash language constructs
-#  and not external commands, for the sake of portability and
-#  performance.
-#
 #
 # EXAMPLE
 #
-# This example adds the token string "Hello " to its arguments.
+# This example generates a sequence of first and last names; each pair is
+#   space-separated, so needs to be serialized before being returned.
 #
-# Its output is array-serialized, so that any code that calls it
-#  can store an array without needing to resolve splitting issues
+# 	get_names() {
+# 		local sdata name
+# 		sdata=
 #
-# 	greet_all() {
-# 		local sdata token
-# 		sdata=""
-#
-# 		for name in "$@"; do
-# 		    token=$(arrays:serialize "Hello $name")
-# 			sdata="$sdata $token"
+# 		for name in "Alice Alson" "Bob Robertson" "Carol Carlson"; do
+# 			sdata="$sdata $(arrays:serialize "$name")"
 # 		done
 #       
-#       # Specifically, do not wrap in quotes
 # 		echo $sdata
 # 	}
 #
+# 	names="$(get_names)"
+#
 #
 #   # +++++++
-# 	# Use case 1 : store serialization in a string
+# 	# Use case 1a : get a single item by index, and decode it
 #
-# 	all_greetings="$(greet_all "Alice Alson" "Bob Robertson" "Carol Carlson")"
+# 	arrays:get 2 $names
 #
-# 	arrays:get 2 $all_greetings
+#   # 1b : Assigning using parentheses () splits string along whitespace
+#   #  to form an array of serialized tokens. The serialized data can then
+#   #  be accessed by index
+#
+#   a_names=($names)
+#   echo "${a_names[2]}"
 #
 #
 #   # +++++++
 #   # Use case 2 : storing the serialized tokens as an array, for iteration
 #
-#   # Assigning using parentheses () splits string along whitespace to form an array
-#   #  of serialized tokens
-#
-# 	for greeting in $all_greetings ; do    # By not quoting the string, it splits on its own
-# 		arrays:get "$greeting"
+# 	for person in $names ; do  # Not quoting the variable splits it automatically
+# 		arrays:get "$person"
 # 	done
 #
 #
@@ -85,82 +81,27 @@ arrays:get() {
     fi
 }
 
-if [[ "${ARRAYSLIB_mode:-}" = escapes ]]; then
+# Internal - see arrays:get for API use
+#
+# Deserialize a single token
+arrays:deserialize() {
+    echo "$1" | base64 -d
+}
 
-    ### Obfuscating implementation
-    # Has some issues with newlines....
 
-    ARRAYSLIB_c_tb="$(echo -e '\t')"
-    ARRAYSLIB_c_lf="$(echo -e "\012")"
-    ARRAYSLIB_c_cr="$(echo -e "\015")"
+### arrays:serialize ARGUMENTS ... Usage:bbuild
+# 
+# Given an array of arguments, return them as a space-separated list
+#   of serialized tokens.
+#
+###/doc
+arrays:serialize() {
+    local sdata x
+    sdata=''
 
-    ARRAYSLIB_s_sp="$(echo -e "\033%s")"
-    ARRAYSLIB_s_tb="$(echo -e "\033%t")"
-    ARRAYSLIB_s_lf="$(echo -e "\033%n")"
-    ARRAYSLIB_s_cr="$(echo -e "\033%r")"
-    ARRAYSLIB_s_es="$(echo -e "\033%0")"
+    for x in "$@"; do
+        sdata="$sdata $(echo "$x"|base64 -w0)"
+    done
 
-    ### arrays:serialize ARGUMENTS ... Usage:bbuild
-    # 
-    # Given an array of arguments, return them as a space-separated list
-    #   of serialized tokens.
-    #
-    ###/doc
-    arrays:serialize() {
-        local serialdata item
-
-        for item in "$@"; do
-
-            if [[ -z "$item" ]]; then
-                item="$ARRAYSLIB_s_es"
-            else
-                item="${item// /$ARRAYSLIB_s_sp}"
-                item="${item//$ARRAYSLIB_c_tb/$ARRAYSLIB_s_tb}"
-                item="${item//$ARRAYSLIB_c_lf/$ARRAYSLIB_s_lf}"
-                item="${item//$ARRAYSLIB_c_cr/$ARRAYSLIB_s_cr}"
-            fi
-
-            serialdata="${serialdata:-} $item"
-        done
-
-        echo $serialdata
-    }
-
-    # Internal - see arrays:get for API use
-    #
-    # Deserialize a single token
-    arrays:deserialize() {
-        local item
-        item="$1"; shift
-
-        if [[ "$item" = "$ARRAYSLIB_s_es" ]]; then
-            echo ""
-            return 0
-        fi
-
-        item="${item//$ARRAYSLIB_s_sp/ }"
-        item="${item//$ARRAYSLIB_s_tb/$ARRAYSLIB_c_tb}"
-        item="${item//$ARRAYSLIB_s_lf/$ARRAYSLIB_c_lf}"
-        item="${item//$ARRAYSLIB_s_cr/$ARRAYSLIB_c_cr}"
-
-        echo "$item"
-    }
-
-else
-
-    arrays:serialize() {
-        local sdata x
-        sdata=''
-
-        for x in "$@"; do
-            sdata="$sdata $(echo "$x"|base64 -w0)"
-        done
-
-        echo $sdata
-    }
-
-    arrays:deserialize() {
-        echo "$1" | base64 -d
-    }
-
-fi
+    echo $sdata
+}
