@@ -44,6 +44,7 @@ function askuser:ask {
 ###/doc
 function askuser:password {
     read -s -p "$* : " 1>&2
+    echo >&2
     echo "$REPLY"
 }
 
