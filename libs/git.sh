@@ -1,6 +1,6 @@
 ### Git handlers Usage:bbuild
 #
-# Some handler functions to wrap around git
+# Some handler functions wrapping git, for automation scripts that pull/update git repositories.
 #
 ###/doc
 
