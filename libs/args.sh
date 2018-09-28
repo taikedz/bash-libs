@@ -1,6 +1,6 @@
 ##bash-libs: args.sh @ %COMMITHASH%
 
-#%include patterns.sh
+#%include patterns.sh out.sh
 
 ### args Usage:bbuild
 #
@@ -31,7 +31,7 @@
 #
 ###/doc
 
-function args:get {
+args:get() {
     local seek="$1"; shift || :
 
     if [[ "$seek" =~ $PAT_num ]]; then
@@ -55,7 +55,7 @@ function args:get {
     fi
 }
 
-function args:get_short {
+args:get_short() {
     local token="$1"; shift || :
     while [[ -n "$*" ]]; do
         local item="$1"; shift || :
@@ -68,7 +68,7 @@ function args:get_short {
     return 1
 }
 
-function args:get_long {
+args:get_long() {
     local token="$1"; shift || :
     local tokenpat="^$token=(.*)$"
 
@@ -101,7 +101,7 @@ function args:get_long {
 #
 ###/doc
 
-function args:has {
+args:has() {
     local token="$1"; shift || :
     for item in "$@"; do
         if [[ "$token" = "$item" ]]; then
@@ -130,7 +130,7 @@ function args:has {
 #
 ###/doc
 
-function args:after {
+args:after() {
     local token="$1"; shift || :
     
     local current_token="$1"; shift || :
@@ -139,4 +139,72 @@ function args:after {
     done
 
     RETARR_ARGSAFTER=("$@")
+}
+
+### args:use ARGNAMES ... -- ARGVALUES ... Usage:bbuild
+# 
+# Consume arguments into named variables. You need to use process subtitution and sourcing
+#   to call the function, so that it affects the scope in your function.
+#
+# If not enough argument values are found, the named variable that failed to be assigned is printed as error
+#
+# Example:
+#
+#   use_settings() {
+#       . <(args:use WEBHOST WEBPATH -- "$@")
+#       WEBQUERY="$(echo "$*" | sed -r 's/ +/\&/g')"
+#   }
+#
+#   use_settings example.com /path/on/server one=1 two=2
+#   echo "$WEBHOST/$WEBPATH?$WEBQUERY"
+#   
+#   # prints
+#   #
+#   #   example.com/path/on/server?one=1&two=2
+#
+###/doc
+args:use() {
+    local argname arglist # TODO - consume meta args
+    arglist=(:)
+    for argname in "$@"; do
+        [[ "$argname" != -- ]] || break
+        [[ "$argname" =~ ^[0-9a-zA-Z_]+$ ]] || out:fail "Internal: Not a valid argument name '$argname'"
+
+        arglist+=("$argname")
+    done
+
+    for argname in "${arglist[@]:1}"; do
+        echo "$ARGSLIB_scope $argname=\"\${1:-}\"; shift || out:fail \"Internal : could not get '$argname'\""
+    done
+}
+
+
+### args:use:local ARGNAMES ... -- ARGVALUES ... Usage:bbuild
+# 
+# Consume arguments into named variables. You need to use process subtitution and sourcing
+#   to call the function, so that it affects the scope in your function.
+#
+# If not enough argument values are found, the named variable that failed to be assigned is printed as error
+#
+# Example:
+#
+#   person() {
+#       . <(args:use:local name email -- "$@")
+#
+#       echo "$name <$email>"
+#
+#       echo "-- $* --"
+#   }
+#
+#   person "Jo Smith" "jsmith@exam0ple.com" Some details
+#   echo "[$name]"
+#
+#   # prints
+#   #
+#   #     Jo Smith <jsmith@example.com>
+#   #     -- Some details --
+#   #     []
+###/doc
+args:use:local() {
+    ARGSLIB_scope=local args:use "$@"
 }
