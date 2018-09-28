@@ -1,4 +1,4 @@
-#%include colour.sh
+#%include colours.sh
 
 ### Debug lib Usage:bbuild
 #
