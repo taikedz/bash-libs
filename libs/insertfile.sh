@@ -22,7 +22,7 @@ function insertfile {
 
     insertfile:checkargs "$@" || return 1
 
-    local lcount="$(egrep ^ -c "$destfile")"
+    local lcount="$(grep -E ^ -c "$destfile")"
 
     if [[ "$1" -le 0 ]]; then
         insertfile:sedinsert "$destfile" "$sourcefile"

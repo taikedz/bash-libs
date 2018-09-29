@@ -12,3 +12,7 @@
 ###/doc
 
 set -eufo pipefail
+
+# TODO for future use - not to be activated until all libs have been checked
+# (all "$@" and ( <array> ) uses)
+#IFS='\t\n'

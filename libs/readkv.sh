@@ -25,7 +25,7 @@ function readkv {
         thedefault="$1"; shift || :
     fi
 
-    local res="$(readkv:meaningful_data "$thefile"|egrep "^$thekey"'\s*='|sed -r "s/^$thekey"'\s*=\s*//')"
+    local res="$(readkv:meaningful_data "$thefile"|grep -E "^$thekey"'\s*='|sed -r "s/^$thekey"'\s*=\s*//')"
     if [[ -z "$res" ]]; then
         echo "${thedefault:-}"
     else

@@ -76,7 +76,7 @@ tarsh:unpack() {
 
     mkdir -p "$TARSH_unpackdir"
 
-    hashline=$(egrep --binary-files=text -n "^$TARSH_binhash$" "$0" | cut -d: -f1)
+    hashline=$(grep -E --binary-files=text -n "^$TARSH_binhash$" "$0" | cut -d: -f1)
 
     tail -n +"$((hashline + 1))" "$0" | tar xz -C "$TARSH_unpackdir"
 }

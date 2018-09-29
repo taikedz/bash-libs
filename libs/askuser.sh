@@ -82,7 +82,7 @@ function askuser:choose_multi {
     local choices=$(echo "$*"|sed -r 's/ *, */\n/g')
 
     out:info "$mesg:" 
-    local choicelist="$(echo -e "$choices"|egrep '^' -n| sed 's/:/: /')"
+    local choicelist="$(echo -e "$choices"|grep -E '^' -n| sed 's/:/: /')"
     echo "$choicelist" 1>&2
     
     local sel=$(askuser:ask "Choice")
@@ -93,10 +93,10 @@ function askuser:choose_multi {
         echo -e "$choices" | sed -n "$sel p"
     
     elif [[ "$sel" =~ $listpat ]]; then
-        echo "$choicelist" | egrep "^${sel// /|}:" | sed -r 's/^[0-9]+: //'
+        echo "$choicelist" | grep -E "^${sel// /|}:" | sed -r 's/^[0-9]+: //'
 
     else
-        echo -e "$choices"  |egrep "$(echo "$sel"|tr " " '|')"
+        echo -e "$choices"  |grep -E "$(echo "$sel"|tr " " '|')"
     fi
     return 0
 }
