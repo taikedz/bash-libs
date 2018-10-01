@@ -48,16 +48,27 @@ load_bashlibs_version() {
     fi
 }
 
-main() {
-    cd "$(dirname "$0")"
+clear_libs() {
+    if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libs" ]]; then
+        rm -r "$libs"
+    fi
+}
 
-    checkout_target "$@"
-
+set_libs_dir() {
     if [[ "$UID" == 0 ]]; then
         : ${libs="/usr/local/lib/bbuild"}
     else
         : ${libs="$HOME/.local/lib/bbuild"}
     fi
+}
+
+main() {
+    cd "$(dirname "$0")"
+
+    checkout_target "$@"
+
+    set_libs_dir
+    clear_libs
 
     mkdir -p "$libs"
 
