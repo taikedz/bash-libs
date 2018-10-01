@@ -143,24 +143,29 @@ args:after() {
 
 ### args:use ARGNAMES ... -- ARGVALUES ... Usage:bbuild
 # 
-# Consume arguments into named variables. You need to use process subtitution and sourcing
-#   to call the function, so that it affects the scope in your function.
+# Consume arguments into named global variables.
 #
-# If not enough argument values are found, the named variable that failed to be assigned is printed as error
+# If not enough argument values are found, the first named variable that failed to be assigned is printed as error
 #
 # Example:
 #
-#   use_settings() {
-#       . <(args:use WEBHOST WEBPATH -- "$@")
-#       WEBQUERY="$(echo "$*" | sed -r 's/ +/\&/g')"
+#   #%include out.sh
+#   #%include args.sh
+#
+#   get_parameters() {
+#       . <(args:use INFILE OUTFILE -- "$@")
+#
+#       [[ -f "$INFILE" ]]  || out:fail "Input file '$INFILE' does not exist"
+#       [[ -f "$OUTFILE" ]] || out:fail "Output file '$OUTFILE' does not exist"
 #   }
 #
-#   use_settings example.com /path/on/server one=1 two=2
-#   echo "$WEBHOST/$WEBPATH?$WEBQUERY"
-#   
-#   # prints
-#   #
-#   #   example.com/path/on/server?one=1&two=2
+#   main() {
+#       get_parameters "$@"
+#
+#       echo "$INFILE will be converted to $OUTFILE"
+#   }
+#
+#   main "$@"
 #
 ###/doc
 args:use() {
@@ -188,22 +193,22 @@ args:use() {
 #
 # Example:
 #
+#   #%include out.sh
+#   #%include args.sh
+#
 #   person() {
 #       . <(args:use:local name email -- "$@")
 #
 #       echo "$name <$email>"
 #
-#       echo "-- $* --"
+#       # $1 and $2 have been consumed into $name and $email
+#       # The rest remains available in $* :
+#       
+#       echo "Additional notes: $*"
 #   }
 #
 #   person "Jo Smith" "jsmith@exam0ple.com" Some details
-#   echo "[$name]"
 #
-#   # prints
-#   #
-#   #     Jo Smith <jsmith@example.com>
-#   #     -- Some details --
-#   #     []
 ###/doc
 args:use:local() {
     ARGSLIB_scope=local args:use "$@"
