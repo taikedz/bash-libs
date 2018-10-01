@@ -1,5 +1,12 @@
 #!/bin/bash
 
+set -euo pipefail
+
+die() {
+    echo "$*"
+    exit 1
+}
+
 last_commit() {
     local commit="$(git log -n 1|head -n 1|cut -f2 -d' ')"
 
@@ -8,9 +15,9 @@ last_commit() {
 
 git_status() {
     if git status | grep -E "working (tree|directory) clean" -q ; then
-        : # echo "clean"
+        : # clean state, echo nothing
     else
-        echo "-modified"
+        echo "-uncommitted"
     fi
 }
 
@@ -27,18 +34,17 @@ copy_lib() {
 checkout_target() {
     if [[ -z "$*" ]]; then return 0; fi
 
-    git checkout "$1" || {
-        echo "Could not checkout commit at [$1]"
-        exit 1
-    }
+    git checkout "$1" || die "Could not checkout commit at [$1]"
 }
 
 load_bashlibs_version() {
     local tagpat='(?<=tag: )[0-9.]+'
-    BASHLIBS_VERSION="$(git log --oneline -n 1 --decorate=short | grep -oP "$tagpat")"
+    BASHLIBS_VERSION="$(git log --oneline -n 1 --decorate=short | grep -oP "$tagpat")" || :
 
     if [[ -z "$BASHLIBS_VERSION" ]]; then
-        BASHLIBS_VERSION="after $(git log --oneline --decorate=short | grep -oP "$tagpat" -m 1)"
+        # piping git log to grep always generates an error ; and we only care if grep fails
+        # hence unset pipefail locally
+        BASHLIBS_VERSION="after $(set +o pipefail; git log --oneline --decorate=short | grep -oP "$tagpat" -m 1)" || die "Could not get Bash Libs version"
     fi
 }
 
@@ -58,7 +64,7 @@ main() {
     load_bashlibs_version
 
     for libfile in libs/*.sh ; do
-        copy_lib "$libfile" "$libs/"
+        copy_lib "$libfile" "$libs/" || die "ABORT"
     done
 
     echo -e "\033[32;1mSuccessfully installed libraries to [$libs]\033[0m"
