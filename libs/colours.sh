@@ -52,6 +52,14 @@
 # Check the args to see if there's a `--color=always` or `--color=never`
 #   and reload the colours appropriately
 #
+#   main() {
+#       colours:check "$@"
+#
+#       echo "${CGRN}Green only in tty or if --colours=always !${CDEF}"
+#   }
+#
+#   main "$@"
+#
 ###/doc
 colours:check() {
     if [[ "$*" =~ --color=always ]]; then
