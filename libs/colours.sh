@@ -1,25 +1,42 @@
 ##bash-libs: colours.sh @ %COMMITHASH%
 
-### Colours for bash Usage:bbuild
-# A series of colour flags for use in outputs.
+### Colours for terminal Usage:bbuild
+# A series of shorthand colour flags for use in outputs, and functions to set your own flags.
+#
+# Not all terminals support all colours or modifiers.
 #
 # Example:
 # 	
-# 	echo -e "${CRED}Some red text ${CBBLU} some blue text $CDEF some text in the terminal's default colour")
+# 	echo "${CRED}Some red text ${CBBLU} some blue text. $CDEF Some text in the terminal's default colour")
 #
-# Requires processing of escape characters.
+# Preconfigured colours available:
 #
-# Colours available:
+# CRED, CBRED, HLRED -- red, bright red, highlight red
+# CGRN, CBGRN, HLGRN -- green, bright green, highlight green
+# CYEL, CBYEL, HLYEL -- yellow, bright yellow, highlight yellow
+# CBLU, CBBLU, HLBLU -- blue, bright blue, highlight blue
+# CPUR, CBPUR, HLPUR -- purple, bright purple, highlight purple
+# CTEA, CBTEA, HLTEA -- teal, bright teal, highlight teal
+# CBLA, CBBLA, HLBLA -- black, bright red, highlight red
+# CWHI, CBWHI, HLWHI -- white, bright red, highlight red
 #
-# CRED, CBRED, HLRED -- red, bold red, highlight red
-# CGRN, CBGRN, HLGRN -- green, bold green, highlight green
-# CYEL, CBYEL, HLYEL -- yellow, bold yellow, highlight yellow
-# CBLU, CBBLU, HLBLU -- blue, bold blue, highlight blue
-# CPUR, CBPUR, HLPUR -- purple, bold purple, highlight purple
-# CTEA, CBTEA, HLTEA -- teal, bold teal, highlight teal
+# Modifiers available:
 #
-# CDEF -- switches to the terminal default
-# CUNL -- add underline
+# CBON - activate bright
+# CDON - activate dim
+# ULON - activate underline
+# RVON - activate reverse (switch foreground and background)
+# SKON - activate strikethrough
+# 
+# Resets available:
+#
+# CNORM -- turn off bright or dim, without affecting other modifiers
+# ULOFF -- turn off highlighting
+# RVOFF -- turn off inverse
+# SKOFF -- turn off strikethrough
+# HLOFF -- turn off highlight
+#
+# CDEF -- turn off all colours and modifiers(switches to the terminal default)
 #
 # Note that highlight and underline must be applied or re-applied after specifying a colour.
 #
@@ -30,7 +47,7 @@
 
 #%include tty.sh
 
-### colours:check ARGS Usage:bbuild
+### colours:check ARGS ... Usage:bbuild
 #
 # Check the args to see if there's a `--color=always` or `--color=never`
 #   and reload the colours appropriately
@@ -47,6 +64,74 @@ colours:check() {
     return 0
 }
 
+### colours:set CODE Usage:bbuild
+# Set an explicit colour code - e.g.
+#
+#   echo "$(colours:set "33;2")Dim yellow text${CDEF}"
+#
+# See SGR Colours definitions
+#   <https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters>
+###/doc
+colours:set() {
+    # We use `echo -e` here rather than directly embedding a binary character
+    if [[ "$COLOURS_ON" = false ]]; then
+        return 0
+    else
+        echo -e "\033[${1}m"
+    fi
+}
+
+colours:define() {
+
+    # Shorthand colours
+
+    export CBLA="$(colours:set "21;30")"
+    export CRED="$(colours:set "21;31")"
+    export CGRN="$(colours:set "21;32")"
+    export CYEL="$(colours:set "21;33")"
+    export CBLU="$(colours:set "21;34")"
+    export CPUR="$(colours:set "21;35")"
+    export CTEA="$(colours:set "21;36")"
+    export CWHI="$(colours:set "21;37")"
+
+    export CBBLA="$(colours:set "1;30")"
+    export CBRED="$(colours:set "1;31")"
+    export CBGRN="$(colours:set "1;32")"
+    export CBYEL="$(colours:set "1;33")"
+    export CBBLU="$(colours:set "1;34")"
+    export CBPUR="$(colours:set "1;35")"
+    export CBTEA="$(colours:set "1;36")"
+    export CBWHI="$(colours:set "1;37")"
+
+    export HLBLA="$(colours:set "40")"
+    export HLRED="$(colours:set "41")"
+    export HLGRN="$(colours:set "42")"
+    export HLYEL="$(colours:set "43")"
+    export HLBLU="$(colours:set "44")"
+    export HLPUR="$(colours:set "45")"
+    export HLTEA="$(colours:set "46")"
+    export HLWHI="$(colours:set "47")"
+
+    # Modifiers
+    
+    export CBON="$(colours:set "1")"
+    export CDON="$(colours:set "2")"
+    export ULON="$(colours:set "4")"
+    export RVON="$(colours:set "7")"
+    export SKON="$(colours:set "9")"
+
+    # Resets
+
+    export CBNRM="$(colours:set "22")"
+    export HLOFF="$(colours:set "49")"
+    export ULOFF="$(colours:set "24")"
+    export RVOFF="$(colours:set "27")"
+    export SKOFF="$(colours:set "29")"
+
+    export CDEF="$(colours:set "0")"
+
+}
+
 colours:auto() {
     if tty:is_pipe ; then
         COLOURS_ON=false
@@ -56,60 +141,6 @@ colours:auto() {
 
     colours:define
     return 0
-}
-
-colours:define() {
-    if [[ "$COLOURS_ON" = false ]]; then
-
-        export CRED=''
-        export CGRN=''
-        export CYEL=''
-        export CBLU=''
-        export CPUR=''
-        export CTEA=''
-
-        export CBRED=''
-        export CBGRN=''
-        export CBYEL=''
-        export CBBLU=''
-        export CBPUR=''
-        export CBTEA=''
-
-        export HLRED=''
-        export HLGRN=''
-        export HLYEL=''
-        export HLBLU=''
-        export HLPUR=''
-        export HLTEA=''
-
-        export CDEF=''
-
-    else
-
-        export CRED=$(echo -e "\033[0;31m")
-        export CGRN=$(echo -e "\033[0;32m")
-        export CYEL=$(echo -e "\033[0;33m")
-        export CBLU=$(echo -e "\033[0;34m")
-        export CPUR=$(echo -e "\033[0;35m")
-        export CTEA=$(echo -e "\033[0;36m")
-
-        export CBRED=$(echo -e "\033[1;31m")
-        export CBGRN=$(echo -e "\033[1;32m")
-        export CBYEL=$(echo -e "\033[1;33m")
-        export CBBLU=$(echo -e "\033[1;34m")
-        export CBPUR=$(echo -e "\033[1;35m")
-        export CBTEA=$(echo -e "\033[1;36m")
-
-        export HLRED=$(echo -e "\033[41m")
-        export HLGRN=$(echo -e "\033[42m")
-        export HLYEL=$(echo -e "\033[43m")
-        export HLBLU=$(echo -e "\033[44m")
-        export HLPUR=$(echo -e "\033[45m")
-        export HLTEA=$(echo -e "\033[46m")
-
-        export CDEF=$(echo -e "\033[0m")
-
-    fi
 }
 
 colours:auto
