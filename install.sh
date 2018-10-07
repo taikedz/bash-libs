@@ -50,6 +50,7 @@ load_bashlibs_version() {
 
 clear_libs() {
     if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libs" ]]; then
+        echo "Clearing '$libs' ..."
         rm -r "$libs"
     fi
 }
