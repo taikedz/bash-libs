@@ -1,3 +1,5 @@
+##bash-libs: try-to.sh @ %COMMITHASH%
+
 ### try-to COMMAND ... Usage:bbuild
 # Try to run something, offer the user an opportunity to resolve problems and retry
 ###/doc

@@ -1,3 +1,5 @@
+##bash-libs: crypt.sh @ %COMMITHASH%
+
 ### Crypt Lib Usage:bbuild
 #
 # A rudimentary encryption library built on openssl, for using symmetrical keys,

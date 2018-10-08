@@ -1,3 +1,5 @@
+##bash-libs: git.sh @ %COMMITHASH%
+
 ### Git handlers Usage:bbuild
 #
 # Some handler functions wrapping git, for automation scripts that pull/update git repositories.

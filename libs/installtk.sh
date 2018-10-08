@@ -1,6 +1,4 @@
-#!/usr/bin/env bash
-
-set -euo pipefail
+##bash-libs: installtk.sh @ %COMMITHASH%
 
 ### Installation script tooklit Usage:bbuild
 #

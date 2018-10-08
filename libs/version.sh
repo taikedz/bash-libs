@@ -1,5 +1,7 @@
 ##bash-libs: version.sh @ %COMMITHASH%
 
+#%include args.sh
+
 ### Version Tool Usage:bbuild
 #
 # Functions for handling version numbers.
@@ -24,8 +26,8 @@ version:gt() {
     local version1="$1"; shift || :
     local version2="$1"; shift || :
 
-    version:validate "$version1" || return 1
-    version:validate "$version2" || return 1
+    version1="$(version:validate "$version1")" || return 1
+    version2="$(version:validate "$version2")" || return 1
 
     read v1x v1y v1z < <(echo "$version1"|sed 's/\./ /g')
     read v2x v2y v2z < <(echo "$version2"|sed 's/\./ /g')
@@ -53,7 +55,7 @@ version:next() {
     local vsection="$1"; shift || :
     local sversion="$1"; shift || :
 
-    version:validate "$sversion" || return 1
+    version="$(version:validate "$sversion")" || return 1
 
     read vx vy vz < <(echo "$sversion"|sed 's/\./ /g')
 
@@ -78,9 +80,17 @@ version:next() {
     return 0
 }
 
-version:validate() {
-    [[ "$1" =~ [0-9]+\.[0-9]+\.[0-9]+ ]] || {
+$%function version:validate(version) {
+    if [[ "$version" =~ ^[0-9]+$ ]]; then
+        echo "${version}.0.0"
+
+    elif [[ "$version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+        echo "${version}.0"
+
+    elif [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "$version"
+
+    else
         return 1
-    }
-    return 0
+    fi
 }
