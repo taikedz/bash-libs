@@ -87,12 +87,12 @@ git:update() {
 ###/doc
 
 git:last_tagged_version() {
-    local tagpat='(?<=\(tag: )(v\.?)?[0-9.]+(?=\))'
+    local tagpat='(?<=tag: )([vV]\.?)?[0-9.]+'
     local tagged_version
-    tagged_version="$(git log --oneline -n 1 --decorate=short | grep -oP "$tagpat")" || :
+    tagged_version="$(git log --oneline -n 1 --format="%d" | grep -oP "$tagpat")" || :
 
     if [[ -z "$tagged_version" ]]; then
-        tagged_version="$(git log --oneline --decorate=short | grep -oP "$tagpat" -m 1)" || :
+        tagged_version="$(git log --format="%d"|grep -vP '^\s*$' | grep -oP "$tagpat" -m 1)" || :
         if [[ -z "$tagged_version" ]]; then
             return 1
         fi
