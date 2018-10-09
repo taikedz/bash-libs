@@ -147,16 +147,20 @@ args:after() {
 #
 # If not enough argument values are found, the first named variable that failed to be assigned is printed as error
 #
+# ARGNAMES prefixed with '?' do not trigger an error
+#
 # Example:
 #
 #   #%include out.sh
 #   #%include args.sh
 #
 #   get_parameters() {
-#       . <(args:use INFILE OUTFILE -- "$@")
+#       . <(args:use INFILE OUTFILE ?comment -- "$@")
 #
 #       [[ -f "$INFILE" ]]  || out:fail "Input file '$INFILE' does not exist"
 #       [[ -f "$OUTFILE" ]] || out:fail "Output file '$OUTFILE' does not exist"
+#
+#       [[ -z "$comment" ]] || echo "Note: $comment"
 #   }
 #
 #   main() {
