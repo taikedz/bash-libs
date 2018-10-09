@@ -54,7 +54,7 @@ function readkv:require {
     readkv "$@"
 }
 
-### readkv:moeaningful_data FILE Usage:bbuild
+### readkv:meaningful_data FILE Usage:bbuild
 # Dump the file contents, stripping meaningless data (empty lines and comment lines)
 ###/doc
 readkv:meaningful_data() {

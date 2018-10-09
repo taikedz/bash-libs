@@ -169,17 +169,24 @@ args:after() {
 #
 ###/doc
 args:use() {
-    local argname arglist # TODO - consume meta args
+    local argname arglist undef_f
     arglist=(:)
     for argname in "$@"; do
         [[ "$argname" != -- ]] || break
-        [[ "$argname" =~ ^[0-9a-zA-Z_]+$ ]] || out:fail "Internal: Not a valid argument name '$argname'"
+        [[ "$argname" =~ ^\??[0-9a-zA-Z_]+$ ]] || out:fail "Internal: Not a valid argument name '$argname'"
 
         arglist+=("$argname")
     done
 
     for argname in "${arglist[@]:1}"; do
-        echo "$ARGSLIB_scope $argname=\"\${1:-}\"; shift || out:fail \"Internal : could not get '$argname'\""
+        if [[ "$argname" =~ ^\? ]]; then
+            argname="${argname:1}"
+            undef_f=":"
+        else
+            undef_f="out:fail \"Internal : could not get '$argname'\""
+        fi
+
+        echo "$ARGSLIB_scope $argname=\"\${1:-}\"; shift || $undef_f"
     done
 }
 
