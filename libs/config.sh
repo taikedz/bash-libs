@@ -2,18 +2,18 @@
 
 ##bash-libs: config.sh @ %COMMITHASH%
 
-### config.sh Usage:help
+### config.sh Usage:bbuild
 # Read configuration from various locations.
 ###/doc
 
-### config:declare Usage:help
+### config:declare Usage:bbuild
 #
 # Declare a set of config files, more general file first, then read values from each file in turn.
 #
 # Example config contents and variable declaration
 #
-#   echo -e "first=1\nsecond=2\nthird=3" > /etc/test.conf
-#   echo -e "second=two\nthird=" > ./test.conf
+#   echo -e "first=1\\nsecond=2\\nthird=3" > /etc/test.conf
+#   echo -e "second=two\\nthird=" > ./test.conf
 #
 #   config:declare /etc/test.conf ./test.conf
 #
