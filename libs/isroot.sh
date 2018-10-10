@@ -1,6 +1,6 @@
-##bash-libs: isroot.sh @ %COMMITHASH%
-
 #%include out.sh
+
+##bash-libs: isroot.sh @ %COMMITHASH%
 
 ### isroot Usage:bbuild
 # Test for root access

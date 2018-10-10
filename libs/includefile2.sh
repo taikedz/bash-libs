@@ -1,11 +1,11 @@
+#%include searchpaths.sh out.sh
+
 ##bash-libs: includefile2.sh @ %COMMITHASH%
 
 ### File Inclusion Usage:bbuild
 # Library for including (once) or inserting (any time called) external files ontents
 # based on developer-defined tokens
 ##/doc
-
-#%include searchpaths.sh out.sh
 
 includefile:reset_tracker() {
     INCLUDEFILE_tracker=""

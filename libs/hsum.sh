@@ -1,6 +1,6 @@
-##bash-libs: sums.sh @ %COMMITHASH%
-
 #%include out.sh
+
+##bash-libs: sums.sh @ %COMMITHASH%
 
 ### hsum Usage:bbuild
 #

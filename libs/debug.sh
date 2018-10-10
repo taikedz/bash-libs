@@ -1,6 +1,6 @@
-##bash-libs: debug.sh @ %COMMITHASH%
-
 #%include colours.sh
+
+##bash-libs: debug.sh @ %COMMITHASH%
 
 ### Debug lib Usage:bbuild
 #

@@ -1,3 +1,5 @@
+#%include tty.sh
+
 ##bash-libs: colours.sh @ %COMMITHASH%
 
 ### Colours for terminal Usage:bbuild
@@ -44,8 +46,6 @@
 #   You can override this by calling `colours:check --color=always` at the start of your script
 #
 ###/doc
-
-#%include tty.sh
 
 ### colours:check ARGS ... Usage:bbuild
 #

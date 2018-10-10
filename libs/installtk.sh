@@ -1,3 +1,5 @@
+#%include out.sh isroot.sh
+
 ##bash-libs: installtk.sh @ %COMMITHASH%
 
 ### Installation script tooklit Usage:bbuild
@@ -18,8 +20,6 @@
 #    installtk:add-command runit scripts/main.sh
 #
 ###/doc
-
-#%include out.sh isroot.sh
 
 installtk:set-name() {
     INSTALLTK_project_name="$1"

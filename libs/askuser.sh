@@ -1,10 +1,10 @@
+#%include out.sh
+
 ##bash-libs: askuser.sh @ %COMMITHASH%
 
 ### askuser Usage:bbuild
 # Present the user with questions on stderr
 ###/doc
-
-#%include out.sh
 
 yespat='^(yes|YES|y|Y)$'
 numpat='^[0-9]+$'

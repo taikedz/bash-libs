@@ -1,6 +1,6 @@
-##bash-libs: searchpaths.sh @ %COMMITHASH%
-
 #%include out.sh
+
+##bash-libs: searchpaths.sh @ %COMMITHASH%
 
 # FIXME - set function signature in head of help
 ### searchpaths:file_from PATHDEF FILE Usage:bbuild

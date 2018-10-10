@@ -1,6 +1,6 @@
-##bash-libs: cdiff.sh @ %COMMITHASH%
-
 #%include colours.sh
+
+##bash-libs: cdiff.sh @ %COMMITHASH%
 
 ### cdiff FILE1 FILE2 Usage:bbuild
 #

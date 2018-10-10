@@ -1,3 +1,5 @@
+#%include abspath.sh
+
 ##bash-libs: this.sh @ %COMMITHASH%
 
 ### this: Info about the current command Usage:bbuild
@@ -5,8 +7,6 @@
 # Get information about the current running app.
 #
 ###/doc
-
-#%include abspath.sh
 
 ### this:bin Usage:bbuild
 # The file name of the running script, without its path

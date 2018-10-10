@@ -1,6 +1,6 @@
-##bash-libs: out.sh @ %COMMITHASH%
-
 #%include colours.sh
+
+##bash-libs: out.sh @ %COMMITHASH%
 
 ### Console output handlers Usage:bbuild
 #

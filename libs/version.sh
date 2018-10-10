@@ -1,6 +1,6 @@
-##bash-libs: version.sh @ %COMMITHASH%
-
 #%include args.sh
+
+##bash-libs: version.sh @ %COMMITHASH%
 
 ### Version Tool Usage:bbuild
 #
