@@ -93,14 +93,14 @@ colours:define() {
 
     # Shorthand colours
 
-    export CBLA="$(colours:set "21;30")"
-    export CRED="$(colours:set "21;31")"
-    export CGRN="$(colours:set "21;32")"
-    export CYEL="$(colours:set "21;33")"
-    export CBLU="$(colours:set "21;34")"
-    export CPUR="$(colours:set "21;35")"
-    export CTEA="$(colours:set "21;36")"
-    export CWHI="$(colours:set "21;37")"
+    export CBLA="$(colours:set "30")"
+    export CRED="$(colours:set "31")"
+    export CGRN="$(colours:set "32")"
+    export CYEL="$(colours:set "33")"
+    export CBLU="$(colours:set "34")"
+    export CPUR="$(colours:set "35")"
+    export CTEA="$(colours:set "36")"
+    export CWHI="$(colours:set "37")"
 
     export CBBLA="$(colours:set "1;30")"
     export CBRED="$(colours:set "1;31")"
