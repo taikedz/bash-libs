@@ -1,4 +1,4 @@
-#%include args.sh
+#%include args.sh out.sh
 
 ##bash-libs: log.sh @ %COMMITHASH%
 
@@ -14,6 +14,7 @@
 # Example usage:
 #
 # 	log:use_file activity.log
+# 	log:level warn
 #
 # 	log:info "This is an info message"
 #
@@ -22,30 +23,52 @@
 BBLOGFILE=/dev/stderr
 LOGENTITY=$(basename "$0")
 
-### LOG_LEVEL Usage:bbuild
-#
-# Log level environment variable, by default set to WARN level.
-#
-# Set it to one of the predefined values:
-#
-# $LOG_LEVEL_FAIL - failures only
-# $LOG_LEVEL_WARN - failures and warnings
-# $LOG_LEVEL_INFO - failures, warnings and information
-# $LOG_LEVEL_DEBUG - failures, warnings, info and debug
-#
-# Example:
-#
-# 	export LOG_LEVEL=$LOG_LEVEL_INFO
-# 	command ...
-#
-###/doc
-
-LOG_LEVEL=1
+LOG_LEVEL=0
 
 LOG_LEVEL_FAIL=0
 LOG_LEVEL_WARN=1
 LOG_LEVEL_INFO=2
 LOG_LEVEL_DEBUG=3
+
+$%function log:_validate_level(level ?name) {
+    [[ "$level" =~ ^(debug|info|warn|fail)$ ]] || out:fail "Internal Error: $name called with incorrect level '$level'"
+}
+
+### log:level LEVEL Usage:bbuild
+#
+# Set log level: debug, info, warn, fail
+#
+# fail - failures only
+# warn - failures and warnings
+# info - failures, warnings and information
+# debug - failures, warnings, info and debug
+#
+# Example:
+#
+# 	log:level info
+# 	log:info "Hello!"
+# 	log:debug "Won't print"
+#
+###/doc
+
+$%function log:level(level) {
+    log:_validate_level "$level" "$log:level"
+
+    case "$level" in
+    debug)
+        LOG_LEVEL="$LOG_LEVEL_DEBUG"
+        ;;
+    info)
+        LOG_LEVEL="$LOG_LEVEL_INFO"
+        ;;
+    warn)
+        LOG_LEVEL="$LOG_LEVEL_WARN"
+        ;;
+    fail)
+        LOG_LEVEL="$LOG_LEVEL_FAIL"
+        ;;
+    esac
+}
 
 # Handily determine that the minimal level threshold is met
 function log:islevel {
@@ -54,11 +77,11 @@ function log:islevel {
     [[ "$LOG_LEVEL" -ge "$req_level" ]]
 }
 
-### log:get_level ARGS ... Usage:bbuild
+### log:get_level [ARGS ...] Usage:bbuild
 #
 # Pass script arguments and check for log level modifier
 #
-# This function will look for an argument like --log=N or --log={fail|warn|info|debug} and set the level appropriately
+# This function will look for an argument like --log={fail|warn|info|debug} and set the level appropriately
 #
 # Retuns non-zero if log level was specified but could not be determined
 #
@@ -91,7 +114,7 @@ function log:get_level {
     3|debug)
         LOG_LEVEL="$LOG_LEVEL_DEBUG" ;;
     *)
-        return 1
+        return 1 ;;
     esac
 
     return 0
@@ -109,7 +132,7 @@ function log:use_file {
 
     if [[ ! "$target_file" =~ $standard_outputs ]]; then
 
-        echo "$LOGENTITY $(date +"%F %T") Selecting log file" >> "$target_file" || {
+        echo "$LOGENTITY $(date +"%F %T") Selecting log file $target_file" >> "$target_file" || {
             res=1
             local msg="Could not set the log file to [$target_file] ; moving to stderr"
 
@@ -171,26 +194,6 @@ function log:debug {
     echo -e "$LOGENTITY $(date "+%F %T") DEBUG: $*" >>"$BBLOGFILE"
 }
 
-### log:debug:fork [MARKER] Usage:bbuild
-#
-# Pipe the data coming through stdin to stdout
-#
-# *Also* write the same data to the log when at debug level, each line preceded by MARKER
-#
-# Insert this debug fork into pipes to record their output
-#
-###/doc
-function log:debug:fork {
-    if log:islevel "$LOG_LEVEL_DEBUG"; then
-        local MARKER="${1:-PIPEDUMP}"; shift || :
-        MARKER="$(date "+%F %T") $MARKER :"
-
-        cat - | sed -r "s/^/$MARKER/" | tee -a "$BBLOGFILE"
-    else
-        cat -
-    fi
-}
-
 ### log:info MESSAGE Usage:bbuild
 # print an informational message to the log
 ###/doc
@@ -234,4 +237,50 @@ function log:dump {
     log:debug "$* -------------¬"
     log:debug "$(cat -)"
     log:debug "______________/"
+}
+
+### log:debug:fork [MARKER] Usage:bbuild
+#
+# DEPRECATED - please use `log:stream` instead ; this function prints log marker and date to stdout, as well as being tied directly to debug
+#
+# Pipe the data coming through stdin to stdout
+#
+# *Also* write the same data to the log when at debug level, each line preceded by MARKER
+#
+# Insert this debug fork into pipes to record their output
+#
+###/doc
+function log:debug:fork {
+    log:fail "--- DEPRECATED log:debug:fork used ---"
+    if log:islevel "$LOG_LEVEL_DEBUG"; then
+        local MARKER="${1:-PIPEDUMP}"; shift || :
+        MARKER="$(date "+%F %T") $MARKER :"
+
+        cat - | sed -r "s/^/$MARKER/" | tee -a "$BBLOGFILE"
+    else
+        cat -
+    fi
+}
+
+### log:stream LEVEL [MARKER] Usage:bbuild
+#
+# Pipe a stream through this function ; upon reading each line:
+#
+# * a log line will be written for the appropriate level, with a date for the line
+# * the input line will be written verbatim to stdout
+#
+# Insert this function into pipes to log the data going through.
+#
+###/doc
+
+$%function log:stream(level ?marker) {
+    local inputline
+    [[ ! "$marker" =~ ^\s*$ ]] || marker=PIPED
+
+    log:_validate_level "$level" "log:stream"
+
+    while read inputline; do
+        log:"$level" "$marker | $inputline"
+        echo "$inputline"
+    done
 }
