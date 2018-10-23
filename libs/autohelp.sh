@@ -54,7 +54,7 @@
 #
 # Example usage in a multi-function script:
 #
-#   #!/bin/bash
+#   #!usr/bin/env bash
 #
 #   ### Main help Usage:help
 #   # The main help
@@ -65,7 +65,7 @@
 #   ###/doc
 #
 #   feature1() {
-#       autohelp:check_section feature_1 "$@"
+#       autohelp:check:section feature_1 "$@"
 #       echo "Feature I"
 #   }
 #
@@ -74,26 +74,17 @@
 #   ###/doc
 #
 #   feature2() {
-#       autohelp:check_section feature_2 "$@"
+#       autohelp:check:section feature_2 "$@"
 #       echo "Feature II"
 #   }
 #
 #   main() {
-#       if [[ -z "$*" ]]; then
-#           ### No command specified Usage:no-command
-#           #No command specified. Try running with `--help`
-#           ###/doc
-#
-#           autohelp:print no-command
-#           exit 1
-#       fi
-#
 #       case "$1" in
 #       feature1|feature2)
 #           "$1" "$@"            # Pass the global script arguments through
 #           ;;
 #       *)
-#           autohelp:check "$@"  # Check if main help was asked for, if so, exits
+#           autohelp:check-no-null "$@"  # Check if main help was asked for, if so, or if no args, exit with help
 #
 #           # Main help not requested, return error
 #           echo "Unknown feature"
@@ -156,20 +147,46 @@ autohelp:paged() {
     autohelp:print "$@" | $PAGER
 }
 
+### autohelp:check-or-null ARGS ... Usage:bbuild
+# Print help if arguments are empty, or if arguments contain a '--help' token
+#
+###/doc
+autohelp:check-or-null() {
+    if [[ -z "$*" ]]; then
+        autohelp:print help "$0"
+        exit 0
+    else
+        autohelp:check:section "help" "$@"
+    fi
+}
+
+### autohelp:check-or-null:section SECTION ARGS ... Usage:bbuild
+# Print help selction if arguments are empty, or if arguments contain a '--help' token
+#
+###/doc
+$%function autohelp:check-or-null(section) {
+    if [[ -z "$*" ]]; then
+        autohelp:print "$section" "$0"
+        exit 0
+    else
+        autohelp:check:section "$section" "$@"
+    fi
+}
+
 ### autohelp:check ARGS ... Usage:bbuild
 #
 # Automatically print "help" sections and exit, if "--help" is detected in arguments
 #
 ###/doc
 autohelp:check() {
-    autohelp:check_section "help" "$@"
+    autohelp:check:section "help" "$@"
 }
 
-### autohelp:check_section SECTION ARGS ... Usage:bbuild
+### autohelp:check:section SECTION ARGS ... Usage:bbuild
 # Automatically print documentation for named section and exit, if "--help" is detected in arguments
 #
 ###/doc
-autohelp:check_section() {
+autohelp:check:section() {
     local section arg
     section="${1:-}"; shift || out:fail "No help section specified"
 
