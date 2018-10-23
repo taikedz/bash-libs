@@ -12,8 +12,6 @@
 #
 # where `x` is more significant than `y`, more significant in turn than `z`
 #
-# All parts must be present. If comparing a version string "2.3", write it as "2.3.0"
-#
 ###/doc
 
 ### version:gt VERSIONSTRING1 VERSIONSTRING2 Usage:bbuild
@@ -51,9 +49,8 @@ version:gt() {
 #
 ###/doc
 
-version:next() {
-    local vsection="$1"; shift || :
-    local sversion="$1"; shift || :
+$%function version:next(?vsection ?sversion) {
+    local version vx vy vz
 
     version="$(version:validate "$sversion")" || return 1
 

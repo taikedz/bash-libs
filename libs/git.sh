@@ -75,7 +75,7 @@ git:update() {
     git pull "$remote" "$branch" || return 12
 }
 
-### git:last_tagged_version Usage:bbuild
+### git:last-tagged-version Usage:bbuild
 #
 # Look through history of the current branch and find the latest version tag
 #
@@ -84,11 +84,13 @@ git:update() {
 # * "=" if the current commit is tagged with the latest version found
 # * ">" if the current commit is later than the latest version found
 #
-# If no version is round, returns with status 1
+# If no version is found, returns with status 1
 #
 ###/doc
 
-git:last_tagged_version() {
+git:last-tagged-version() {
+    git:get-repo >/dev/null || return 1
+
     local tagpat='(?<=tag: )([vV]\.?)?[0-9.]+'
     local tagged_version
     tagged_version="$(git log --oneline -n 1 --format="%d" | grep -oP "$tagpat")" || :
@@ -105,4 +107,18 @@ git:last_tagged_version() {
     fi
 
     echo "$tagged_version"
+}
+
+git:get-repo() {
+    local path="$PWD"
+
+    while [[ "$path" != / ]] && [[ ! -d "$path/.git" ]]; do
+        path="$(cd "$path/.."; pwd)"
+    done
+
+    if [[ "$path" = "/" ]]; then
+        return 1
+    else
+        echo "$path"
+    fi
 }

@@ -6,11 +6,15 @@
 #
 # Basic toolkit for creating an installer for your scripts.
 #
-# Assuming your project name is `my-project` and you have assets in a `scripts/`
-# directory, and you want to install a `runit` command pointing at your
-# `scripts/main.sh` script, you can write the following install script:
+# Assuming:
 #
-#    #%include installth.sh
+# * your project name is `my-project`
+# * you have assets in a `scripts/` directory
+# * you want to install a `runit` command pointing at your `scripts/main.sh` script
+#
+# you can write the following install script:
+#
+#    #%include installtk.sh
 #
 #    installtk:set-name my-project
 #
@@ -25,7 +29,7 @@ installtk:set-name() {
     INSTALLTK_project_name="$1"
 }
 
-installtk:has_name() {
+installtk:_has_name() {
     [[ -n "${INSTALLTK_project_name:-}" ]] || out:fail "installtk : Project name not set"
 }
 
@@ -34,8 +38,12 @@ installtk:allow-non-root() {
 }
 
 installtk:_setup_dirs() {
+    installtk:_has_name
+
     BINDIR="$HOME/.local/bin"
     LIBSDIR="$HOME/.local/lib/$INSTALLTK_project_name"
+
+    installtk:_check_require_root
     if ! isroot; then
         BINDIR=/usr/bin
         LIBSDIR=/usr/lib/"$INSTALLTK_project_name"
@@ -45,7 +53,7 @@ installtk:_setup_dirs() {
     [[ -d "$LIBSDIR" ]] || mkdir -p "$LIBSDIR"
 }
 
-installtk:_require_root() {
+installtk:_check_require_root() {
     if [[ "${INSTALLTK_need_root:-}" = false ]]; then
         return 0
     fi
@@ -55,7 +63,7 @@ installtk:_require_root() {
 installtk:install-assets() {
     local asset
 
-    installtk:has_name
+    installtk:_has_name
     installtk:_setup_dirs
 
     for asset in "$@"; do
@@ -78,7 +86,7 @@ installtk:_asset_dir() {
 installtk:add-command() {
     local scriptpath
 
-    installtk:has_name
+    installtk:_has_name
     installtk:_setup_dirs
 
     # Allows bash scripts to source 
