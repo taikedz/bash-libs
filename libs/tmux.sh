@@ -5,6 +5,10 @@
 ### tmux.sh Usage:bbuild
 # 
 # Help run commands in tmux session. Useful for performing operations over remote connections.
+#
+# Error codes:
+#   TMUX_ERR_in_session - session is currently in tmux
+#   TMUX_ERR_run_failed - an attempt to run tmux failed
 #       
 ###/doc
 
@@ -77,12 +81,23 @@ tmux:ensure() {
     if tmux:run "$@"; then
         exit 0
     fi
+    
+    return "$TMUX_ERR_run_failed"
 }
 
+### tmux:in-session Usage:bbuild
+# Whether current session is running in tmux (or screen)
+###/doc
 tmux:in-session() {
     [[ "$TERM" = screen ]] || return $TMUX_ERR_in_session
 }
 
+### tmux:available Usage:bbuild
+# Whether the tmux command is available
+#
+# Returns 0 if command is available
+# Returns 1 if command is not available
+###/doc
 tmux:available() {
-    bincheck:has tmux || out:fail "'tmux' is not available"
+    bincheck:has tmux
 }
