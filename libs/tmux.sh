@@ -49,7 +49,7 @@ tmux:run() {
         return $TMUX_ERR_in_session
     fi
 
-    tmux new -d bash "$@" || return $TMUX_ERR_run_failed
+    tmux new bash "$@" || return $TMUX_ERR_run_failed
 }
 
 ### tmux:ensure COMMAND ... Usage:bbuild
