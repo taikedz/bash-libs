@@ -14,6 +14,7 @@
 
 TMUX_ERR_in_session=1
 TMUX_ERR_run_failed=2
+TMUX_ERR_not_available=3
 
 ### tmux:run COMMAND ... Usage:bbuild
 #
@@ -25,7 +26,7 @@ TMUX_ERR_run_failed=2
 #
 # Retuns `$TMUX_ERR_run_failed` otherwise.
 #
-# Exits shell if 'tmux' is not available.
+# Returns `$TMUX_ERR_not_available` if 'tmux' is not available.
 #
 # Example:
 #
@@ -42,7 +43,7 @@ TMUX_ERR_run_failed=2
 #
 ###/doc
 tmux:run() {
-    tmux:available
+    tmux:available || return "$TMUX_ERR_not_available"
 
     if tmux:in-session; then
         return $TMUX_ERR_in_session
@@ -59,7 +60,9 @@ tmux:run() {
 #
 # Returns 0 if already in session (proceed with rest of script)
 #
-# Exits with `$TMUX_ERR_run_failed` otherwise
+# Returns `$TMUX_ERR_not_available` if tmux is not available
+#
+# Returns `$TMUX_ERR_run_failed` otherwise
 #
 # Example:
 #
