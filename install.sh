@@ -57,9 +57,9 @@ clear_libs() {
 
 set_libs_dir() {
     if [[ "$UID" == 0 ]]; then
-        : ${libs="/usr/local/lib/bbuild/bb"}
+        : ${libs="/usr/local/lib/bbuild/std"}
     else
-        : ${libs="$HOME/.local/lib/bbuild/bb"}
+        : ${libs="$HOME/.local/lib/bbuild/std"}
     fi
 }
 
