@@ -49,17 +49,17 @@ load_bashlibs_version() {
 }
 
 clear_libs() {
-    if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libs" ]]; then
-        echo "Removing old '$libs' ..."
-        rm -r "$libs"
+    if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libsdir" ]]; then
+        echo "Removing old '$libsdir' ..."
+        rm -r "$libsdir"
     fi
 }
 
 set_libs_dir() {
     if [[ "$UID" == 0 ]]; then
-        : ${libs="/usr/local/lib/bbuild/std"}
+        : ${libsdir="/usr/local/lib/bbuild/std"}
     else
-        : ${libs="$HOME/.local/lib/bbuild/std"}
+        : ${libsdir="$HOME/.local/lib/bbuild/std"}
     fi
 }
 
@@ -71,15 +71,15 @@ main() {
     set_libs_dir
     clear_libs
 
-    mkdir -p "$libs"
+    mkdir -p "$libsdir"
 
     load_bashlibs_version
 
     for libfile in libs/*.sh ; do
-        copy_lib "$libfile" "$libs/" || die "ABORT"
+        copy_lib "$libfile" "$libsdir/" || die "ABORT"
     done
 
-    echo -e "\033[32;1mSuccessfully installed libraries to [$libs]\033[0m"
+    echo -e "\033[32;1mSuccessfully installed libraries to [$libsdir]\033[0m"
 }
 
 main "$@"
