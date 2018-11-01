@@ -50,16 +50,16 @@ load_bashlibs_version() {
 
 clear_libs() {
     if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libs" ]]; then
-        echo "Clearing '$libs' ..."
+        echo "Removing old '$libs' ..."
         rm -r "$libs"
     fi
 }
 
 set_libs_dir() {
     if [[ "$UID" == 0 ]]; then
-        : ${libs="/usr/local/lib/bbuild"}
+        : ${libs="/usr/local/lib/bbuild/bb"}
     else
-        : ${libs="$HOME/.local/lib/bbuild"}
+        : ${libs="$HOME/.local/lib/bbuild/bb"}
     fi
 }
 

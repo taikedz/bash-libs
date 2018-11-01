@@ -4,6 +4,22 @@
 
 See [`bash-builder`](https://github.com/taikedz/bash-builder) for more information.
 
+## Note on pre-2.0 library installations
+
+Older versions of `bash-libs` installed directly to a `.../lib/bbuild` directory. From 2.0 upwards, libraries will be installed to `.../lib/bbuild/bb` ; scripts using Bash Builder will need to change their import statements, or add the new location to their path.
+
+The recommended action is to update the inclusion statements of your scripts:
+
+    #%include out.sh
+    #%include args.sh
+
+becomes
+
+    #%include bb/out.sh
+    #%include bb/args.sh
+
+This is being done so that other library collections can be added to `.../lib/bbuild` directory, whilst still allowing the standard `bbuild/bb/` directory to be purged by the installer.
+
 ## Verifying
 
 You need to have installed bash-builder to run verification of scripts; or, run the following to use the bootstrap version
