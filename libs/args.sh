@@ -141,86 +141,11 @@ args:after() {
     RETARR_ARGSAFTER=("$@")
 }
 
-### args:use ARGNAMES ... -- ARGVALUES ... Usage:bbuild
-# 
-# Consume arguments into named global variables.
-#
-# If not enough argument values are found, the first named variable that failed to be assigned is printed as error
-#
-# ARGNAMES prefixed with '?' do not trigger an error
-#
-# Example:
-#
-#   #%include out.sh
-#   #%include args.sh
-#
-#   get_parameters() {
-#       . <(args:use INFILE OUTFILE ?comment -- "$@")
-#
-#       [[ -f "$INFILE" ]]  || out:fail "Input file '$INFILE' does not exist"
-#       [[ -f "$OUTFILE" ]] || out:fail "Output file '$OUTFILE' does not exist"
-#
-#       [[ -z "$comment" ]] || echo "Note: $comment"
-#   }
-#
-#   main() {
-#       get_parameters "$@"
-#
-#       echo "$INFILE will be converted to $OUTFILE"
-#   }
-#
-#   main "$@"
-#
-###/doc
-args:use() {
-    local argname arglist undef_f
-    arglist=(:)
-    for argname in "$@"; do
-        [[ "$argname" != -- ]] || break
-        [[ "$argname" =~ ^\??[0-9a-zA-Z_]+$ ]] || out:fail "Internal: Not a valid argument name '$argname'"
+# COMPATIBILITY SHIM
+#%bbtags w:syntax_compatibility_shim
 
-        arglist+=("$argname")
-    done
-
-    for argname in "${arglist[@]:1}"; do
-        if [[ "$argname" =~ ^\? ]]; then
-            argname="${argname:1}"
-            undef_f=":"
-        else
-            undef_f="out:fail \"Internal : could not get '$argname'\""
-        fi
-
-        echo "$ARGSLIB_scope $argname=\"\${1:-}\"; shift || $undef_f"
-    done
-}
-
-
-### args:use:local ARGNAMES ... -- ARGVALUES ... Usage:bbuild
-# 
-# Consume arguments into named variables. You need to use process subtitution and sourcing
-#   to call the function, so that it affects the scope in your function.
-#
-# If not enough argument values are found, the named variable that failed to be assigned is printed as error
-#
-# Example:
-#
-#   #%include out.sh
-#   #%include args.sh
-#
-#   person() {
-#       . <(args:use:local name email -- "$@")
-#
-#       echo "$name <$email>"
-#
-#       # $1 and $2 have been consumed into $name and $email
-#       # The rest remains available in $* :
-#       
-#       echo "Additional notes: $*"
-#   }
-#
-#   person "Jo Smith" "jsmith@exam0ple.com" Some details
-#
-###/doc
 args:use:local() {
-    ARGSLIB_scope=local args:use "$@"
+    syntax-extensions:use:local "$@"
 }
+
+#%include syntax-extensions.sh

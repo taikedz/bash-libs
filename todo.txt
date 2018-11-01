@@ -1,0 +1,8 @@
+# More to do
+
+* move libs/ to src/ and pre-build the libs/ directory so that functions that use syntax extensions can be sourced directly
+    * do not include syntax-extensions.sh though - that should remain the responsibility of the end developer
+* Define new location for libs to live
+    * ~/.local/lib/bbuild/std
+* Move syntax-extensions.sh to bash-builder's scope
+    * to install to ~/.local/lib/bbuild/build-support
