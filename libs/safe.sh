@@ -7,10 +7,11 @@
 # * Script bails if a statement or command returns non-zero status
 #   * except when in a conditional statement
 # * Accessing a variable that is not set is an error, causing non-zero status of the operation
-# * If a file glob does not expand, cause an error condition
+# * Prevents globs
 # * If a component of a pipe fails, the entire pipe statement returns non-zero
 #
 # Splitting over spaces
+# ---------------------
 #
 # You can also switch space splitting on or off (normal bash default is 'on')
 #
@@ -21,6 +22,13 @@
 #   safe:space-split on
 #
 # Having space splitting on causes statements like `echo "$*"` to print each argument on its own line.
+#
+# Globs
+# -------
+#
+# In safe mode, by glob expansion, like `ls .config/*` is turned off.
+#
+# You can turn glob expansion on and off with `safe:glob on` or `safe:glob off`
 #
 ###/doc
 
@@ -36,6 +44,20 @@ safe:space-split() {
         ;;
     *)
         out:fail "API error: bad use of safe:split - must be 'on' or 'off' not '$1'"
+        ;;
+    esac
+}
+
+safe:glob() {
+    case "$1" in
+    off)
+        set -f
+        ;;
+    on)
+        set +f
+        ;;
+    *)
+        out:fail "API error: bad use of safe:glob - must be 'on' or 'off' not '$1'"
         ;;
     esac
 }
