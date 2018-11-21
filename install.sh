@@ -33,8 +33,13 @@ copy_lib() {
 
 checkout_target() {
     if [[ -z "$*" ]]; then return 0; fi
+    local target="$1"; shift
 
-    git checkout "$1" || die "Could not checkout commit at [$1]"
+    if [[ "$target" = latest-release ]]; then
+        target="$(git log --oneline --decorate=short | grep -oP '(?<=\(tag: )[0-9.]+' | head -n 1)"
+    fi
+
+    git checkout "$target" || die "Could not checkout commit at [$target]"
 }
 
 load_bashlibs_version() {
