@@ -26,7 +26,7 @@
 # Globs
 # -------
 #
-# In safe mode, by glob expansion, like `ls .config/*` is turned off.
+# In safe mode, glob expansion like `ls .config/*` is turned off by default.
 #
 # You can turn glob expansion on and off with `safe:glob on` or `safe:glob off`
 #
