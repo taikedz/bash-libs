@@ -148,7 +148,6 @@ args:after() {
 #
 # See help in syntax.sh
 ###/doc
-#%bbtags w:deprecated w:use_syntax.sh
 args:use() {
     syntax-extensions:use "$@"
 }
