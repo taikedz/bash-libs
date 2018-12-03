@@ -75,7 +75,7 @@ syntax-extensions:use() {
 
         else
             [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
-            echo "$SYNTAXLIB_scope ${argname:1}=$argone; shift || out:fail $failmsg"
+            echo "$SYNTAXLIB_scope ${argname}=$argone; shift || out:fail $failmsg"
         fi
 
         argidx=$((argidx + 1))
