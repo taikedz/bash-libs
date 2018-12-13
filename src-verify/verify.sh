@@ -57,8 +57,10 @@ run_build_test() {
 
     "$BBEXEC" ${bbflags:-} "$libscript" || {
         VER_fails=$((VER_fails+1))
-        continue
+        return 1
     }
+
+    return 0
 }
 
 run_unit_tests() {
@@ -70,7 +72,7 @@ run_unit_tests() {
 
     if [[ -f "$testsfile" ]]; then
         "$BBEXEC" "$testsfile"
-        MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
+        bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
     else
         VER_fails=$((VER_fails+1))
         out:warn "There is no $testsfile test file."
@@ -83,7 +85,7 @@ run_verification() {
 
         items=$((items+1))
 
-        run_build_test "$scriptname"
+        run_build_test "$scriptname" || continue
 
         run_unit_tests "$scriptname"
 

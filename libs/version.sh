@@ -1,4 +1,4 @@
-#%include args.sh
+#%include syntax-extensions.sh
 
 ##bash-libs: version.sh @ %COMMITHASH%
 

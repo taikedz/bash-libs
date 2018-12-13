@@ -7,26 +7,12 @@ die() {
     exit 1
 }
 
-last_commit() {
-    local commit="$(git log -n 1|head -n 1|cut -f2 -d' ')"
-
-    echo "${commit:0:8}$(git_status) ($BASHLIBS_VERSION)"
-}
-
-git_status() {
-    if git status | grep -E "working (tree|directory) clean" -q ; then
-        : # clean state, echo nothing
-    else
-        echo "-uncommitted"
-    fi
-}
-
 copy_lib() {
     local file_from="$1"; shift
     local dir_to="$1"; shift
     local file_dest="$dir_to/$(basename "$file_from")"
 
-    sed "s/\%COMMITHASH\%/$(last_commit)/" "$file_from" > "$file_dest"
+    sed "s/\%COMMITHASH\%/$COMMIT_VERSION/" "$file_from" > "$file_dest"
 
     chmod 644 "$file_dest"
 }
@@ -49,7 +35,24 @@ load_bashlibs_version() {
     if [[ -z "$BASHLIBS_VERSION" ]]; then
         # piping git log to grep always generates an error ; and we only care if grep fails
         # hence unset pipefail locally
+        # FIXME this does not sound right though...
         BASHLIBS_VERSION="after $(set +o pipefail; git log --oneline --decorate=short | grep -oP "$tagpat" -m 1)" || die "Could not get Bash Libs version"
+    fi
+
+    load_commit_version
+}
+
+load_commit_version() {
+    local commit="$(git log -n 1|head -n 1|cut -f2 -d' ')"
+
+    COMMIT_VERSION="${commit:0:8}$(git_status) ($BASHLIBS_VERSION)"
+}
+
+git_status() {
+    if git status | grep -E "working (tree|directory) clean" -q ; then
+        : # clean state, echo nothing
+    else
+        echo "-uncommitted"
     fi
 }
 

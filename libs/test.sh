@@ -92,7 +92,7 @@ test:report() {
         reportcmd=out:error
     fi
 
-    "$reportcmd" "--- Ran $TEST_testsran tests with $TEST_testfailurecount failures"
+    "$reportcmd" "[$(basename "$0")] --- Ran $TEST_testsran tests with $TEST_testfailurecount failures"
 
     return "$TEST_testfailurecount"
 }

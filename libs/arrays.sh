@@ -4,6 +4,8 @@
 #
 # Lib for handling array serialization
 #
+# !!! - consider using variable pointeres for returning arrays
+#
 # In Bash, arrays are built by splitting along whitespace.
 #  This makes it impossible for functions and commands to natively
 #  return array data whose tokens contain whitespace, or even

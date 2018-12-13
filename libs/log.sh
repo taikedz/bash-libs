@@ -1,4 +1,4 @@
-#%include args.sh out.sh
+#%include args.sh syntax-extensions.sh out.sh
 
 ##bash-libs: log.sh @ %COMMITHASH%
 

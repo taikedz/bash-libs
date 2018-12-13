@@ -140,12 +140,3 @@ args:after() {
 
     RETARR_ARGSAFTER=("$@")
 }
-
-# COMPATIBILITY SHIM
-#%bbtags w:syntax_compatibility_shim
-
-args:use:local() {
-    syntax-extensions:use:local "$@"
-}
-
-#%include syntax-extensions.sh

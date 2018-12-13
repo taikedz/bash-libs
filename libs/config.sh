@@ -1,4 +1,4 @@
-#%include args.sh patterns.sh
+#%include syntax-extensions.sh patterns.sh
 
 ##bash-libs: config.sh @ %COMMITHASH%
 

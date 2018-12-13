@@ -17,7 +17,9 @@ test_next() {
     [[ "$nextv" = "$3" ]]
 }
 
+set -x
 test:require test_gt 3.2.1 3.2.0
+set +x
 test:require test_gt 3.2.1 3.1.1
 test:require test_gt 3.2.1 2.2.1
 

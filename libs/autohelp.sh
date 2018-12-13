@@ -1,4 +1,4 @@
-#%include out.sh
+#%include out.sh syntax-extensions.sh
 
 ##bash-libs: autohelp.sh @ %COMMITHASH%
 
@@ -164,7 +164,7 @@ autohelp:check-or-null() {
 # Print help selction if arguments are empty, or if arguments contain a '--help' token
 #
 ###/doc
-$%function autohelp:check-or-null(section) {
+$%function autohelp:check-or-null:section(section) {
     if [[ -z "$*" ]]; then
         autohelp:print "$section" "$0"
         exit 0

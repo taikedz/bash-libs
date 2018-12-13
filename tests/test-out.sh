@@ -1,8 +1,6 @@
 #%include test.sh
 #%include out.sh colours.sh
 
-#TODO further tests required around out:break and out:dump
-
 test_out() {
     local expect="$1"; shift
 
@@ -38,9 +36,5 @@ test:require test_out "$(echo "${CBYEL}WARN: ${CYEL}${test_text}${CDEF}")" out:w
 test:require test_out "$(echo "${CBRED}ERROR: ${CRED}${test_text}${CDEF}")" out:error "${test_text}"
 test:require test_out "$(echo "${CBRED}ERROR FAIL: ${CRED}${test_text}${CDEF}")" out:fail "${test_text}"
 test:require test_defer "one two three four"
-
-test:forbid test_out "$(echo "${CBBLU}DEBUG: ${CBLU}${test_text}${CDEF}")" out:debug "${test_text}"
-
-MODE_DEBUG=true test:require test_out "$(echo "${CBBLU}DEBUG: ${CBLU}${test_text}${CDEF}")" out:debug "${test_text}"
 
 test:report

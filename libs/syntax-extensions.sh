@@ -105,3 +105,8 @@ syntax-extensions:use() {
 syntax-extensions:use:local() {
     ARGSLIB_scope=local syntax-extensions:use "$@"
 }
+
+args:use:local() {
+    syntax-extensions:use:local "$@"
+}
+
