@@ -1,4 +1,5 @@
 #%include colours.sh
+#%include patterns.sh
 
 ##bash-libs: debug.sh @ %COMMITHASH%
 
@@ -83,9 +84,16 @@ function debug:dump {
 #
 # Requires `DEBUG_mode` set to true
 #
-# When the script runs, the message is printed with a propmt, and execution pauses.
+# When the script runs, the message is printed with a prompt, and execution pauses.
 #
 # Press return to continue execution.
+#
+# Type a variable name, with leading `$`, to dump it, e.g. `$myvar`
+#
+# Type a variable name, with leading `$`, follwoed by an assignment to change its value, e.g. `$myvar=new value`
+#  the new value will be seen by the script.
+#
+# Type 'env' to dump the current environment variables.
 #
 # Type `exit`, `quit` or `stop` to stop the program. If the breakpoint is in a subshell,
 #  execution from after the subshell will be resumed.
@@ -94,10 +102,48 @@ function debug:dump {
 
 function debug:break {
     [[ "$DEBUG_mode" = true ]] || return 0
+    local reply
 
-    echo -en "${CRED}BREAKPOINT: $* >$CDEF " >&2
-    read
-    if [[ "$REPLY" =~ quit|exit|stop ]]; then
-        echo "${CBRED}ABORT${CDEF}"
+    while true; do
+        read -p "${CRED}BREAKPOINT: $* >$CDEF " reply
+        if [[ "$reply" =~ quit|exit|stop ]]; then
+            echo "${CBRED}ABORT${CDEF}" >&2
+            exit 127
+
+        elif [[ "$reply" = env ]]; then
+            env |sed 's//^[/g' |debug:dump "--- "
+
+        elif [[ "$reply" =~ ^\$ ]]; then
+            debug:_break_dump "${reply:1}" || :
+
+        elif [[ -z "$reply" ]]; then
+            return 0
+        else
+            debug:print "'quit','exit' or 'stop' to abort; '\$varname' to see a variable's contents; '\$varname=new value' to assign a new value for run time; <Enter> to continue"
+        fi
+    done
+}
+
+debug:_break_dump() {
+    local inspectable="$1"
+    local varname="$1"
+    local varval
+
+    if [[ "$inspectable" =~ = ]]; then
+        varname="${inspectable%%=*}"
+        varval="${inspectable#*=}"
+    fi
+
+    [[ "$varname" =~ $PAT_cvar ]] || {
+        debug:print "${CRED}Invalid var name '$varname'"
+        return 1
+    }
+
+    declare -n inspect="$varname"
+
+    if [[ "$inspectable" =~ = ]]; then
+        inspect="$varval"
+    else
+        echo "$inspect"
     fi
 }

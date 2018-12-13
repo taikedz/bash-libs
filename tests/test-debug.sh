@@ -1,27 +1,44 @@
 #!/us/bin/env bash
 
+#%include test.sh
+#%include debug.sh
+
 #TODO further tests required around out:break and out:dump
 
-set -u
-#%include debug.sh
-#%include test.sh
-
-test_out() {
+test_debug() {
+    local res
+    lcaol dummy="haha"
     local expect="$1"; shift
 
-    local result="$("$@" 2>&1)"
+    local output="$("$@" 2>&1)"
 
-    echo "$result"
+    [[ "$output" = "$expect" ]]; res="$?"
 
-    [[ "$result" = "$expect" ]]
+    if [[ "$res" != 0 ]]; then
+        echo "Expected"
+        echo "$expect" | hexdump -C
+        echo "Received"
+        echo "$output" | hexdump -C
+    fi
+
+    return "$res"
+
 }
 
-test_text="Debug text"
+out:info "Testing false mode"
 
-test:forbid test_out "$(echo "${CBBLU}DEBUG: ${CBLU}${test_text}${CDEF}")" debug:print "${test_text}"
+DEBUG_mode=false
 
-export DEBUG_mode=true
+test:require test_debug "" debug:print "hello"
+#test:require test_debug "" debug:breakpoint "hello"
 
-test:require test_out "$(echo "${CBBLU}DEBUG: ${CBLU}${test_text}${CDEF}")" debug:print "${test_text}"
+out:info "Testing true mode"
+
+DEBUG_mode=true
+
+test:require test_debug "${CBBLU}DEBUG: ${CBLU}hello${CDEF}" debug:print "hello"
+
+# FIXME cannot test yet
+#test:require test_debug "${CRED}BREAKPOINT: hello >${CDEF} " debug:break "hello" < <(echo '$dummy')
 
 test:report

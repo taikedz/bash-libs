@@ -1,6 +1,6 @@
 ##bash-libs: syntax-extensions.sh @ %COMMITHASH%
 
-### Syntax Extensions Usage:bbuild
+### Syntax Extensions Usage:syntax
 #
 # Syntax extensions for bash-builder.
 #
@@ -10,7 +10,7 @@
 #
 ##/doc
 
-### syntax-extensions:use FUNCNAME ARGNAMES ... Usage:bbuild
+### syntax-extensions:use FUNCNAME ARGNAMES ... Usage:syntax
 #
 # Consume arguments into named global variables.
 #
@@ -44,7 +44,8 @@
 syntax-extensions:use() {
     local argname arglist undef_f dec_scope argidx argone failmsg pos_ok
     
-    [[ "${ARGSLIB_scope:-}" = local ]] || dec_scope=g
+    dec_scope=""
+    [[ "${SYNTAXLIB_scope:-}" = local ]] || dec_scope=g
     arglist=(:)
     argone=\"\${1:-}\"
     pos_ok=true
@@ -63,16 +64,16 @@ syntax-extensions:use() {
         posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
 
         if [[ "$argname" =~ ^\? ]]; then
-            echo "$ARGSLIB_scope ${argname:1}=$argone; shift || :"
+            echo "$SYNTAXLIB_scope ${argname:1}=$argone; shift || :"
             pos_ok=false
 
-        elif [[ "$argname" =~ "^\*" ]]; then
+        elif [[ "$argname" =~ ^\* ]]; then
             [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
             echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
 
         else
             [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
-            echo "$ARGSLIB_scope ${argname:1}=$argone; shift || out:fail $failmsg"
+            echo "$SYNTAXLIB_scope ${argname}=$argone; shift || out:fail $failmsg"
         fi
 
         argidx=$((argidx + 1))
@@ -80,7 +81,7 @@ syntax-extensions:use() {
 }
 
 
-### syntax-extensions:use:local FUNCNAME ARGNAMES ... Usage:bbuild
+### syntax-extensions:use:local FUNCNAME ARGNAMES ... Usage:syntax
 # 
 # Enables syntax macro: function signatures
 #   e.g. $%function func(var1 var2) { ... }
@@ -103,10 +104,9 @@ syntax-extensions:use() {
 #
 ###/doc
 syntax-extensions:use:local() {
-    ARGSLIB_scope=local syntax-extensions:use "$@"
+    SYNTAXLIB_scope=local syntax-extensions:use "$@"
 }
 
 args:use:local() {
     syntax-extensions:use:local "$@"
 }
-

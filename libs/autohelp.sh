@@ -113,7 +113,6 @@ autohelp:print() {
     [[ -n "$section_string" ]] || section_string=help
     [[ -n "$target_file" ]] || target_file="$0"
 
-    #echo -e "\n$(basename "$target_file")\n===\n"
     local sec_start='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s+(.+?)\s+Usage:'"$section_string"'\s*$'
     local sec_end='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s*/doc\s*$'
     local in_section=false
@@ -161,7 +160,7 @@ autohelp:check-or-null() {
 }
 
 ### autohelp:check-or-null:section SECTION ARGS ... Usage:bbuild
-# Print help selction if arguments are empty, or if arguments contain a '--help' token
+# Print help section SECTION if arguments are empty, or if arguments contain a '--help' token
 #
 ###/doc
 $%function autohelp:check-or-null:section(section) {
