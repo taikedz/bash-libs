@@ -1,14 +1,12 @@
 ##bash-libs: syntax-extensions.sh @ %COMMITHASH%
 
-### Syntax Extensions Usage:bbuild
+### Syntax Extensions Usage:syntax
 #
 # Syntax extensions for bash-builder.
 #
 # You will need to import this library if you use Bash Builder's extended syntax macros.
 #
 # You should not however use the functions directly, but the extended syntax instead.
-#
-# API is documented in the "syntax" section
 #
 ##/doc
 
@@ -107,4 +105,8 @@ syntax-extensions:use() {
 ###/doc
 syntax-extensions:use:local() {
     SYNTAXLIB_scope=local syntax-extensions:use "$@"
+}
+
+args:use:local() {
+    syntax-extensions:use:local "$@"
 }

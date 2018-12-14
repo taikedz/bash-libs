@@ -1,4 +1,5 @@
-#%include patterns.sh out.sh
+#%include std/patterns.sh
+#%include std/out.sh
 
 ##bash-libs: args.sh @ %COMMITHASH%
 
@@ -139,19 +140,4 @@ args:after() {
     done
 
     RETARR_ARGSAFTER=("$@")
-}
-
-#%include syntax-extensions.sh
-
-### args:use ARGNAMES ... -- ARGVALUES ... Usage:bbuild
-# DEPRECATED
-#
-# See help in syntax.sh
-###/doc
-args:use() {
-    syntax-extensions:use "$@"
-}
-
-args:use:local() {
-    SYNTAXLIB_scope=local syntax-extensions:use "$@"
 }

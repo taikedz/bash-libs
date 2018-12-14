@@ -1,5 +1,9 @@
+#!/us/bin/env bash
+
 #%include test.sh
 #%include debug.sh
+
+#TODO further tests required around out:break and out:dump
 
 test_debug() {
     local res
@@ -36,3 +40,5 @@ test:require test_debug "${CBBLU}DEBUG: ${CBLU}hello${CDEF}" debug:print "hello"
 
 # FIXME cannot test yet
 #test:require test_debug "${CRED}BREAKPOINT: hello >${CDEF} " debug:break "hello" < <(echo '$dummy')
+
+test:report

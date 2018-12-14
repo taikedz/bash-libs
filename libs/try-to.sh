@@ -1,4 +1,4 @@
-#%include askuser.sh
+#%include std/askuser.sh
 
 ##bash-libs: try-to.sh @ %COMMITHASH%
 

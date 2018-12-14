@@ -13,168 +13,170 @@
 #  that will be searched for wil then be "./tests/test-SOMEFILE"
 ###/doc
 
-##bash-libs: autohelp.sh @ d4f2e817-modified
+##bash-libs: out.sh @ 578599b8 (1.2.1)
 
-### autohelp:print [ SECTION [FILE] ] Usage:bbuild
-# Write your help as documentation comments in your script
-#
-# If you need to output the help from your script, or a file, call the
-# `autohelp:print` function and it will print the help documentation
-# in the current script to stdout
-#
-# A help comment looks like this:
-#
-#	### <title> Usage:help
-#	#
-#	# <some content>
-#	#
-#	# end with "###/doc" on its own line (whitespaces before
-#	# and after are OK)
-#	#
-#	###/doc
-#
-# You can set a different help section by specifying a subsection
-#
-# 	autohelp:print section2
-#
-# > This would print a section defined in this way:
-#
-# 	### Some title Usage:section2
-# 	# <some content>
-# 	###/doc
-#
-# You can set a different comment character by setting the 'HELPCHAR' environment variable:
-#
-# 	HELPCHAR=%
-#
-###/doc
+##bash-libs: colours.sh @ 578599b8 (1.2.1)
 
-HELPCHAR='#'
-
-function autohelp:print {
-	local SECTION_STRING="${1:-}"; shift || :
-	local TARGETFILE="${1:-}"; shift || :
-	[[ -n "$SECTION_STRING" ]] || SECTION_STRING=help
-	[[ -n "$TARGETFILE" ]] || TARGETFILE="$0"
-
-        echo -e "\n$(basename "$TARGETFILE")\n===\n"
-        local SECSTART='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s+(.+?)\s+Usage:'"$SECTION_STRING"'\s*$'
-        local SECEND='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s*/doc\s*$'
-        local insec=false
-
-        while read secline; do
-                if [[ "$secline" =~ $SECSTART ]]; then
-                        insec=true
-                        echo -e "\n${BASH_REMATCH[1]}\n---\n"
-
-                elif [[ "$insec" = true ]]; then
-                        if [[ "$secline" =~ $SECEND ]]; then
-                                insec=false
-                        else
-				echo "$secline" | sed -r "s/^\s*$HELPCHAR//g"
-                        fi
-                fi
-        done < "$TARGETFILE"
-
-        if [[ "$insec" = true ]]; then
-                echo "WARNING: Non-terminated help block." 1>&2
-        fi
-	echo ""
-}
-
-### autohelp:paged Usage:bbuild
+### Colours for terminal Usage:bbuild
+# A series of shorthand colour flags for use in outputs, and functions to set your own flags.
 #
-# Display the help in the pager defined in the PAGER environment variable
-#
-###/doc
-function autohelp:paged {
-	: ${PAGER=less}
-	autohelp:print "$@" | $PAGER
-}
-
-### autohelp:check Usage:bbuild
-#
-# Automatically print help and exit if "--help" is detected in arguments
-#
-# Example use:
-#
-#	#!/bin/bash
-#
-#	### Some help Usage:help
-#	#
-#	# Some help text
-#	#
-#	###/doc
-#
-#	#%include autohelp.sh
-#
-#	main() {
-#		autohelp:check "$@"
-#
-#		# now add your code
-#	}
-#
-#	main "$@"
-#
-###/doc
-autohelp:check() {
-	if [[ "$*" =~ --help ]]; then
-		cols="$(tput cols)"
-		autohelp:print | fold -w "$cols" -s || autohelp:print
-		exit 0
-	fi
-}
-##bash-libs: out.sh @ d4f2e817-modified
-
-##bash-libs: colours.sh @ d4f2e817-modified
-
-### Colours for bash Usage:bbuild
-# A series of colour flags for use in outputs.
+# Not all terminals support all colours or modifiers.
 #
 # Example:
 # 	
-# 	echo -e "${CRED}Some red text ${CBBLU} some blue text $CDEF some text in the terminal's default colour")
+# 	echo "${CRED}Some red text ${CBBLU} some blue text. $CDEF Some text in the terminal's default colour")
 #
-# Requires processing of escape characters.
+# Preconfigured colours available:
 #
-# Colours available:
+# CRED, CBRED, HLRED -- red, bright red, highlight red
+# CGRN, CBGRN, HLGRN -- green, bright green, highlight green
+# CYEL, CBYEL, HLYEL -- yellow, bright yellow, highlight yellow
+# CBLU, CBBLU, HLBLU -- blue, bright blue, highlight blue
+# CPUR, CBPUR, HLPUR -- purple, bright purple, highlight purple
+# CTEA, CBTEA, HLTEA -- teal, bright teal, highlight teal
+# CBLA, CBBLA, HLBLA -- black, bright red, highlight red
+# CWHI, CBWHI, HLWHI -- white, bright red, highlight red
 #
-# CRED, CBRED, HLRED -- red, bold red, highlight red
-# CGRN, CBGRN, HLGRN -- green, bold green, highlight green
-# CYEL, CBYEL, HLYEL -- yellow, bold yellow, highlight yellow
-# CBLU, CBBLU, HLBLU -- blue, bold blue, highlight blue
-# CPUR, CBPUR, HLPUR -- purple, bold purple, highlight purple
-# CTEA, CBTEA, HLTEA -- teal, bold teal, highlight teal
+# Modifiers available:
 #
-# CDEF -- switches to the terminal default
-# CUNL -- add underline
+# CBON - activate bright
+# CDON - activate dim
+# ULON - activate underline
+# RVON - activate reverse (switch foreground and background)
+# SKON - activate strikethrough
+# 
+# Resets available:
+#
+# CNORM -- turn off bright or dim, without affecting other modifiers
+# ULOFF -- turn off highlighting
+# RVOFF -- turn off inverse
+# SKOFF -- turn off strikethrough
+# HLOFF -- turn off highlight
+#
+# CDEF -- turn off all colours and modifiers(switches to the terminal default)
 #
 # Note that highlight and underline must be applied or re-applied after specifying a colour.
 #
+# If the session is detected as being in a pipe, colours will be turned off.
+#   You can override this by calling `colours:check --color=always` at the start of your script
+#
 ###/doc
 
-export CRED=$(echo -e "\033[0;31m")
-export CGRN=$(echo -e "\033[0;32m")
-export CYEL=$(echo -e "\033[0;33m")
-export CBLU=$(echo -e "\033[0;34m")
-export CPUR=$(echo -e "\033[0;35m")
-export CTEA=$(echo -e "\033[0;36m")
+##bash-libs: tty.sh @ 578599b8 (1.2.1)
 
-export CBRED=$(echo -e "\033[1;31m")
-export CBGRN=$(echo -e "\033[1;32m")
-export CBYEL=$(echo -e "\033[1;33m")
-export CBBLU=$(echo -e "\033[1;34m")
-export CBPUR=$(echo -e "\033[1;35m")
-export CBTEA=$(echo -e "\033[1;36m")
+tty:is_ssh() {
+    [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
+}
 
-export HLRED=$(echo -e "\033[41m")
-export HLGRN=$(echo -e "\033[42m")
-export HLYEL=$(echo -e "\033[43m")
-export HLBLU=$(echo -e "\033[44m")
-export HLPUR=$(echo -e "\033[45m")
-export HLTEA=$(echo -e "\033[46m")
+tty:is_pipe() {
+    [[ ! -t 1 ]]
+}
 
-export CDEF=$(echo -e "\033[0m")
+### colours:check ARGS ... Usage:bbuild
+#
+# Check the args to see if there's a `--color=always` or `--color=never`
+#   and reload the colours appropriately
+#
+#   main() {
+#       colours:check "$@"
+#
+#       echo "${CGRN}Green only in tty or if --colours=always !${CDEF}"
+#   }
+#
+#   main "$@"
+#
+###/doc
+colours:check() {
+    if [[ "$*" =~ --color=always ]]; then
+        COLOURS_ON=true
+    elif [[ "$*" =~ --color=never ]]; then
+        COLOURS_ON=false
+    fi
+
+    colours:define
+    return 0
+}
+
+### colours:set CODE Usage:bbuild
+# Set an explicit colour code - e.g.
+#
+#   echo "$(colours:set "33;2")Dim yellow text${CDEF}"
+#
+# See SGR Colours definitions
+#   <https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters>
+###/doc
+colours:set() {
+    # We use `echo -e` here rather than directly embedding a binary character
+    if [[ "$COLOURS_ON" = false ]]; then
+        return 0
+    else
+        echo -e "\033[${1}m"
+    fi
+}
+
+colours:define() {
+
+    # Shorthand colours
+
+    export CBLA="$(colours:set "21;30")"
+    export CRED="$(colours:set "21;31")"
+    export CGRN="$(colours:set "21;32")"
+    export CYEL="$(colours:set "21;33")"
+    export CBLU="$(colours:set "21;34")"
+    export CPUR="$(colours:set "21;35")"
+    export CTEA="$(colours:set "21;36")"
+    export CWHI="$(colours:set "21;37")"
+
+    export CBBLA="$(colours:set "1;30")"
+    export CBRED="$(colours:set "1;31")"
+    export CBGRN="$(colours:set "1;32")"
+    export CBYEL="$(colours:set "1;33")"
+    export CBBLU="$(colours:set "1;34")"
+    export CBPUR="$(colours:set "1;35")"
+    export CBTEA="$(colours:set "1;36")"
+    export CBWHI="$(colours:set "1;37")"
+
+    export HLBLA="$(colours:set "40")"
+    export HLRED="$(colours:set "41")"
+    export HLGRN="$(colours:set "42")"
+    export HLYEL="$(colours:set "43")"
+    export HLBLU="$(colours:set "44")"
+    export HLPUR="$(colours:set "45")"
+    export HLTEA="$(colours:set "46")"
+    export HLWHI="$(colours:set "47")"
+
+    # Modifiers
+    
+    export CBON="$(colours:set "1")"
+    export CDON="$(colours:set "2")"
+    export ULON="$(colours:set "4")"
+    export RVON="$(colours:set "7")"
+    export SKON="$(colours:set "9")"
+
+    # Resets
+
+    export CBNRM="$(colours:set "22")"
+    export HLOFF="$(colours:set "49")"
+    export ULOFF="$(colours:set "24")"
+    export RVOFF="$(colours:set "27")"
+    export SKOFF="$(colours:set "29")"
+
+    export CDEF="$(colours:set "0")"
+
+}
+
+colours:auto() {
+    if tty:is_pipe ; then
+        COLOURS_ON=false
+    else
+        COLOURS_ON=true
+    fi
+
+    colours:define
+    return 0
+}
+
+colours:auto
 
 ### Console output handlers Usage:bbuild
 #
@@ -182,71 +184,32 @@ export CDEF=$(echo -e "\033[0m")
 #
 ###/doc
 
-### Environment Variables Usage:bbuild
-#
-# MODE_DEBUG : set to 'true' to enable debugging output
-# MODE_DEBUG_VERBOSE : set to 'true' to enable command echoing
-#
-###/doc
-
-: ${MODE_DEBUG=false}
-: ${MODE_DEBUG_VERBOSE=false}
-
-# Internal
-function out:buffer_initialize {
-	OUTPUT_BUFFER_defer=(:)
-}
-out:buffer_initialize
-
-### out:debug MESSAGE Usage:bbuild
-# print a blue debug message to stderr
-# only prints if MODE_DEBUG is set to "true"
-###/doc
-function out:debug {
-	if [[ "$MODE_DEBUG" = true ]]; then
-		echo "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
-	fi
-}
-
-### out:debug:fork [MARKER] Usage:bbuild
-#
-# Pipe the data coming through stdin to stdout
-#
-# If debug mode is on, *also* write the same data to stderr, each line preceded by MARKER
-#
-# Insert this debug fork into pipes to see their output
-#
-###/doc
-function out:debug:fork {
-	if [[ "$MODE_DEBUG" = true ]]; then
-		local MARKER="${1:-DEBUG: }"; shift || :
-
-		cat - | sed -r "s/^/$MARKER/" | tee -a /dev/stderr
-	else
-		cat -
-	fi
-}
-
 ### out:info MESSAGE Usage:bbuild
 # print a green informational message to stderr
 ###/doc
 function out:info {
-	echo "$CGRN$*$CDEF" 1>&2
+    echo "$CGRN$*$CDEF" 1>&2
 }
 
 ### out:warn MESSAGE Usage:bbuild
 # print a yellow warning message to stderr
 ###/doc
 function out:warn {
-	echo "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
+    echo "${CBYEL}WARN: $CYEL$*$CDEF" 1>&2
 }
 
 ### out:defer MESSAGE Usage:bbuild
 # Store a message in the output buffer for later use
 ###/doc
 function out:defer {
-	OUTPUT_BUFFER_defer[${#OUTPUT_BUFFER_defer[@]}]="$*"
+    OUTPUT_BUFFER_defer[${#OUTPUT_BUFFER_defer[@]}]="$*"
 }
+
+# Internal
+function out:buffer_initialize {
+    OUTPUT_BUFFER_defer=(:)
+}
+out:buffer_initialize
 
 ### out:flush HANDLER ... Usage:bbuild
 #
@@ -264,15 +227,15 @@ function out:defer {
 #
 ###/doc
 function out:flush {
-	[[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer[*]}"
+    [[ -n "$*" ]] || out:fail "Did not provide a command for buffered output\n\n${OUTPUT_BUFFER_defer[*]}"
 
-	[[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return 0
+    [[ "${#OUTPUT_BUFFER_defer[@]}" -gt 1 ]] || return 0
 
-	for buffer_line in "${OUTPUT_BUFFER_defer[@]:1}"; do
-		"$@" "$buffer_line"
-	done
+    for buffer_line in "${OUTPUT_BUFFER_defer[@]:1}"; do
+        "$@" "$buffer_line"
+    done
 
-	out:buffer_initialize
+    out:buffer_initialize
 }
 
 ### out:fail [CODE] MESSAGE Usage:bbuild
@@ -281,15 +244,15 @@ function out:flush {
 # if no code is specified, error code 127 is used
 ###/doc
 function out:fail {
-	local ERCODE=127
-	local numpat='^[0-9]+$'
+    local ERCODE=127
+    local numpat='^[0-9]+$'
 
-	if [[ "$1" =~ $numpat ]]; then
-		ERCODE="$1"; shift || :
-	fi
+    if [[ "$1" =~ $numpat ]]; then
+        ERCODE="$1"; shift || :
+    fi
 
-	echo "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
-	exit $ERCODE
+    echo "${CBRED}ERROR FAIL: $CRED$*$CDEF" 1>&2
+    exit $ERCODE
 }
 
 ### out:error MESSAGE Usage:bbuild
@@ -298,55 +261,191 @@ function out:fail {
 # unlike out:fail, does not cause script exit
 ###/doc
 function out:error {
-	echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
+    echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
 
-### out:dump Usage:bbuild
+##bash-libs: autohelp.sh @ 578599b8 (1.2.1)
+
+### Autohelp Usage:bbuild
 #
-# Dump stdin contents to console stderr. Requires debug mode.
+# Autohelp provides some simple facilities for defining help as comments in your code.
+# It provides several functions for printing specially formatted comment sections.
 #
-# Example
+# Write your help as documentation comments in your script
 #
-# 	action_command 2>&1 | out:dump
+# To output a named section from your script, or a file, call the
+# `autohelp:print` function and it will print the help documentation
+# in the current script, or specified file, to stdout
+#
+# A help comment looks like this:
+#
+#    ### <title> Usage:help
+#    #
+#    # <some content>
+#    #
+#    # end with "###/doc" on its own line (whitespaces before
+#    # and after are OK)
+#    #
+#    ###/doc
+#
+# It can then be printed from the same script by simply calling
+#
+#   autohelp:print
+#
+# You can print a different section by specifying a different name
+#
+# 	autohelp:print section2
+#
+# > This would print a section defined in this way:
+#
+# 	### Some title Usage:section2
+# 	# <some content>
+# 	###/doc
+#
+# You can set a different comment character by setting the 'HELPCHAR' environment variable.
+# Typically, you might want to print comments you set in a INI config file, for example
+#
+# 	HELPCHAR=";" autohelp:print help config-file.ini
+# 
+# Which would then find comments defined like this in `config-file.ini`:
+#
+#   ;;; Main config Usage:help
+#   ; Help comments in a config file
+#   ; may start with a different comment character
+#   ;;;/doc
+#
+#
+#
+# Example usage in a multi-function script:
+#
+#   #!/bin/bash
+#
+#   ### Main help Usage:help
+#   # The main help
+#   ###/doc
+#
+#   ### Feature One Usage:feature_1
+#   # Help text for the first feature
+#   ###/doc
+#
+#   feature1() {
+#       autohelp:check_section feature_1 "$@"
+#       echo "Feature I"
+#   }
+#
+#   ### Feature Two Usage:feature_2
+#   # Help text for the second feature
+#   ###/doc
+#
+#   feature2() {
+#       autohelp:check_section feature_2 "$@"
+#       echo "Feature II"
+#   }
+#
+#   main() {
+#       if [[ -z "$*" ]]; then
+#           ### No command specified Usage:no-command
+#           #No command specified. Try running with `--help`
+#           ###/doc
+#
+#           autohelp:print no-command
+#           exit 1
+#       fi
+#
+#       case "$1" in
+#       feature1|feature2)
+#           "$1" "$@"            # Pass the global script arguments through
+#           ;;
+#       *)
+#           autohelp:check "$@"  # Check if main help was asked for, if so, exits
+#
+#           # Main help not requested, return error
+#           echo "Unknown feature"
+#           exit 1
+#           ;;
+#       esac
+#   }
+#
+#   main "$@"
 #
 ###/doc
 
-function out:dump {
-	echo -n "${CBPUR}$*" 1>&2
-	echo -n "$CPUR" 1>&2
-	cat - 1>&2
-	echo -n "$CDEF" 1>&2
-}
-
-### out:break MESSAGE Usage:bbuild
+### autohelp:print [ SECTION [FILE] ] Usage:bbuild
+# Print the specified section, in the specified file.
 #
-# Add break points to a script
-#
-# Requires MODE_DEBUG set to true
-#
-# When the script runs, the message is printed with a propmt, and execution pauses.
-#
-# Press return to continue execution.
-#
-# Type `exit`, `quit` or `stop` to stop the program. If the breakpoint is in a subshell,
-#  execution from after the subshell will be resumed.
-#
+# If no file is specified, prints for current script file.
+# If no section is specified, defaults to "help"
 ###/doc
 
-function out:break {
-	[[ "$MODE_DEBUG" = true ]] || return 0
+HELPCHAR='#'
 
-	echo -en "${CRED}BREAKPOINT: $* >$CDEF " >&2
-	read
-	if [[ "$REPLY" =~ quit|exit|stop ]]; then
-		out:fail "ABORT"
-	fi
+autohelp:print() {
+    local input_line
+    local section_string="${1:-}"; shift || :
+    local target_file="${1:-}"; shift || :
+    [[ -n "$section_string" ]] || section_string=help
+    [[ -n "$target_file" ]] || target_file="$0"
+
+    #echo -e "\n$(basename "$target_file")\n===\n"
+    local sec_start='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s+(.+?)\s+Usage:'"$section_string"'\s*$'
+    local sec_end='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s*/doc\s*$'
+    local in_section=false
+
+    while read input_line; do
+        if [[ "$input_line" =~ $sec_start ]]; then
+            in_section=true
+            echo -e "\n${BASH_REMATCH[1]}\n======="
+
+        elif [[ "$in_section" = true ]]; then
+            if [[ "$input_line" =~ $sec_end ]]; then
+                in_section=false
+            else
+                echo "$input_line" | sed -r "s/^\s*$HELPCHAR/ /;s/^  (\S)/\1/"
+            fi
+        fi
+    done < "$target_file"
+
+    if [[ "$in_section" = true ]]; then
+            out:fail "Non-terminated help block."
+    fi
 }
 
-if [[ "$MODE_DEBUG_VERBOSE" = true ]]; then
-	set -x
-fi
-##bash-libs: runmain.sh @ d4f2e817-modified
+### autohelp:paged Usage:bbuild
+#
+# Display the help in the pager defined in the PAGER environment variable
+#
+###/doc
+autohelp:paged() {
+    : ${PAGER=less}
+    autohelp:print "$@" | $PAGER
+}
+
+### autohelp:check ARGS ... Usage:bbuild
+#
+# Automatically print "help" sections and exit, if "--help" is detected in arguments
+#
+###/doc
+autohelp:check() {
+    autohelp:check_section "help" "$@"
+}
+
+### autohelp:check_section SECTION ARGS ... Usage:bbuild
+# Automatically print documentation for named section and exit, if "--help" is detected in arguments
+#
+###/doc
+autohelp:check_section() {
+    local section arg
+    section="${1:-}"; shift || out:fail "No help section specified"
+
+    for arg in "$@"; do
+        if [[ "$arg" =~ --help ]]; then
+            cols="$(tput cols)"
+            autohelp:print "$section" | fold -w "$cols" -s || autohelp:print "$section"
+            exit 0
+        fi
+    done
+}
+##bash-libs: runmain.sh @ 578599b8 (1.2.1)
 
 ### runmain SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
 #
@@ -373,13 +472,13 @@ fi
 ###/doc
 
 function runmain {
-	local required_name="$1"; shift || :
-	local funcall="$1"; shift || :
-	local scriptname="$(basename "$0")"
+    local required_name="$1"; shift || :
+    local funcall="$1"; shift || :
+    local scriptname="$(basename "$0")"
 
-	if [[ "$required_name" = "$scriptname" ]]; then
-		"$funcall" "$@"
-	fi
+    if [[ "$required_name" = "$scriptname" ]]; then
+        "$funcall" "$@"
+    fi
 }
 
 cd "$(dirname "$0")"
@@ -391,85 +490,87 @@ VER_fails=0
 : ${runtests=true}
 
 set_executable() {
-	if [[ -z "${BBEXEC:-}" ]]; then
-		export BBEXEC=bbuild
-	fi
+    if [[ -z "${BBEXEC:-}" ]]; then
+        export BBEXEC=bbuild
+    fi
 
-	if [[ ! -f "$BBEXEC" ]] && ! which "$BBEXEC" >/dev/null 2>/dev/null; then
-		out:fail 1 "Cannot use [$BBEXEC] to run builds - no such file or command"
-	fi
+    if [[ ! -f "$BBEXEC" ]] && ! which "$BBEXEC" >/dev/null 2>/dev/null; then
+        out:fail 1 "Cannot use [$BBEXEC] to run builds - no such file or command"
+    fi
 
-	out:info "Build using \`$BBEXEC\` command"
+    out:info "Build using \`$BBEXEC\` command"
 }
 
 set_targets() {
-	targets=(libs/*.sh)
+    targets=(libs/*.sh)
 
-	if [[ "$#" -gt 0 ]]; then
-		targets=("$@")
-	fi
+    if [[ "$#" -gt 0 ]]; then
+        targets=("$@")
+    fi
 }
 
 rmfile() {
-	[[ "${norm:-}" = true ]] && return || :
+    [[ "${norm:-}" = true ]] && return || :
 
-	rm "$@" || :
+    rm "$@" || :
 }
 
 run_build_test() {
-	local scriptname="$1"; shift
+    local scriptname="$1"; shift
 
-	"$BBEXEC" ${bbflags:-} "$libscript" || {
-		VER_fails=$((VER_fails+1))
-		continue
-	}
+    "$BBEXEC" ${bbflags:-} "$libscript" || {
+        VER_fails=$((VER_fails+1))
+        return 1
+    }
+
+    return 0
 }
 
 run_unit_tests() {
-	[[ "${runtests:-}" = true ]] || return
+    [[ "${runtests:-}" = true ]] || return
 
-	local scriptname="$1"; shift
-	local testname="test-$scriptname"
-	local testsfile="tests/$testname"
+    local scriptname="$1"; shift
+    local testname="test-$scriptname"
+    local testsfile="tests/$testname"
 
-	if [[ -f "$testsfile" ]]; then
-		"$BBEXEC" "$testsfile"
-		MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
-	else
-		VER_fails=$((VER_fails+1))
-		out:warn "There is no $testsfile test file."
-	fi
+    if [[ -f "$testsfile" ]]; then
+        "$BBEXEC" "$testsfile"
+        bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
+    else
+        VER_fails=$((VER_fails+1))
+        out:warn "There is no $testsfile test file."
+    fi
 }
 
 run_verification() {
-	for libscript in "${targets[@]}"; do
-		local scriptname="$(basename "$libscript")"
+    for libscript in "${targets[@]}"; do
+        local scriptname="$(basename "$libscript")"
 
-		items=$((items+1))
+        items=$((items+1))
 
-		run_build_test "$scriptname"
+        run_build_test "$scriptname" || continue
 
-		run_unit_tests "$scriptname"
+        run_unit_tests "$scriptname"
 
-		rmfile "/tmp/$scriptname"
-	done
+        rmfile "/tmp/$scriptname"
+    done
 }
 
 main() {
-	autohelp:check "$@"
+    autohelp:check "$@"
 
-	set_executable
-	set_targets "$@"
-	run_verification
+    set_executable
+    set_targets "$@"
+    run_verification
 
-	echo -e "\n\n\n"
-	local endmsg="Verification --- Built $items items with $VER_fails failures."
+    echo -e "\n\n\n"
+    local endmsg="Verification --- Built $items items with $VER_fails failures."
 
-	if [[ "$VER_fails" -gt 0 ]]; then
-		out:fail "$VER_fails" "$endmsg"
-	else
-		out:info "$endmsg"
-	fi
+    if [[ "$VER_fails" -gt 0 ]]; then
+        out:fail "$VER_fails" "$endmsg"
+    else
+        out:info "$endmsg"
+    fi
 }
 
 time runmain verify.sh main "$@"

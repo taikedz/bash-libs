@@ -1,4 +1,4 @@
-#%include colours.sh
+#%include std/colours.sh
 
 ##bash-libs: cdiff.sh @ %COMMITHASH%
 

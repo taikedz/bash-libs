@@ -1,4 +1,5 @@
-#%include searchpaths.sh out.sh
+#%include std/searchpaths.sh
+#%include std/out.sh
 
 ##bash-libs: includefile2.sh @ %COMMITHASH%
 

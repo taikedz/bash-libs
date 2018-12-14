@@ -13,10 +13,10 @@
 #  that will be searched for wil then be "./tests/test-SOMEFILE"
 ###/doc
 
-#%include autohelp.sh
-#%include out.sh
-#%include colours.sh
-#%include runmain.sh
+#%include std/autohelp.sh
+#%include std/out.sh
+#%include std/colours.sh
+#%include std/runmain.sh
 
 cd "$(dirname "$0")"
 export BUILDOUTD=/tmp
@@ -57,8 +57,10 @@ run_build_test() {
 
     "$BBEXEC" ${bbflags:-} "$libscript" || {
         VER_fails=$((VER_fails+1))
-        continue
+        return 1
     }
+
+    return 0
 }
 
 run_unit_tests() {
@@ -70,7 +72,7 @@ run_unit_tests() {
 
     if [[ -f "$testsfile" ]]; then
         "$BBEXEC" "$testsfile"
-        MODE_DEBUG="${MODE_DEBUG:-}" bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
+        bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
     else
         VER_fails=$((VER_fails+1))
         out:warn "There is no $testsfile test file."
@@ -83,7 +85,7 @@ run_verification() {
 
         items=$((items+1))
 
-        run_build_test "$scriptname"
+        run_build_test "$scriptname" || continue
 
         run_unit_tests "$scriptname"
 

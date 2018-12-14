@@ -1,4 +1,5 @@
-#%include out.sh
+#%include std/out.sh
+#%include std/syntax-extensions.sh
 
 ##bash-libs: autohelp.sh @ %COMMITHASH%
 

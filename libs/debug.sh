@@ -1,5 +1,5 @@
-#%include colours.sh
-#%include patterns.sh
+#%include std/colours.sh
+#%include std/patterns.sh
 
 ##bash-libs: debug.sh @ %COMMITHASH%
 

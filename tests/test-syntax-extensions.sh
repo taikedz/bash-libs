@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #%include test.sh
-#%include args.sh
+#%include syntax-extensions.sh
 
 $%function callme(myvar) {
     echo "${myvar:-}"
