@@ -1,4 +1,5 @@
-#%include test.sh insertfile2.sh
+#%include std/test.sh
+#%include std/insertfile2.sh
 
 testdir=tmp-tests
 

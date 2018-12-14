@@ -1,4 +1,5 @@
-#%include test.sh args.sh
+#%include std/test.sh
+#%include std/args.sh
 
 test_args() {
     local result="$1"; shift

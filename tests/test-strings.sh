@@ -1,5 +1,5 @@
-#%include test.sh
-#%include strings.sh
+#%include std/test.sh
+#%include std/strings.sh
 
 test_join() {
     local result="$1"; shift

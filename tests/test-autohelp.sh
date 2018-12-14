@@ -1,4 +1,5 @@
-#%include test.sh autohelp.sh
+#%include std/test.sh
+#%include std/autohelp.sh
 
 ### Test-help Usage:help
 #

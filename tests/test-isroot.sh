@@ -1,4 +1,6 @@
-#%include test.sh isroot.sh out.sh
+#%include std/test.sh
+#%include std/isroot.sh
+#%include std/out.sh
 
 if [[ "$UID" = "0" ]]; then
     test:require isroot

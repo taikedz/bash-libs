@@ -1,4 +1,5 @@
-#%include test.sh bincheck.sh
+#%include std/test.sh
+#%include std/bincheck.sh
 
 test:require bincheck:get bash
 test:forbid bincheck:get "does not exist"

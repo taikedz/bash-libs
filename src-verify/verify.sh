@@ -20,7 +20,7 @@
 
 cd "$(dirname "$0")"
 export BUILDOUTD=/tmp
-export BBPATH=libs/
+export BBPATH=./
 
 items=0
 VER_fails=0
@@ -39,7 +39,7 @@ set_executable() {
 }
 
 set_targets() {
-    targets=(libs/*.sh)
+    targets=(std/*.sh)
 
     if [[ "$#" -gt 0 ]]; then
         targets=("$@")

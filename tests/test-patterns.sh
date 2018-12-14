@@ -1,3 +1,4 @@
-#%include test.sh patterns.sh
+#%include std/test.sh
+#%include std/patterns.sh
 
 test:report

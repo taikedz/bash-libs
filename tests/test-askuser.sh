@@ -1,4 +1,5 @@
-#%include test.sh askuser.sh
+#%include std/test.sh
+#%include std/askuser.sh
 
 test_input() {
     local input="$1"; shift

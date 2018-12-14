@@ -1,4 +1,5 @@
-#%include test.sh colours.sh
+#%include std/test.sh
+#%include std/colours.sh
 
 # Required for the pipe test
 set -o pipefail

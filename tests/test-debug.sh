@@ -1,7 +1,7 @@
 #!/us/bin/env bash
 
-#%include test.sh
-#%include debug.sh
+#%include std/test.sh
+#%include std/debug.sh
 
 #TODO further tests required around out:break and out:dump
 

@@ -1,3 +1,4 @@
-#%include test.sh runmain.sh
+#%include std/test.sh
+#%include std/runmain.sh
 
 test:report

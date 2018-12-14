@@ -1,4 +1,5 @@
-#%include test.sh abspath.sh
+#%include std/test.sh
+#%include std/abspath.sh
 
 test_path() {
     local result="$1"; shift

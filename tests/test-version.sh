@@ -1,7 +1,5 @@
-#%include out.sh
-#%include colours.sh
-#%include version.sh
-#%include test.sh
+#%include std/version.sh
+#%include std/test.sh
 
 test_gt() {
     if version:gt "$1" "$2"; then

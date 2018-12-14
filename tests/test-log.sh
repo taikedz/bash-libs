@@ -1,3 +1,4 @@
-#%include test.sh log.sh
+#%include std/test.sh
+#%include std/log.sh
 
 test:report

@@ -1,3 +1,4 @@
-#%include test.sh guiout.sh
+#%include std/test.sh
+#%include std/guiout.sh
 
 test:report

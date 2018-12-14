@@ -1,4 +1,5 @@
-#%include test.sh ensureline.sh
+#%include std/test.sh
+#%include std/ensureline.sh
 
 testdir="tmp-tests"
 mkdir -p "$testdir"

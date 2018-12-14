@@ -1,3 +1,4 @@
-#%include test.sh vars.sh
+#%include std/test.sh
+#%include std/vars.sh
 
 test:report

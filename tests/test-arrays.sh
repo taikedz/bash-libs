@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#%include arrays.sh test.sh
+#%include std/arrays.sh
+#%include std/test.sh
 
 AR_main=(one two "three four" five)
 

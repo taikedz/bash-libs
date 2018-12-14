@@ -1,4 +1,4 @@
-#%include test.sh
+#%include std/test.sh
 
 # This is stupid....
 

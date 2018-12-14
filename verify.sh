@@ -13,9 +13,17 @@
 #  that will be searched for wil then be "./tests/test-SOMEFILE"
 ###/doc
 
-##bash-libs: out.sh @ 578599b8 (1.2.1)
+##bash-libs: tty.sh @ 69724119 (2.0)
 
-##bash-libs: colours.sh @ 578599b8 (1.2.1)
+tty:is_ssh() {
+    [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
+}
+
+tty:is_pipe() {
+    [[ ! -t 1 ]]
+}
+
+##bash-libs: colours.sh @ 69724119 (2.0)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -61,16 +69,6 @@
 #   You can override this by calling `colours:check --color=always` at the start of your script
 #
 ###/doc
-
-##bash-libs: tty.sh @ 578599b8 (1.2.1)
-
-tty:is_ssh() {
-    [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
-}
-
-tty:is_pipe() {
-    [[ ! -t 1 ]]
-}
 
 ### colours:check ARGS ... Usage:bbuild
 #
@@ -118,14 +116,14 @@ colours:define() {
 
     # Shorthand colours
 
-    export CBLA="$(colours:set "21;30")"
-    export CRED="$(colours:set "21;31")"
-    export CGRN="$(colours:set "21;32")"
-    export CYEL="$(colours:set "21;33")"
-    export CBLU="$(colours:set "21;34")"
-    export CPUR="$(colours:set "21;35")"
-    export CTEA="$(colours:set "21;36")"
-    export CWHI="$(colours:set "21;37")"
+    export CBLA="$(colours:set "30")"
+    export CRED="$(colours:set "31")"
+    export CGRN="$(colours:set "32")"
+    export CYEL="$(colours:set "33")"
+    export CBLU="$(colours:set "34")"
+    export CPUR="$(colours:set "35")"
+    export CTEA="$(colours:set "36")"
+    export CWHI="$(colours:set "37")"
 
     export CBBLA="$(colours:set "1;30")"
     export CBRED="$(colours:set "1;31")"
@@ -177,6 +175,8 @@ colours:auto() {
 }
 
 colours:auto
+
+##bash-libs: out.sh @ 69724119 (2.0)
 
 ### Console output handlers Usage:bbuild
 #
@@ -263,8 +263,120 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
+##bash-libs: syntax-extensions.sh @ 69724119 (2.0)
 
-##bash-libs: autohelp.sh @ 578599b8 (1.2.1)
+### Syntax Extensions Usage:syntax
+#
+# Syntax extensions for bash-builder.
+#
+# You will need to import this library if you use Bash Builder's extended syntax macros.
+#
+# You should not however use the functions directly, but the extended syntax instead.
+#
+##/doc
+
+### syntax-extensions:use FUNCNAME ARGNAMES ... Usage:syntax
+#
+# Consume arguments into named global variables.
+#
+# If not enough argument values are found, the first named variable that failed to be assigned is printed as error
+#
+# ARGNAMES prefixed with '?' do not trigger an error
+#
+# Example:
+#
+#   #%include out.sh
+#   #%include syntax-extensions.sh
+#
+#   get_parameters() {
+#       . <(syntax-extensions:use get_parameters INFILE OUTFILE ?comment)
+#
+#       [[ -f "$INFILE" ]]  || out:fail "Input file '$INFILE' does not exist"
+#       [[ -f "$OUTFILE" ]] || out:fail "Output file '$OUTFILE' does not exist"
+#
+#       [[ -z "$comment" ]] || echo "Note: $comment"
+#   }
+#
+#   main() {
+#       get_parameters "$@"
+#
+#       echo "$INFILE will be converted to $OUTFILE"
+#   }
+#
+#   main "$@"
+#
+###/doc
+syntax-extensions:use() {
+    local argname arglist undef_f dec_scope argidx argone failmsg pos_ok
+    
+    dec_scope=""
+    [[ "${SYNTAXLIB_scope:-}" = local ]] || dec_scope=g
+    arglist=(:)
+    argone=\"\${1:-}\"
+    pos_ok=true
+    
+    for argname in "$@"; do
+        [[ "$argname" != -- ]] || break
+        [[ "$argname" =~ ^(\?|\*)?[0-9a-zA-Z_]+$ ]] || out:fail "Internal: Not a valid argument name '$argname'"
+
+        arglist+=("$argname")
+    done
+
+    argidx=1
+    while [[ "$argidx" -lt "${#arglist[@]}" ]]; do
+        argname="${arglist[$argidx]}"
+        failmsg="\"Internal : could not get '$argname' in function arguments\""
+        posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
+
+        if [[ "$argname" =~ ^\? ]]; then
+            echo "$SYNTAXLIB_scope ${argname:1}=$argone; shift || :"
+            pos_ok=false
+
+        elif [[ "$argname" =~ ^\* ]]; then
+            [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
+            echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
+
+        else
+            [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
+            echo "$SYNTAXLIB_scope ${argname}=$argone; shift || out:fail $failmsg"
+        fi
+
+        argidx=$((argidx + 1))
+    done
+}
+
+
+### syntax-extensions:use:local FUNCNAME ARGNAMES ... Usage:syntax
+# 
+# Enables syntax macro: function signatures
+#   e.g. $%function func(var1 var2) { ... }
+#
+# Build with bbuild to leverage this function's use:
+#
+#   #%include out.sh
+#   #%include syntax-extensions.sh
+#
+#   $%function person(name email) {
+#       echo "$name <$email>"
+#
+#       # $1 and $2 have been consumed into $name and $email
+#       # The rest remains available in $* :
+#       
+#       echo "Additional notes: $*"
+#   }
+#
+#   person "Jo Smith" "jsmith@example.com" Some details
+#
+###/doc
+syntax-extensions:use:local() {
+    SYNTAXLIB_scope=local syntax-extensions:use "$@"
+}
+
+args:use:local() {
+    syntax-extensions:use:local "$@"
+}
+
+##bash-libs: autohelp.sh @ 69724119 (2.0)
 
 ### Autohelp Usage:bbuild
 #
@@ -318,7 +430,7 @@ function out:error {
 #
 # Example usage in a multi-function script:
 #
-#   #!/bin/bash
+#   #!usr/bin/env bash
 #
 #   ### Main help Usage:help
 #   # The main help
@@ -329,7 +441,7 @@ function out:error {
 #   ###/doc
 #
 #   feature1() {
-#       autohelp:check_section feature_1 "$@"
+#       autohelp:check:section feature_1 "$@"
 #       echo "Feature I"
 #   }
 #
@@ -338,26 +450,17 @@ function out:error {
 #   ###/doc
 #
 #   feature2() {
-#       autohelp:check_section feature_2 "$@"
+#       autohelp:check:section feature_2 "$@"
 #       echo "Feature II"
 #   }
 #
 #   main() {
-#       if [[ -z "$*" ]]; then
-#           ### No command specified Usage:no-command
-#           #No command specified. Try running with `--help`
-#           ###/doc
-#
-#           autohelp:print no-command
-#           exit 1
-#       fi
-#
 #       case "$1" in
 #       feature1|feature2)
 #           "$1" "$@"            # Pass the global script arguments through
 #           ;;
 #       *)
-#           autohelp:check "$@"  # Check if main help was asked for, if so, exits
+#           autohelp:check-no-null "$@"  # Check if main help was asked for, if so, or if no args, exit with help
 #
 #           # Main help not requested, return error
 #           echo "Unknown feature"
@@ -386,7 +489,6 @@ autohelp:print() {
     [[ -n "$section_string" ]] || section_string=help
     [[ -n "$target_file" ]] || target_file="$0"
 
-    #echo -e "\n$(basename "$target_file")\n===\n"
     local sec_start='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s+(.+?)\s+Usage:'"$section_string"'\s*$'
     local sec_end='^\s*'"$HELPCHAR$HELPCHAR$HELPCHAR"'\s*/doc\s*$'
     local in_section=false
@@ -420,20 +522,47 @@ autohelp:paged() {
     autohelp:print "$@" | $PAGER
 }
 
+### autohelp:check-or-null ARGS ... Usage:bbuild
+# Print help if arguments are empty, or if arguments contain a '--help' token
+#
+###/doc
+autohelp:check-or-null() {
+    if [[ -z "$*" ]]; then
+        autohelp:print help "$0"
+        exit 0
+    else
+        autohelp:check:section "help" "$@"
+    fi
+}
+
+### autohelp:check-or-null:section SECTION ARGS ... Usage:bbuild
+# Print help section SECTION if arguments are empty, or if arguments contain a '--help' token
+#
+###/doc
+autohelp:check-or-null:section() {
+    . <(args:use:local section -- "$@") ; 
+    if [[ -z "$*" ]]; then
+        autohelp:print "$section" "$0"
+        exit 0
+    else
+        autohelp:check:section "$section" "$@"
+    fi
+}
+
 ### autohelp:check ARGS ... Usage:bbuild
 #
 # Automatically print "help" sections and exit, if "--help" is detected in arguments
 #
 ###/doc
 autohelp:check() {
-    autohelp:check_section "help" "$@"
+    autohelp:check:section "help" "$@"
 }
 
-### autohelp:check_section SECTION ARGS ... Usage:bbuild
+### autohelp:check:section SECTION ARGS ... Usage:bbuild
 # Automatically print documentation for named section and exit, if "--help" is detected in arguments
 #
 ###/doc
-autohelp:check_section() {
+autohelp:check:section() {
     local section arg
     section="${1:-}"; shift || out:fail "No help section specified"
 
@@ -445,7 +574,7 @@ autohelp:check_section() {
         fi
     done
 }
-##bash-libs: runmain.sh @ 578599b8 (1.2.1)
+##bash-libs: runmain.sh @ 69724119 (2.0)
 
 ### runmain SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
 #
@@ -483,7 +612,7 @@ function runmain {
 
 cd "$(dirname "$0")"
 export BUILDOUTD=/tmp
-export BBPATH=libs/
+export BBPATH=./
 
 items=0
 VER_fails=0
@@ -502,7 +631,7 @@ set_executable() {
 }
 
 set_targets() {
-    targets=(libs/*.sh)
+    targets=(std/*.sh)
 
     if [[ "$#" -gt 0 ]]; then
         targets=("$@")

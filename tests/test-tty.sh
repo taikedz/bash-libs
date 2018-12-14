@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#%include tty.sh test.sh
+#%include std/tty.sh
+#%include std/test.sh
 
 inpipe() {
     "$@" | cat -

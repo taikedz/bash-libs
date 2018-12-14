@@ -83,7 +83,7 @@ main() {
 
     load_bashlibs_version
 
-    for libfile in libs/*.sh ; do
+    for libfile in std/*.sh ; do
         copy_lib "$libfile" "$libsdir/" || die "ABORT"
     done
 

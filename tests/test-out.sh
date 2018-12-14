@@ -1,5 +1,6 @@
-#%include test.sh
-#%include out.sh colours.sh
+#%include std/test.sh
+#%include std/out.sh
+#%include std/colours.sh
 
 test_out() {
     local expect="$1"; shift
