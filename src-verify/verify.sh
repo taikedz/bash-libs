@@ -13,10 +13,10 @@
 #  that will be searched for wil then be "./tests/test-SOMEFILE"
 ###/doc
 
-#%include autohelp.sh
-#%include out.sh
-#%include colours.sh
-#%include runmain.sh
+#%include std/autohelp.sh
+#%include std/out.sh
+#%include std/colours.sh
+#%include std/runmain.sh
 
 cd "$(dirname "$0")"
 export BUILDOUTD=/tmp

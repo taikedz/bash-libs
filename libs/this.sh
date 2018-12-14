@@ -1,4 +1,4 @@
-#%include abspath.sh
+#%include std/abspath.sh
 
 ##bash-libs: this.sh @ %COMMITHASH%
 

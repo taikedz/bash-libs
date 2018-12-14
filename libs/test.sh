@@ -1,4 +1,4 @@
-#%include out.sh
+#%include std/out.sh
 
 ##bash-libs: test.sh @ %COMMITHASH%
 

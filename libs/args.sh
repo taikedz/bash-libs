@@ -1,4 +1,5 @@
-#%include patterns.sh out.sh
+#%include std/patterns.sh
+#%include std/out.sh
 
 ##bash-libs: args.sh @ %COMMITHASH%
 

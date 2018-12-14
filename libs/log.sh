@@ -1,4 +1,6 @@
-#%include args.sh syntax-extensions.sh out.sh
+#%include std/args.sh
+#%include std/syntax-extensions.sh
+#%include std/out.sh
 
 ##bash-libs: log.sh @ %COMMITHASH%
 

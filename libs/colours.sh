@@ -1,4 +1,4 @@
-#%include tty.sh
+#%include std/tty.sh
 
 ##bash-libs: colours.sh @ %COMMITHASH%
 

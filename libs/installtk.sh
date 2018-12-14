@@ -1,4 +1,5 @@
-#%include out.sh isroot.sh
+#%include std/out.sh
+#%include std/isroot.sh
 
 ##bash-libs: installtk.sh @ %COMMITHASH%
 
