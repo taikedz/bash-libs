@@ -96,3 +96,24 @@ test:report() {
 
     return "$TEST_testfailurecount"
 }
+
+### test:output EXPECTED COMMAND ... Usage:bbuild
+# Test a command's output for expected content.
+#
+# Runs COMMAND ... and captures output. If the output matches the EXPECTED value, returns 0
+# else returns 1
+#
+# Always prints the output ; combine with test:require and test:forbid
+#
+###/doc
+
+test:output() {
+    local expect="$1"; shift
+    local res=0
+    local output
+
+    output="$("$@")" || :
+
+    echo "$output"
+    [[ "$expect" = "$output" ]]
+}

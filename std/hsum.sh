@@ -2,21 +2,22 @@
 
 ##bash-libs: sums.sh @ %COMMITHASH%
 
-### hsum Usage:bbuild
+### hsum [BASE] Usage:bbuild
 #
-# Pipe function to sum numbers with "humanized" magnitudeinations
+# Pipe function to sum numbers with "humanized" magnitudinations
 #
 # e.g.
 #
-#    du -sh * | hsum:sum 1024
-#
 #    distances | hsum:sum
+#
+#    ( du -sh /some/path/dir1 /other/path/dir2 ) | hsum:sum 1024
 #
 # BASE is the base of the order of magnitude, by default 1000
 #
 ###/doc
 
 hsum:sum() {
+    local qtty
     local base="${1:-1000}"
 
     local numpat="([0-9]+(\.[0-9]+)?)"
@@ -30,7 +31,7 @@ hsum:sum() {
     while read qtty; do
         [[ -n "$qtty" ]] || continue
 
-        if [[ "$qtty" =~ $numpat(k|K|m|M|g|G|t|T) ]]; then
+        if [[ "$qtty" =~ ^$numpat(k|K|m|M|g|G|t|T) ]]; then
             local x=${BASH_REMATCH[1]}
             local magnitude=${BASH_REMATCH[3]}
 
@@ -50,7 +51,9 @@ hsum:sum() {
                 return 1
             fi
 
-            sumtotal=$(echo "$sumtotal + $x"|bc)
+            sumtotal="$(echo "$sumtotal + $x"|bc)"
+        else
+            sumtotal="$(echo "$sumtotal + $qtty"|bc)"
         fi
     done
 
@@ -61,16 +64,16 @@ hsum:sum() {
         echo "$sumtotal bytes"
 
     elif [[ "$intpart" -lt $mb ]]; then
-        echo "$(echo "$sumtotal/$kb"|bc)KB"
+        echo "$(echo "$sumtotal/$kb"|bc).$(echo "($sumtotal % $kb)"|bc)KB"
 
     elif [[ "$intpart" -lt $gb ]]; then
-        echo "$(echo "$sumtotal/$mb"|bc)MB"
+        echo "$(echo "$sumtotal/$mb"|bc).$(echo "($sumtotal % $mb)/$kb"|bc)MB"
 
     elif [[ "$intpart" -lt $tb ]]; then
-        echo "$(echo "$sumtotal/$gb"|bc)GB"
+        echo "$(echo "$sumtotal/$gb"|bc).$(echo "($sumtotal % $gb)/$mb"|bc)GB"
 
     else
-        echo "$(echo "$sumtotal/$tb"|bc)TB"
+        echo "$(echo "$sumtotal/$tb"|bc).$(echo "($sumtotal % $tb)/$gb"|bc)TB"
     fi
         
 }
