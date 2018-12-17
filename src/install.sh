@@ -49,7 +49,9 @@ $%function checkout_target(?target) {
     if [[ -z "$target" ]]; then return 0; fi
 
     if [[ "$target" = latest-release ]]; then
-        target="$(git log --oneline --decorate=short | grep -oP '(?<=\(tag: )[0-9.]+' | head -n 1)"
+        local version
+        version="$(git:last_tagged_version)" || out:fail "Error obtaining last release!"
+        target="${version:1}"
     fi
 
     git checkout "$target" || out:fail "Could not checkout commit at [$target]"

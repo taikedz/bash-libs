@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-##bash-libs: safe.sh @ 6421286a-uncommitted (2.0.1)
+##bash-libs: safe.sh @ 25c3ba58 (2.0.2)
 
 ### Safe mode Usage:bbuild
 #
@@ -63,7 +63,7 @@ safe:glob() {
         ;;
     esac
 }
-##bash-libs: tty.sh @ 6421286a-uncommitted (2.0.1)
+##bash-libs: tty.sh @ 25c3ba58 (2.0.2)
 
 tty:is_ssh() {
     [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
@@ -73,7 +73,7 @@ tty:is_pipe() {
     [[ ! -t 1 ]]
 }
 
-##bash-libs: colours.sh @ 6421286a-uncommitted (2.0.1)
+##bash-libs: colours.sh @ 25c3ba58 (2.0.2)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -226,7 +226,7 @@ colours:auto() {
 
 colours:auto
 
-##bash-libs: out.sh @ 6421286a-uncommitted (2.0.1)
+##bash-libs: out.sh @ 25c3ba58 (2.0.2)
 
 ### Console output handlers Usage:bbuild
 #
@@ -313,7 +313,7 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
-##bash-libs: git.sh @ 6421286a-uncommitted (2.0.1)
+##bash-libs: git.sh @ 25c3ba58 (2.0.2)
 
 ### Git handlers Usage:bbuild
 #
@@ -421,7 +421,7 @@ git:last_tagged_version() {
 
     echo "$tagged_version"
 }
-##bash-libs: syntax-extensions.sh @ 6421286a-uncommitted (2.0.1)
+##bash-libs: syntax-extensions.sh @ 25c3ba58 (2.0.2)
 
 ### Syntax Extensions Usage:syntax
 #
@@ -580,7 +580,9 @@ checkout_target() {
     if [[ -z "$target" ]]; then return 0; fi
 
     if [[ "$target" = latest-release ]]; then
-        target="$(git log --oneline --decorate=short | grep -oP '(?<=\(tag: )[0-9.]+' | head -n 1)"
+        local version
+        version="$(git:last_tagged_version)" || out:fail "Error obtaining last release!"
+        target="${version:1}"
     fi
 
     git checkout "$target" || out:fail "Could not checkout commit at [$target]"
