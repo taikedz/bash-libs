@@ -5,6 +5,18 @@
 #%include std/git.sh
 #%include std/syntax-extensions.sh
 
+$%function copy_lib_dir(libsrc) {
+    local srcname="$(basename "$libsrc")"
+
+    # We copy only the end dir by name
+    # TODO use libsrc in full as sub-path to libsdir
+    mkdir -p "$libsdir/$srcname"
+
+    for libfile in "$libsrc"/*.sh ; do
+        copy_lib "$libfile" "$libsdir/$srcname/" || out:fail "ABORT"
+    done
+}
+
 copy_lib() {
     local file_from="$1"; shift
     local dir_to="$1"; shift
@@ -13,6 +25,24 @@ copy_lib() {
     sed "s/\%COMMITHASH\%/$COMMIT_VERSION/" "$file_from" > "$file_dest"
 
     chmod 644 "$file_dest"
+}
+
+parse_args() {
+    local arg
+
+    CLEAR_EXISTING_LIBS=true
+    TARGET_CHECKOUT=latest-release
+
+    for arg in "$@"; do
+    case "$arg" in
+    --no-clear)
+        CLEAR_EXISTING_LIBS=false
+        ;;
+    *)
+        TARGET_CHECKOUT="$arg"
+        ;;
+    esac
+    done
 }
 
 $%function checkout_target(?target) {
@@ -65,9 +95,9 @@ clear_libs() {
 
 set_libs_dir() {
     if [[ "$UID" = 0 ]]; then
-        : ${libsdir="/usr/local/lib/bash-builder/std"}
+        : ${libsdir="/usr/local/lib/bash-builder"}
     else
-        : ${libsdir="$HOME/.local/lib/bash-builder/std"}
+        : ${libsdir="$HOME/.local/lib/bash-builder"}
     fi
 }
 
@@ -75,7 +105,9 @@ main() {
     safe:glob on
     cd "$(dirname "$0")"
 
-    checkout_target "$@"
+    parse_args "$@"
+
+    checkout_target "$TARGET_CHECKOUT"
 
     set_libs_dir
     clear_libs
@@ -85,9 +117,7 @@ main() {
     load_bashlibs_version
     out:info "Installing libs versioned at: $COMMIT_VERSION"
 
-    for libfile in std/*.sh ; do
-        copy_lib "$libfile" "$libsdir/" || out:fail "ABORT"
-    done
+    copy_lib_dir std
 
     echo -e "\033[32;1mSuccessfully installed libraries to [$libsdir]\033[0m"
 }

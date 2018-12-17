@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-##bash-libs: safe.sh @ 6b9e7437 (after 2.0)
+##bash-libs: safe.sh @ 6421286a-uncommitted (2.0.1)
 
 ### Safe mode Usage:bbuild
 #
@@ -63,7 +63,7 @@ safe:glob() {
         ;;
     esac
 }
-##bash-libs: tty.sh @ 6b9e7437 (after 2.0)
+##bash-libs: tty.sh @ 6421286a-uncommitted (2.0.1)
 
 tty:is_ssh() {
     [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
@@ -73,7 +73,7 @@ tty:is_pipe() {
     [[ ! -t 1 ]]
 }
 
-##bash-libs: colours.sh @ 6b9e7437 (after 2.0)
+##bash-libs: colours.sh @ 6421286a-uncommitted (2.0.1)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -226,7 +226,7 @@ colours:auto() {
 
 colours:auto
 
-##bash-libs: out.sh @ 6b9e7437 (after 2.0)
+##bash-libs: out.sh @ 6421286a-uncommitted (2.0.1)
 
 ### Console output handlers Usage:bbuild
 #
@@ -313,7 +313,7 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
-##bash-libs: git.sh @ 6b9e7437 (after 2.0)
+##bash-libs: git.sh @ 6421286a-uncommitted (2.0.1)
 
 ### Git handlers Usage:bbuild
 #
@@ -421,7 +421,7 @@ git:last_tagged_version() {
 
     echo "$tagged_version"
 }
-##bash-libs: syntax-extensions.sh @ 6b9e7437 (after 2.0)
+##bash-libs: syntax-extensions.sh @ 6421286a-uncommitted (2.0.1)
 
 ### Syntax Extensions Usage:syntax
 #
@@ -534,6 +534,19 @@ args:use:local() {
     syntax-extensions:use:local "$@"
 }
 
+copy_lib_dir() {
+    . <(args:use:local libsrc -- "$@") ; 
+    local srcname="$(basename "$libsrc")"
+
+    # We copy only the end dir by name
+    # TODO use libsrc in full as sub-path to libsdir
+    mkdir -p "$libsdir/$srcname"
+
+    for libfile in "$libsrc"/*.sh ; do
+        copy_lib "$libfile" "$libsdir/$srcname/" || out:fail "ABORT"
+    done
+}
+
 copy_lib() {
     local file_from="$1"; shift
     local dir_to="$1"; shift
@@ -542,6 +555,24 @@ copy_lib() {
     sed "s/\%COMMITHASH\%/$COMMIT_VERSION/" "$file_from" > "$file_dest"
 
     chmod 644 "$file_dest"
+}
+
+parse_args() {
+    local arg
+
+    CLEAR_EXISTING_LIBS=true
+    TARGET_CHECKOUT=latest-release
+
+    for arg in "$@"; do
+    case "$arg" in
+    --no-clear)
+        CLEAR_EXISTING_LIBS=false
+        ;;
+    *)
+        TARGET_CHECKOUT="$arg"
+        ;;
+    esac
+    done
 }
 
 checkout_target() {
@@ -595,9 +626,9 @@ clear_libs() {
 
 set_libs_dir() {
     if [[ "$UID" = 0 ]]; then
-        : ${libsdir="/usr/local/lib/bash-builder/std"}
+        : ${libsdir="/usr/local/lib/bash-builder"}
     else
-        : ${libsdir="$HOME/.local/lib/bash-builder/std"}
+        : ${libsdir="$HOME/.local/lib/bash-builder"}
     fi
 }
 
@@ -605,7 +636,9 @@ main() {
     safe:glob on
     cd "$(dirname "$0")"
 
-    checkout_target "$@"
+    parse_args "$@"
+
+    checkout_target "$TARGET_CHECKOUT"
 
     set_libs_dir
     clear_libs
@@ -615,9 +648,7 @@ main() {
     load_bashlibs_version
     out:info "Installing libs versioned at: $COMMIT_VERSION"
 
-    for libfile in std/*.sh ; do
-        copy_lib "$libfile" "$libsdir/" || out:fail "ABORT"
-    done
+    copy_lib_dir std
 
     echo -e "\033[32;1mSuccessfully installed libraries to [$libsdir]\033[0m"
 }
