@@ -13,26 +13,22 @@
 # Splitting over spaces
 # ---------------------
 #
-# You can also switch space splitting on or off (normal bash default is 'on')
+# Using bash's defaults, array assignments split over any whitespace.
 #
-# Given a function `foo()` that returns multiple lines, which may each have spaces in them, use safe splitting to return each item into an array as its own item, without splitting over spaces.
+# Using safe mode, arrays only split over newlines, not over spaces.
 #
-#   safe:space-split off
-#   mylist=(foo)
-#   safe:space-split on
+# Return to default unsafe behaviour using `safe:space-split on`
 #
-# Having space splitting on causes statements like `echo "$*"` to print each argument on its own line.
+# Reactivate safe recommendation using `safe:space-split off`
 #
 # Globs
 # -------
 #
 # In safe mode, glob expansion like `ls .config/*` is turned off by default.
 #
-# You can turn glob expansion on and off with `safe:glob on` or `safe:glob off`
+# You can turn glob expansion on with `safe:glob on`, and off with `safe:glob off`
 #
 ###/doc
-
-set -eufo pipefail
 
 safe:space-split() {
     case "$1" in
@@ -61,3 +57,6 @@ safe:glob() {
         ;;
     esac
 }
+
+set -eufo pipefail
+safe:space-split off
