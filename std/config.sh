@@ -5,6 +5,9 @@
 
 ### config.sh Usage:bbuild
 # Read configuration from various locations.
+#
+# Declare multiple config file locations, in increasing order of authority, and read values from all, keeping only the most authoritative value.
+#
 ###/doc
 
 ### config:declare Usage:bbuild
@@ -13,15 +16,19 @@
 #
 # Example config contents and variable declaration
 #
+#   # Example configuration file contents
+#
 #   echo -e "first=1\\nsecond=2\\nthird=3" > /etc/test.conf
 #   echo -e "second=two\\nthird=" > ./test.conf
 #
-#   config:declare /etc/test.conf ./test.conf
+#   # Declare the order to read values from, then read values
+#
+#   config:declare confs /etc/test.conf ./test.conf
 #
 ###/doc
 
-config:declare() {
-    CONFIG_files=("$@")
+$%function config:declare(*configname) {
+    configname=("$@")
 }
 
 $%function config:_read_value(key file) {
@@ -33,11 +40,11 @@ $%function config:_has_key(key file) {
     config:_read_value "$key" "$file" >/dev/null
 }
 
-$%function config:_foreach_read(key) {
+$%function config:_foreach_read(*configname key) {
     local cfile value res
     res=1
 
-    for cfile in "${CONFIG_files[@]}"; do
+    for cfile in "${configname[@]}"; do
         if [[ -e "$cfile" ]]; then
             if config:_has_key "$key" "$cfile"; then
                 value="$(config:_read_value "$key" "$cfile")"
@@ -50,7 +57,7 @@ $%function config:_foreach_read(key) {
     return "$res"
 }
 
-### config:read KEY Uage:bbuild
+### config:read CONFIG KEY Uage:bbuild
 #
 # If an earlier file specifies a value, and a later file doesn't, the earlier file's value is used
 #
@@ -58,24 +65,28 @@ $%function config:_foreach_read(key) {
 #
 # Example, with the config files above
 #
-#   config:read first
+#   config:read confs first
 #   # --> 1
 #
-#   config:read second
+#   config:read confs second
 #   # --> "two"
 #
-#   config:read third
+#   config:read confs third
 #   # --> (empty string)
 #
-#   config:read nonexistent
+#   config:read confs nonexistent
 #   # ------> ERROR
 #
 ###/doc
 
-$%function config:read(key ?default) {
-    local value
-    value="$(config:_foreach_read "$key")"
-    if [[ -z "$value" ]]; then
+$%function config:read(configname key ?default) {
+    local value res
+    res=0
+    value="$(config:_foreach_read "$configname" "$key")" || res="$?"
+
+    if [[ "$res" != 0 ]] && [[ -z "$default" ]]; then
+        return 1
+    elif [[ -z "$value" ]]; then
         echo "$default"
     else
         echo "$value"
@@ -88,8 +99,8 @@ $%function config:read(key ?default) {
 #
 # Example, with the config files above
 #
-#   config:load MYSCRIPT
-#   echo "$MYSCRIPT_second"
+#   config:load CONFSPACE
+#   echo "CONFSPACE_second"
 #   # --> "two"
 #
 ###/doc
@@ -97,7 +108,11 @@ $%function config:read(key ?default) {
 $%function config:load(namespace) {
     local cfile value key keys
 
-    for cfile in "${CONFIG_files[@]}"; do
+    declare -n configname
+    configname="$namespace"
+
+
+    for cfile in "${configname[@]}"; do
         if [[ -e "$cfile" ]]; then
             keys=($(grep -oP '^[a-zA-Z0-9_]+(?==)' "$cfile"))
             for key in "${keys[@]}"; do
