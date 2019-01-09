@@ -1,3 +1,5 @@
+#%include std/out.sh
+
 ##bash-libs: syntax-extensions.sh @ %COMMITHASH%
 
 ### Syntax Extensions Usage:syntax
@@ -60,7 +62,7 @@ syntax-extensions:use() {
     argidx=1
     while [[ "$argidx" -lt "${#arglist[@]}" ]]; do
         argname="${arglist[$argidx]}"
-        failmsg="\"Internal : could not get '$argname' in function arguments\""
+        failmsg="\"Internal: could not get '$argname' in function arguments\""
         posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
 
         if [[ "$argname" =~ ^\? ]]; then
@@ -69,6 +71,7 @@ syntax-extensions:use() {
 
         elif [[ "$argname" =~ ^\* ]]; then
             [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
+            echo "[[ '${argname:1}' != \"$argone\" ]] || out:fail \"Internal: Local name [$argname] equals upstream [$argone]. Rename [$argname] (suggestion: [*p_${argname:1}])\""
             echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
 
         else
