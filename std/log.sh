@@ -54,7 +54,7 @@ $%function log:_validate_level(level ?name) {
 ###/doc
 
 $%function log:level(level) {
-    log:_validate_level "$level" "$log:level"
+    log:_validate_level "$level" "log:level"
 
     case "$level" in
     debug)
