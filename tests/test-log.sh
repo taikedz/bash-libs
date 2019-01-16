@@ -6,10 +6,10 @@ datepattern="[0-9]{4}-$n2-$n2 $n2:$n2:$n2"
 
 stdout() { "$@" 2>&1; }
 
-log:level fail
-test:require test:output 0 echo "$LOG_LEVEL_FAIL"
+log:level info
+test:require test:output 2 echo "$LOG_LEVEL_INFO"
 
-log:level warn
+log:get_level --loglevel=warn
 
 test:require test:output 1 echo "$LOG_LEVEL_WARN"
 test:require test:output '' stdout log:debug "test"

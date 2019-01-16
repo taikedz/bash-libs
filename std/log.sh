@@ -79,18 +79,38 @@ function log:islevel {
     [[ "$LOG_LEVEL" -ge "$req_level" ]]
 }
 
-### log:get_level [ARGS ...] Usage:bbuild
+### log:parse_logfile_arg [ARGS ...] Usage:bbuild
+# Parse script arguments for `--log=LOGFILE` and set log file
+#
+# Usage example:
+#
+#   main() {
+#       log:parse_logfile_arg "$@"
+#
+#       log:info "Writing to log"
+#   }
+#
+#   main "$@"
+###/doc
+
+function log:parse_logfile_arg {
+    local logfile="$(args:get --log-file "$@")"
+
+    log:use_file "$logfile"
+}
+
+### log:parse_loglevel_arg [ARGS ...] Usage:bbuild
 #
 # Pass script arguments and check for log level modifier
 #
-# This function will look for an argument like --log={fail|warn|info|debug} and set the level appropriately
+# This function will look for an argument like --log-level={fail|warn|info|debug} and set the level appropriately
 #
 # Retuns non-zero if log level was specified but could not be determined
 #
 # Usage example:
 #
 # 	main() {
-# 		log:get_level "$@" || echo "Invalid log level"
+# 		log:parse_loglevel_arg "$@" || echo "Invalid log level"
 #
 # 		# ... your code ...
 # 	}
@@ -99,8 +119,8 @@ function log:islevel {
 #
 ###/doc
 
-function log:get_level {
-    local level="$(args:get --log "$@")"
+function log:parse_loglevel_arg {
+    local level="$(args:get --log-level "$@")"
 
     if [[ -z "$level" ]]; then
         return 0
