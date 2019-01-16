@@ -145,6 +145,7 @@ function log:use_file {
 
             export BBLOGFILE=/dev/stderr
             log:warn "$msg"
+            return "$res"
         }
     fi
     export BBLOGFILE="$target_file"
@@ -176,15 +177,17 @@ function log:use_cwd {
 function log:use_var {
     local logdir="/var/log/$LOGENTITY"
     local logfile="$(whoami)-$UID-$HOSTNAME.log"
-    local tgtlog="$logdir/$logfile"
+    local targetlog="$logdir/$logfile"
 
-    (mkdir -p "$logdir" && touch "$tgtlog") || {
+    (mkdir -p "$logdir" && touch "$targetlog") || {
         out:warn "Could not create [$logfile] in [$logdir] - logging locally"
-        log:use_cwd
+        if ! log:use_file "$HOME/.local/log/$LOGENTITY/$logfile"; then
+            log:use_cwd
+        fi
         return 1
     }
 
-    log:use_file "$tgtlog"
+    log:use_file "$targetlog"
 }
 
 ### log:debug MESSAGE Usage:bbuild
@@ -223,11 +226,11 @@ function log:fail {
     echo "$LOGENTITY $(date "+%F %T") FAIL: $*" >>"$BBLOGFILE"
 }
 
-### log:dump Usage:bbuild
+### log:dump [LEVEL] Usage:bbuild
 #
 # Dump the stdin to the log.
 #
-# Requires level $LOG_LEVEL_DEBUG
+# Default level is "debug"
 #
 # Example:
 #
@@ -235,33 +238,13 @@ function log:fail {
 #
 ###/doc
 
-function log:dump {
-    log:debug "$* -------------¬"
-    log:debug "$(cat -)"
-    log:debug "______________/"
-}
+$%function log:dump(?level) {
+    [[ -n "$level" ]] || level=debug
+    log:_validate_level "$level" "log:dump"
 
-### log:debug:fork [MARKER] Usage:bbuild
-#
-# DEPRECATED - please use `log:stream` instead ; this function prints log marker and date to stdout, as well as being tied directly to debug
-#
-# Pipe the data coming through stdin to stdout
-#
-# *Also* write the same data to the log when at debug level, each line preceded by MARKER
-#
-# Insert this debug fork into pipes to record their output
-#
-###/doc
-function log:debug:fork {
-    log:fail "--- DEPRECATED log:debug:fork used ---"
-    if log:islevel "$LOG_LEVEL_DEBUG"; then
-        local MARKER="${1:-PIPEDUMP}"; shift || :
-        MARKER="$(date "+%F %T") $MARKER :"
-
-        cat - | sed -r "s/^/$MARKER/" | tee -a "$BBLOGFILE"
-    else
-        cat -
-    fi
+    log:"$level" "$* -------------¬"
+    log:"$level" "$(cat -)"
+    log:"$level" "______________/"
 }
 
 ### log:stream LEVEL [MARKER] Usage:bbuild

@@ -65,7 +65,7 @@ function out:flush {
 ### out:fail [CODE] MESSAGE Usage:bbuild
 # print a red failure message to stderr and exit with CODE
 # CODE must be a number
-# if no code is specified, error code 127 is used
+# if no code is specified, status code 127 is used
 ###/doc
 function out:fail {
     local ERCODE=127

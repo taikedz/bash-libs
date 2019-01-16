@@ -100,7 +100,7 @@ test:report() {
 ### test:output EXPECTED COMMAND ... Usage:bbuild
 # Test a command's output for expected content.
 #
-# Runs COMMAND ... and captures output. If the output matches the EXPECTED value, returns 0
+# Runs COMMAND ... and captures output. If the output is the same as the EXPECTED value, returns 0
 # else returns 1
 #
 # Always prints the output ; combine with test:require and test:forbid
@@ -115,5 +115,25 @@ test:output() {
     output="$("$@")" || :
 
     echo "$output"
-    [[ "$expect" = "$output" ]]
+    [[ "$output" = "$expect" ]]
+}
+
+### test:output-match PATTERN COMMAND ... Usage:bbuild
+# Test a command's output againsta a given regular expression
+#
+# Runs COMMAND ... and captures output. If the output mathes the PATTERN, return 0
+# else returns 1
+#
+# Always prints the output ; combine with test:require and test:forbid
+#
+###
+test:output-match() {
+    local pattern="$1"; shift
+    local res=0
+    local output
+
+    output="$("$@")" || :
+
+    echo "$output"
+    [[ "$output" =~ $pattern ]]
 }
