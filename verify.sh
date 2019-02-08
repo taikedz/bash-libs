@@ -13,7 +13,7 @@
 #  that will be searched for wil then be "./tests/test-SOMEFILE"
 ###/doc
 
-##bash-libs: tty.sh @ 69724119 (2.0)
+##bash-libs: tty.sh @ 9d200ab4-uncommitted (2.0.6)
 
 tty:is_ssh() {
     [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
@@ -23,7 +23,7 @@ tty:is_pipe() {
     [[ ! -t 1 ]]
 }
 
-##bash-libs: colours.sh @ 69724119 (2.0)
+##bash-libs: colours.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -176,7 +176,7 @@ colours:auto() {
 
 colours:auto
 
-##bash-libs: out.sh @ 69724119 (2.0)
+##bash-libs: out.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Console output handlers Usage:bbuild
 #
@@ -263,7 +263,8 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
-##bash-libs: syntax-extensions.sh @ 69724119 (2.0)
+
+##bash-libs: syntax-extensions.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Syntax Extensions Usage:syntax
 #
@@ -325,7 +326,7 @@ syntax-extensions:use() {
     argidx=1
     while [[ "$argidx" -lt "${#arglist[@]}" ]]; do
         argname="${arglist[$argidx]}"
-        failmsg="\"Internal : could not get '$argname' in function arguments\""
+        failmsg="\"Internal: could not get '$argname' in function arguments\""
         posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
 
         if [[ "$argname" =~ ^\? ]]; then
@@ -334,6 +335,7 @@ syntax-extensions:use() {
 
         elif [[ "$argname" =~ ^\* ]]; then
             [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
+            echo "[[ '${argname:1}' != \"$argone\" ]] || out:fail \"Internal: Local name [$argname] equals upstream [$argone]. Rename [$argname] (suggestion: [*p_${argname:1}])\""
             echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
 
         else
@@ -376,7 +378,7 @@ args:use:local() {
     syntax-extensions:use:local "$@"
 }
 
-##bash-libs: autohelp.sh @ 69724119 (2.0)
+##bash-libs: autohelp.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Autohelp Usage:bbuild
 #
@@ -574,7 +576,7 @@ autohelp:check:section() {
         fi
     done
 }
-##bash-libs: runmain.sh @ 69724119 (2.0)
+##bash-libs: runmain.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### runmain SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
 #

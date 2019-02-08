@@ -48,6 +48,8 @@ parse_args() {
 $%function checkout_target(?target) {
     if [[ -z "$target" ]]; then return 0; fi
 
+    (git checkout master && git pull) || out:fail "Could not update the repository!"
+
     if [[ "$target" = latest-release ]]; then
         local version
         version="$(git:last_tagged_version)" || out:fail "Error obtaining last release!"
@@ -122,6 +124,8 @@ main() {
     copy_lib_dir std
 
     echo -e "\033[32;1mSuccessfully installed libraries to [$libsdir]\033[0m"
+
+    git checkout master
 }
 
 main "$@"

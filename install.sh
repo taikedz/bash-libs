@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-##bash-libs: safe.sh @ 25c3ba58 (2.0.2)
+##bash-libs: safe.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Safe mode Usage:bbuild
 #
@@ -15,26 +15,22 @@
 # Splitting over spaces
 # ---------------------
 #
-# You can also switch space splitting on or off (normal bash default is 'on')
+# Using bash's defaults, array assignments split over any whitespace.
 #
-# Given a function `foo()` that returns multiple lines, which may each have spaces in them, use safe splitting to return each item into an array as its own item, without splitting over spaces.
+# Using safe mode, arrays only split over newlines, not over spaces.
 #
-#   safe:space-split off
-#   mylist=(foo)
-#   safe:space-split on
+# Return to default unsafe behaviour using `safe:space-split on`
 #
-# Having space splitting on causes statements like `echo "$*"` to print each argument on its own line.
+# Reactivate safe recommendation using `safe:space-split off`
 #
 # Globs
 # -------
 #
 # In safe mode, glob expansion like `ls .config/*` is turned off by default.
 #
-# You can turn glob expansion on and off with `safe:glob on` or `safe:glob off`
+# You can turn glob expansion on with `safe:glob on`, and off with `safe:glob off`
 #
 ###/doc
-
-set -eufo pipefail
 
 safe:space-split() {
     case "$1" in
@@ -63,7 +59,10 @@ safe:glob() {
         ;;
     esac
 }
-##bash-libs: tty.sh @ 25c3ba58 (2.0.2)
+
+set -eufo pipefail
+safe:space-split off
+##bash-libs: tty.sh @ 9d200ab4-uncommitted (2.0.6)
 
 tty:is_ssh() {
     [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
@@ -73,7 +72,7 @@ tty:is_pipe() {
     [[ ! -t 1 ]]
 }
 
-##bash-libs: colours.sh @ 25c3ba58 (2.0.2)
+##bash-libs: colours.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -226,7 +225,7 @@ colours:auto() {
 
 colours:auto
 
-##bash-libs: out.sh @ 25c3ba58 (2.0.2)
+##bash-libs: out.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Console output handlers Usage:bbuild
 #
@@ -313,7 +312,7 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
-##bash-libs: git.sh @ 25c3ba58 (2.0.2)
+##bash-libs: git.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Git handlers Usage:bbuild
 #
@@ -421,7 +420,8 @@ git:last_tagged_version() {
 
     echo "$tagged_version"
 }
-##bash-libs: syntax-extensions.sh @ 25c3ba58 (2.0.2)
+
+##bash-libs: syntax-extensions.sh @ 9d200ab4-uncommitted (2.0.6)
 
 ### Syntax Extensions Usage:syntax
 #
@@ -483,7 +483,7 @@ syntax-extensions:use() {
     argidx=1
     while [[ "$argidx" -lt "${#arglist[@]}" ]]; do
         argname="${arglist[$argidx]}"
-        failmsg="\"Internal : could not get '$argname' in function arguments\""
+        failmsg="\"Internal: could not get '$argname' in function arguments\""
         posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
 
         if [[ "$argname" =~ ^\? ]]; then
@@ -492,6 +492,7 @@ syntax-extensions:use() {
 
         elif [[ "$argname" =~ ^\* ]]; then
             [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
+            echo "[[ '${argname:1}' != \"$argone\" ]] || out:fail \"Internal: Local name [$argname] equals upstream [$argone]. Rename [$argname] (suggestion: [*p_${argname:1}])\""
             echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
 
         else
@@ -579,6 +580,8 @@ checkout_target() {
     . <(args:use:local ?target -- "$@") ; 
     if [[ -z "$target" ]]; then return 0; fi
 
+    (git checkout master && git pull) || out:fail "Could not update the repository!"
+
     if [[ "$target" = latest-release ]]; then
         local version
         version="$(git:last_tagged_version)" || out:fail "Error obtaining last release!"
@@ -653,6 +656,8 @@ main() {
     copy_lib_dir std
 
     echo -e "\033[32;1mSuccessfully installed libraries to [$libsdir]\033[0m"
+
+    git checkout master
 }
 
 main "$@"
