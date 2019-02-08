@@ -26,6 +26,9 @@ function searchpaths:file_from {
     local PATHS="$1"; shift || :
     local FILE="$1"; shift || :
 
+    local oldIFS="$IFS"
+    IFS=$' \t\n'
+
     for path in $(echo "$PATHS"|tr ':' ' '); do
         local fpath="$path/$FILE"
         if [[ -f "$fpath" ]]; then
@@ -33,5 +36,7 @@ function searchpaths:file_from {
             return 0
         fi
     done
+
+    IFS="$oldIFS"
     return 1
 }

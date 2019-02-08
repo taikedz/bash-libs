@@ -19,6 +19,6 @@ INCLUDEFILE_paths="$testdir" INCLUDEFILE_token='#%include' includefile:process "
 test:require grep -q "This is file2" "$testdir/outfile"
 test:require once_only
 
-rm "$testdir/file1" "$testdir/file2" "$testdir/outfile"
+rm -r "$testdir"
 
 test:report
