@@ -16,5 +16,5 @@ $%function hovercraft:serve(mainfile) {
     local runtime
     runtime="$(bincheck:get sensible-browser firefox chromium chrome gnome-www-browser epiphany x-www-browser www-browser)" || return 1
 
-    "$runtime" "$pdir/index.html"
+    "$runtime" "file://$PWD/$pdir/index.html"
 }
