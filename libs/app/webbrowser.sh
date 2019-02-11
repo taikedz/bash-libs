@@ -2,7 +2,7 @@
 
 ### webbrowser Usage:bbuild
 # Library to control web browsers
-###
+###/doc
 
 #%include std/syntax-extensions.sh
 #%include std/bincheck.sh
