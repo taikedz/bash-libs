@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-##bash-libs: safe.sh @ 9d200ab4-uncommitted (2.0.6)
+##bash-libs: safe.sh @ d9cd7634-uncommitted (after 2.0.1)
 
 ### Safe mode Usage:bbuild
 #
@@ -15,22 +15,26 @@
 # Splitting over spaces
 # ---------------------
 #
-# Using bash's defaults, array assignments split over any whitespace.
+# You can also switch space splitting on or off (normal bash default is 'on')
 #
-# Using safe mode, arrays only split over newlines, not over spaces.
+# Given a function `foo()` that returns multiple lines, which may each have spaces in them, use safe splitting to return each item into an array as its own item, without splitting over spaces.
 #
-# Return to default unsafe behaviour using `safe:space-split on`
+#   safe:space-split off
+#   mylist=(foo)
+#   safe:space-split on
 #
-# Reactivate safe recommendation using `safe:space-split off`
+# Having space splitting on causes statements like `echo "$*"` to print each argument on its own line.
 #
 # Globs
 # -------
 #
 # In safe mode, glob expansion like `ls .config/*` is turned off by default.
 #
-# You can turn glob expansion on with `safe:glob on`, and off with `safe:glob off`
+# You can turn glob expansion on and off with `safe:glob on` or `safe:glob off`
 #
 ###/doc
+
+set -eufo pipefail
 
 safe:space-split() {
     case "$1" in
@@ -59,10 +63,7 @@ safe:glob() {
         ;;
     esac
 }
-
-set -eufo pipefail
-safe:space-split off
-##bash-libs: tty.sh @ 9d200ab4-uncommitted (2.0.6)
+##bash-libs: tty.sh @ d9cd7634-uncommitted (after 2.0.1)
 
 tty:is_ssh() {
     [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
@@ -72,7 +73,7 @@ tty:is_pipe() {
     [[ ! -t 1 ]]
 }
 
-##bash-libs: colours.sh @ 9d200ab4-uncommitted (2.0.6)
+##bash-libs: colours.sh @ d9cd7634-uncommitted (after 2.0.1)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -225,7 +226,7 @@ colours:auto() {
 
 colours:auto
 
-##bash-libs: out.sh @ 9d200ab4-uncommitted (2.0.6)
+##bash-libs: out.sh @ d9cd7634-uncommitted (after 2.0.1)
 
 ### Console output handlers Usage:bbuild
 #
@@ -312,7 +313,178 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
-##bash-libs: git.sh @ 9d200ab4-uncommitted (2.0.6)
+##bash-libs: patterns.sh @ d9cd7634-uncommitted (after 2.0.1)
+
+### Useful patterns Usage:bbuild
+#
+# Some useful regex patterns, exported as environment variables.
+#
+# They are not foolproof, and you are encouraged to improve upon them.
+#
+# $PAT_blank - detects whether an entire line is empty or whitespace
+# $PAT_comment - detects whether is a line is a script comment (assumes '#' as the comment marker)
+# $PAT_num - detects whether the string is an integer number in its entirety
+# $PAT_cvar - detects if the string is a valid C variable name
+# $PAT_filename - detects if the string is a safe UNIX or Windows file name;
+#   does not allow presence of whitespace or special characters aside from '_', '.', '-'
+# $PAT_email - simple heuristic to determine whether a string looks like a valid email address
+#
+###/doc
+
+export PAT_blank='^\s*$'
+export PAT_comment='^\s*(#.*)?$'
+export PAT_num='^[0-9]+$'
+export PAT_cvar='^[a-zA-Z_][a-zA-Z0-9_]*$'
+export PAT_filename='^[a-zA-Z0-9_.-]$'
+export PAT_email="$PAT_filename@$PAT_filename.$PAT_cvar"
+
+##bash-libs: debug.sh @ d9cd7634-uncommitted (after 2.0.1)
+
+### Debug lib Usage:bbuild
+#
+# Debugging tools and functions.
+#
+# You need to activate debug mode using debug:activate command at the start of your script
+#  (or from whatever point you wish it to activate)
+#
+###/doc
+
+### Environment Variables Usage:bbuild
+#
+# DEBUG_mode : set to 'true' to enable debugging output
+#
+###/doc
+
+: ${DEBUG_mode=false}
+
+### debug:mode [output | /output | verbose | /verbose] ... Usage:bbuild
+#
+# Activate debug output (`output`), or activate command tracing (`verbose`)
+#
+# Deactivate with the corresponding `/output` and `/verbose` options
+#
+###/doc
+
+function debug:mode() {
+    local mode_switch
+    for mode_switch in "$@"; do
+        case "$mode_switch" in
+        output)
+            DEBUG_mode=true ;;
+        /output)
+            DEBUG_mode=false ;;
+        verbose)
+            set -x ;;
+        /verbose)
+            set +x ;;
+        esac
+    done
+}
+
+### debug:print MESSAGE Usage:bbuild
+# print a blue debug message to stderr
+# only prints if DEBUG_mode is set to "true"
+###/doc
+function debug:print {
+    [[ "$DEBUG_mode" = true ]] || return 0
+    echo "${CBBLU}DEBUG: $CBLU$*$CDEF" 1>&2
+}
+
+### debug:dump [MARKER] Usage:bbuild
+#
+# Pipe the data coming through stdin to stdout (as if it weren't there at all)
+#
+# If debug mode is on, *also* write the same data to stderr, each line preceded by MARKER
+#
+# Insert this function into pipes to see their output when in debugging mode
+#
+#   sed -r 's/linux|unix/*NIX/gi' myfile.txt | debug:dump | lprint
+#
+# Or use this to mask a command's output unless in debug mode
+#
+#   which binary 2>&1 | debug:dump >/dev/null
+#
+###/doc
+function debug:dump {
+    if [[ "$DEBUG_mode" = true ]]; then
+        local MARKER="${1:-DEBUG: }"; shift || :
+
+        cat - | sed -r "s/^/$MARKER/" | tee -a /dev/stderr
+    else
+        cat -
+    fi
+}
+
+### debug:break MESSAGE Usage:bbuild
+#
+# Add break points to a script
+#
+# Requires `DEBUG_mode` set to true
+#
+# When the script runs, the message is printed with a prompt, and execution pauses.
+#
+# Press return to continue execution.
+#
+# Type a variable name, with leading `$`, to dump it, e.g. `$myvar`
+#
+# Type a variable name, with leading `$`, follwoed by an assignment to change its value, e.g. `$myvar=new value`
+#  the new value will be seen by the script.
+#
+# Type 'env' to dump the current environment variables.
+#
+# Type `exit`, `quit` or `stop` to stop the program. If the breakpoint is in a subshell,
+#  execution from after the subshell will be resumed.
+#
+###/doc
+
+function debug:break {
+    [[ "$DEBUG_mode" = true ]] || return 0
+    local reply
+
+    while true; do
+        read -p "${CRED}BREAKPOINT: $* >$CDEF " reply
+        if [[ "$reply" =~ quit|exit|stop ]]; then
+            echo "${CBRED}ABORT${CDEF}" >&2
+            exit 127
+
+        elif [[ "$reply" = env ]]; then
+            env |sed 's//^[/g' |debug:dump "--- "
+
+        elif [[ "$reply" =~ ^\$ ]]; then
+            debug:_break_dump "${reply:1}" || :
+
+        elif [[ -z "$reply" ]]; then
+            return 0
+        else
+            debug:print "'quit','exit' or 'stop' to abort; '\$varname' to see a variable's contents; '\$varname=new value' to assign a new value for run time; <Enter> to continue"
+        fi
+    done
+}
+
+debug:_break_dump() {
+    local inspectable="$1"
+    local varname="$1"
+    local varval
+
+    if [[ "$inspectable" =~ = ]]; then
+        varname="${inspectable%%=*}"
+        varval="${inspectable#*=}"
+    fi
+
+    [[ "$varname" =~ $PAT_cvar ]] || {
+        debug:print "${CRED}Invalid var name '$varname'"
+        return 1
+    }
+
+    declare -n inspect="$varname"
+
+    if [[ "$inspectable" =~ = ]]; then
+        inspect="$varval"
+    else
+        echo "$inspect"
+    fi
+}
+##bash-libs: git.sh @ addb4c5b (2.0.5)
 
 ### Git handlers Usage:bbuild
 #
@@ -420,8 +592,7 @@ git:last_tagged_version() {
 
     echo "$tagged_version"
 }
-
-##bash-libs: syntax-extensions.sh @ 9d200ab4-uncommitted (2.0.6)
+##bash-libs: syntax-extensions.sh @ d9cd7634-uncommitted (after 2.0.1)
 
 ### Syntax Extensions Usage:syntax
 #
@@ -483,7 +654,7 @@ syntax-extensions:use() {
     argidx=1
     while [[ "$argidx" -lt "${#arglist[@]}" ]]; do
         argname="${arglist[$argidx]}"
-        failmsg="\"Internal: could not get '$argname' in function arguments\""
+        failmsg="\"Internal : could not get '$argname' in function arguments\""
         posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
 
         if [[ "$argname" =~ ^\? ]]; then
@@ -492,7 +663,6 @@ syntax-extensions:use() {
 
         elif [[ "$argname" =~ ^\* ]]; then
             [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
-            echo "[[ '${argname:1}' != \"$argone\" ]] || out:fail \"Internal: Local name [$argname] equals upstream [$argone]. Rename [$argname] (suggestion: [*p_${argname:1}])\""
             echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
 
         else
@@ -535,23 +705,15 @@ args:use:local() {
     syntax-extensions:use:local "$@"
 }
 
-copy_lib_dir() {
-    . <(args:use:local libsrc -- "$@") ; 
-    local srcname="$(basename "$libsrc")"
-
-    # We copy only the end dir by name
-    # TODO use libsrc in full as sub-path to libsdir
-    mkdir -p "$libsdir/$srcname"
-
-    for libfile in "$libsrc"/*.sh ; do
-        copy_lib "$libfile" "$libsdir/$srcname/" || out:fail "ABORT"
-    done
-}
+# Do not clear by default
+CLEAR_EXISTING_LIBS="${CLEAR_EXISTING_LIBS:-false}"
 
 copy_lib() {
     local file_from="$1"; shift
     local dir_to="$1"; shift
     local file_dest="$dir_to/$(basename "$file_from")"
+
+    mkdir -p "$dir_to"
 
     sed "s/\%COMMITHASH\%/$COMMIT_VERSION/" "$file_from" > "$file_dest"
 
@@ -622,10 +784,13 @@ git_status() {
     fi
 }
 
-clear_libs() {
-    if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libsdir" ]]; then
-        echo "Removing old '$libsdir' ..."
-        rm -r "$libsdir"
+clear_libs_dir() {
+    . <(args:use:local libsdirname -- "$@") ; 
+    if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libsdirname" ]]; then
+        out:info "Removing old '$libsdirname' ..."
+        rm -r "$libsdirname"
+    else
+        out:info "${CBPUR}Skip clearing $libsdirname"
     fi
 }
 
@@ -637,6 +802,21 @@ set_libs_dir() {
     fi
 }
 
+version_and_copy_libfiles() {
+    for libsdirsrc in libs/* ; do
+        if [[ "$libsdirsrc" =~ /\*$ ]]; then out:fail "Could not find source libraries"; fi
+
+        local libsdirname="$(basename "$libsdirsrc")"
+        local libsdirdest="$libsdir/$libsdirname"
+
+        clear_libs_dir "$libsdirdest"
+
+        for libfile in "$libsdirsrc"/*.sh ; do
+            copy_lib "$libfile" "$libsdirdest" || out:fail "ABORT"
+        done
+    done
+}
+
 main() {
     safe:glob on
     cd "$(dirname "$0")"
@@ -646,14 +826,11 @@ main() {
     checkout_target "$TARGET_CHECKOUT"
 
     set_libs_dir
-    clear_libs
-
-    mkdir -p "$libsdir"
 
     load_bashlibs_version
     out:info "Installing libs versioned at: $COMMIT_VERSION"
 
-    copy_lib_dir std
+    version_and_copy_libfiles
 
     echo -e "\033[32;1mSuccessfully installed libraries to [$libsdir]\033[0m"
 

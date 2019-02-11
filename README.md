@@ -53,7 +53,7 @@ becomes
     #%include std/out.sh
     #%include std/args.sh
 
-This is being done so that other library collections can be added to `.../lib/bbuild` directory, whilst still allowing the standard `bbuild/std/` directory to be purged by the installer.
+This is being done so that other library collections can be added to the library directory, whilst still allowing the library subdirectories distributed here to be purged by the installer.
 
 If you previously had an installation of `bash builder` you will need to edit your `BBPATH` to point to the new paths:
 

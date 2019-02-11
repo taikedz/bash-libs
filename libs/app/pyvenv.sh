@@ -1,3 +1,5 @@
+##bash-libs: app/pyvenv.sh @ %COMMITHASH%
+
 #%include std/syntax-extensions.sh
 #%include std/abspath.sh
 

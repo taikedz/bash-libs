@@ -1,4 +1,4 @@
-##bash-libs: git.sh @ %COMMITHASH%
+##bash-libs: app/git.sh @ %COMMITHASH%
 
 ### Git handlers Usage:bbuild
 #

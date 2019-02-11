@@ -1,3 +1,5 @@
+##bash-libs: app/hovercraft.sh @ %COMMITHASH%
+
 #%include std/syntax-extensions.sh
 #%include std/bincheck.sh
 #%include std/varify.sh

@@ -2,25 +2,19 @@
 
 #%include std/safe.sh
 #%include std/out.sh
+#%include std/debug.sh
 #%include std/git.sh
 #%include std/syntax-extensions.sh
 
-$%function copy_lib_dir(libsrc) {
-    local srcname="$(basename "$libsrc")"
-
-    # We copy only the end dir by name
-    # TODO use libsrc in full as sub-path to libsdir
-    mkdir -p "$libsdir/$srcname"
-
-    for libfile in "$libsrc"/*.sh ; do
-        copy_lib "$libfile" "$libsdir/$srcname/" || out:fail "ABORT"
-    done
-}
+# Do not clear by default
+CLEAR_EXISTING_LIBS="${CLEAR_EXISTING_LIBS:-false}"
 
 copy_lib() {
     local file_from="$1"; shift
     local dir_to="$1"; shift
     local file_dest="$dir_to/$(basename "$file_from")"
+
+    mkdir -p "$dir_to"
 
     sed "s/\%COMMITHASH\%/$COMMIT_VERSION/" "$file_from" > "$file_dest"
 
@@ -90,10 +84,12 @@ git_status() {
     fi
 }
 
-clear_libs() {
-    if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libsdir" ]]; then
-        echo "Removing old '$libsdir' ..."
-        rm -r "$libsdir"
+$%function clear_libs_dir(libsdirname) {
+    if [[ "${CLEAR_EXISTING_LIBS:-}" = true ]] && [[ -d "$libsdirname" ]]; then
+        out:info "Removing old '$libsdirname' ..."
+        rm -r "$libsdirname"
+    else
+        out:info "${CBPUR}Skip clearing $libsdirname"
     fi
 }
 
@@ -105,6 +101,21 @@ set_libs_dir() {
     fi
 }
 
+version_and_copy_libfiles() {
+    for libsdirsrc in libs/* ; do
+        if [[ "$libsdirsrc" =~ /\*$ ]]; then out:fail "Could not find source libraries"; fi
+
+        local libsdirname="$(basename "$libsdirsrc")"
+        local libsdirdest="$libsdir/$libsdirname"
+
+        clear_libs_dir "$libsdirdest"
+
+        for libfile in "$libsdirsrc"/*.sh ; do
+            copy_lib "$libfile" "$libsdirdest" || out:fail "ABORT"
+        done
+    done
+}
+
 main() {
     safe:glob on
     cd "$(dirname "$0")"
@@ -114,14 +125,11 @@ main() {
     checkout_target "$TARGET_CHECKOUT"
 
     set_libs_dir
-    clear_libs
-
-    mkdir -p "$libsdir"
 
     load_bashlibs_version
     out:info "Installing libs versioned at: $COMMIT_VERSION"
 
-    copy_lib_dir std
+    version_and_copy_libfiles
 
     echo -e "\033[32;1mSuccessfully installed libraries to [$libsdir]\033[0m"
 
