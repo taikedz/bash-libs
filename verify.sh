@@ -13,7 +13,7 @@
 #  that will be searched for wil then be "./tests/test-SOMEFILE"
 ###/doc
 
-##bash-libs: tty.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: tty.sh @ 1c36f035 (2.1)
 
 tty:is_ssh() {
     [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
@@ -23,7 +23,7 @@ tty:is_pipe() {
     [[ ! -t 1 ]]
 }
 
-##bash-libs: colours.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: colours.sh @ 1c36f035 (2.1)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -176,7 +176,7 @@ colours:auto() {
 
 colours:auto
 
-##bash-libs: out.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: out.sh @ 1c36f035 (2.1)
 
 ### Console output handlers Usage:bbuild
 #
@@ -263,7 +263,8 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
-##bash-libs: syntax-extensions.sh @ d9cd7634-uncommitted (after 2.0.1)
+
+##bash-libs: syntax-extensions.sh @ 1c36f035 (2.1)
 
 ### Syntax Extensions Usage:syntax
 #
@@ -325,7 +326,7 @@ syntax-extensions:use() {
     argidx=1
     while [[ "$argidx" -lt "${#arglist[@]}" ]]; do
         argname="${arglist[$argidx]}"
-        failmsg="\"Internal : could not get '$argname' in function arguments\""
+        failmsg="\"Internal: could not get '$argname' in function arguments\""
         posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
 
         if [[ "$argname" =~ ^\? ]]; then
@@ -334,6 +335,7 @@ syntax-extensions:use() {
 
         elif [[ "$argname" =~ ^\* ]]; then
             [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
+            echo "[[ '${argname:1}' != \"$argone\" ]] || out:fail \"Internal: Local name [$argname] equals upstream [$argone]. Rename [$argname] (suggestion: [*p_${argname:1}])\""
             echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
 
         else
@@ -376,7 +378,7 @@ args:use:local() {
     syntax-extensions:use:local "$@"
 }
 
-##bash-libs: autohelp.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: autohelp.sh @ 1c36f035 (2.1)
 
 ### Autohelp Usage:bbuild
 #
@@ -574,7 +576,7 @@ autohelp:check:section() {
         fi
     done
 }
-##bash-libs: runmain.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: runmain.sh @ 1c36f035 (2.1)
 
 ### runmain SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
 #
@@ -612,7 +614,7 @@ function runmain {
 
 cd "$(dirname "$0")"
 export BUILDOUTD=/tmp
-export BBPATH=./
+export BBPATH=./libs
 
 items=0
 VER_fails=0
@@ -631,7 +633,8 @@ set_executable() {
 }
 
 set_targets() {
-    targets=(std/*.sh)
+    # FIXME apply to all
+    targets=(libs/std/*.sh)
 
     if [[ "$#" -gt 0 ]]; then
         targets=("$@")

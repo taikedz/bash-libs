@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-##bash-libs: safe.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: safe.sh @ 1c36f035 (2.1)
 
 ### Safe mode Usage:bbuild
 #
@@ -15,26 +15,22 @@
 # Splitting over spaces
 # ---------------------
 #
-# You can also switch space splitting on or off (normal bash default is 'on')
+# Using bash's defaults, array assignments split over any whitespace.
 #
-# Given a function `foo()` that returns multiple lines, which may each have spaces in them, use safe splitting to return each item into an array as its own item, without splitting over spaces.
+# Using safe mode, arrays only split over newlines, not over spaces.
 #
-#   safe:space-split off
-#   mylist=(foo)
-#   safe:space-split on
+# Return to default unsafe behaviour using `safe:space-split on`
 #
-# Having space splitting on causes statements like `echo "$*"` to print each argument on its own line.
+# Reactivate safe recommendation using `safe:space-split off`
 #
 # Globs
 # -------
 #
 # In safe mode, glob expansion like `ls .config/*` is turned off by default.
 #
-# You can turn glob expansion on and off with `safe:glob on` or `safe:glob off`
+# You can turn glob expansion on with `safe:glob on`, and off with `safe:glob off`
 #
 ###/doc
-
-set -eufo pipefail
 
 safe:space-split() {
     case "$1" in
@@ -63,7 +59,10 @@ safe:glob() {
         ;;
     esac
 }
-##bash-libs: tty.sh @ d9cd7634-uncommitted (after 2.0.1)
+
+set -eufo pipefail
+safe:space-split off
+##bash-libs: tty.sh @ 1c36f035 (2.1)
 
 tty:is_ssh() {
     [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
@@ -73,7 +72,7 @@ tty:is_pipe() {
     [[ ! -t 1 ]]
 }
 
-##bash-libs: colours.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: colours.sh @ 1c36f035 (2.1)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -226,7 +225,7 @@ colours:auto() {
 
 colours:auto
 
-##bash-libs: out.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: out.sh @ 1c36f035 (2.1)
 
 ### Console output handlers Usage:bbuild
 #
@@ -313,7 +312,7 @@ function out:fail {
 function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
-##bash-libs: patterns.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: patterns.sh @ 1c36f035 (2.1)
 
 ### Useful patterns Usage:bbuild
 #
@@ -338,7 +337,7 @@ export PAT_cvar='^[a-zA-Z_][a-zA-Z0-9_]*$'
 export PAT_filename='^[a-zA-Z0-9_.-]$'
 export PAT_email="$PAT_filename@$PAT_filename.$PAT_cvar"
 
-##bash-libs: debug.sh @ d9cd7634-uncommitted (after 2.0.1)
+##bash-libs: debug.sh @ 1c36f035 (2.1)
 
 ### Debug lib Usage:bbuild
 #
@@ -484,7 +483,122 @@ debug:_break_dump() {
         echo "$inspect"
     fi
 }
-##bash-libs: git.sh @ addb4c5b (2.0.5)
+
+##bash-libs: syntax-extensions.sh @ 1c36f035 (2.1)
+
+### Syntax Extensions Usage:syntax
+#
+# Syntax extensions for bash-builder.
+#
+# You will need to import this library if you use Bash Builder's extended syntax macros.
+#
+# You should not however use the functions directly, but the extended syntax instead.
+#
+##/doc
+
+### syntax-extensions:use FUNCNAME ARGNAMES ... Usage:syntax
+#
+# Consume arguments into named global variables.
+#
+# If not enough argument values are found, the first named variable that failed to be assigned is printed as error
+#
+# ARGNAMES prefixed with '?' do not trigger an error
+#
+# Example:
+#
+#   #%include out.sh
+#   #%include syntax-extensions.sh
+#
+#   get_parameters() {
+#       . <(syntax-extensions:use get_parameters INFILE OUTFILE ?comment)
+#
+#       [[ -f "$INFILE" ]]  || out:fail "Input file '$INFILE' does not exist"
+#       [[ -f "$OUTFILE" ]] || out:fail "Output file '$OUTFILE' does not exist"
+#
+#       [[ -z "$comment" ]] || echo "Note: $comment"
+#   }
+#
+#   main() {
+#       get_parameters "$@"
+#
+#       echo "$INFILE will be converted to $OUTFILE"
+#   }
+#
+#   main "$@"
+#
+###/doc
+syntax-extensions:use() {
+    local argname arglist undef_f dec_scope argidx argone failmsg pos_ok
+    
+    dec_scope=""
+    [[ "${SYNTAXLIB_scope:-}" = local ]] || dec_scope=g
+    arglist=(:)
+    argone=\"\${1:-}\"
+    pos_ok=true
+    
+    for argname in "$@"; do
+        [[ "$argname" != -- ]] || break
+        [[ "$argname" =~ ^(\?|\*)?[0-9a-zA-Z_]+$ ]] || out:fail "Internal: Not a valid argument name '$argname'"
+
+        arglist+=("$argname")
+    done
+
+    argidx=1
+    while [[ "$argidx" -lt "${#arglist[@]}" ]]; do
+        argname="${arglist[$argidx]}"
+        failmsg="\"Internal: could not get '$argname' in function arguments\""
+        posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
+
+        if [[ "$argname" =~ ^\? ]]; then
+            echo "$SYNTAXLIB_scope ${argname:1}=$argone; shift || :"
+            pos_ok=false
+
+        elif [[ "$argname" =~ ^\* ]]; then
+            [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
+            echo "[[ '${argname:1}' != \"$argone\" ]] || out:fail \"Internal: Local name [$argname] equals upstream [$argone]. Rename [$argname] (suggestion: [*p_${argname:1}])\""
+            echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
+
+        else
+            [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
+            echo "$SYNTAXLIB_scope ${argname}=$argone; shift || out:fail $failmsg"
+        fi
+
+        argidx=$((argidx + 1))
+    done
+}
+
+
+### syntax-extensions:use:local FUNCNAME ARGNAMES ... Usage:syntax
+# 
+# Enables syntax macro: function signatures
+#   e.g. $%function func(var1 var2) { ... }
+#
+# Build with bbuild to leverage this function's use:
+#
+#   #%include out.sh
+#   #%include syntax-extensions.sh
+#
+#   $%function person(name email) {
+#       echo "$name <$email>"
+#
+#       # $1 and $2 have been consumed into $name and $email
+#       # The rest remains available in $* :
+#       
+#       echo "Additional notes: $*"
+#   }
+#
+#   person "Jo Smith" "jsmith@example.com" Some details
+#
+###/doc
+syntax-extensions:use:local() {
+    SYNTAXLIB_scope=local syntax-extensions:use "$@"
+}
+
+args:use:local() {
+    syntax-extensions:use:local "$@"
+}
+
+##bash-libs: app/git.sh @ 1c36f035 (2.1)
 
 ### Git handlers Usage:bbuild
 #
@@ -591,118 +705,6 @@ git:last_tagged_version() {
     fi
 
     echo "$tagged_version"
-}
-##bash-libs: syntax-extensions.sh @ d9cd7634-uncommitted (after 2.0.1)
-
-### Syntax Extensions Usage:syntax
-#
-# Syntax extensions for bash-builder.
-#
-# You will need to import this library if you use Bash Builder's extended syntax macros.
-#
-# You should not however use the functions directly, but the extended syntax instead.
-#
-##/doc
-
-### syntax-extensions:use FUNCNAME ARGNAMES ... Usage:syntax
-#
-# Consume arguments into named global variables.
-#
-# If not enough argument values are found, the first named variable that failed to be assigned is printed as error
-#
-# ARGNAMES prefixed with '?' do not trigger an error
-#
-# Example:
-#
-#   #%include out.sh
-#   #%include syntax-extensions.sh
-#
-#   get_parameters() {
-#       . <(syntax-extensions:use get_parameters INFILE OUTFILE ?comment)
-#
-#       [[ -f "$INFILE" ]]  || out:fail "Input file '$INFILE' does not exist"
-#       [[ -f "$OUTFILE" ]] || out:fail "Output file '$OUTFILE' does not exist"
-#
-#       [[ -z "$comment" ]] || echo "Note: $comment"
-#   }
-#
-#   main() {
-#       get_parameters "$@"
-#
-#       echo "$INFILE will be converted to $OUTFILE"
-#   }
-#
-#   main "$@"
-#
-###/doc
-syntax-extensions:use() {
-    local argname arglist undef_f dec_scope argidx argone failmsg pos_ok
-    
-    dec_scope=""
-    [[ "${SYNTAXLIB_scope:-}" = local ]] || dec_scope=g
-    arglist=(:)
-    argone=\"\${1:-}\"
-    pos_ok=true
-    
-    for argname in "$@"; do
-        [[ "$argname" != -- ]] || break
-        [[ "$argname" =~ ^(\?|\*)?[0-9a-zA-Z_]+$ ]] || out:fail "Internal: Not a valid argument name '$argname'"
-
-        arglist+=("$argname")
-    done
-
-    argidx=1
-    while [[ "$argidx" -lt "${#arglist[@]}" ]]; do
-        argname="${arglist[$argidx]}"
-        failmsg="\"Internal : could not get '$argname' in function arguments\""
-        posfailmsg="Internal: positional argument '$argname' encountered after optional argument(s)"
-
-        if [[ "$argname" =~ ^\? ]]; then
-            echo "$SYNTAXLIB_scope ${argname:1}=$argone; shift || :"
-            pos_ok=false
-
-        elif [[ "$argname" =~ ^\* ]]; then
-            [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
-            echo "declare -n${dec_scope} ${argname:1}=$argone; shift || out:fail $failmsg"
-
-        else
-            [[ "$pos_ok" != false ]] || out:fail "$posfailmsg"
-            echo "$SYNTAXLIB_scope ${argname}=$argone; shift || out:fail $failmsg"
-        fi
-
-        argidx=$((argidx + 1))
-    done
-}
-
-
-### syntax-extensions:use:local FUNCNAME ARGNAMES ... Usage:syntax
-# 
-# Enables syntax macro: function signatures
-#   e.g. $%function func(var1 var2) { ... }
-#
-# Build with bbuild to leverage this function's use:
-#
-#   #%include out.sh
-#   #%include syntax-extensions.sh
-#
-#   $%function person(name email) {
-#       echo "$name <$email>"
-#
-#       # $1 and $2 have been consumed into $name and $email
-#       # The rest remains available in $* :
-#       
-#       echo "Additional notes: $*"
-#   }
-#
-#   person "Jo Smith" "jsmith@example.com" Some details
-#
-###/doc
-syntax-extensions:use:local() {
-    SYNTAXLIB_scope=local syntax-extensions:use "$@"
-}
-
-args:use:local() {
-    syntax-extensions:use:local "$@"
 }
 
 # Do not clear by default

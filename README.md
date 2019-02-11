@@ -1,6 +1,10 @@
 # Bash Builder Standard Library Collection
 
+A set of "libraries" for bash.
+
 `std/` contains a collection of bash functions and definitions for inclusion in scripts using your bash scripts, as a "standard library" for Bash Builder.
+
+`app/` contains a collection of functions for controlling some applications commonly wrapped by bash.
 
 See [`bash-builder`](https://github.com/taikedz/bash-builder) for more information.
 

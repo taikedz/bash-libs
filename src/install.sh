@@ -3,8 +3,9 @@
 #%include std/safe.sh
 #%include std/out.sh
 #%include std/debug.sh
-#%include std/git.sh
 #%include std/syntax-extensions.sh
+
+#%include app/git.sh
 
 # Do not clear by default
 CLEAR_EXISTING_LIBS="${CLEAR_EXISTING_LIBS:-false}"
