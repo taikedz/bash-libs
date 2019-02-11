@@ -16,5 +16,5 @@ $%function hovercraft:serve(mainfile) {
     local pdir="$(mktemp -d "presentation-hovercraft/$(varify:fil "$mainfile")-XXXX")"
 
     hovercraft "$mainfile" "$pdir"
-    browser:visit "file://$PWD/$pdir/index.html"
+    webbrowser:visit "file://$PWD/$pdir/index.html"
 }

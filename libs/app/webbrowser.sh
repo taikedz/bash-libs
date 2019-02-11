@@ -14,13 +14,19 @@
 ###/doc
 $%function webbrowser:visit(url) {
     local runtime
-    runtime="$(bincheck:get
+
+    local browser_options=(
         sensible-browser # Ubuntu's shorthand for the system browser
         gnome-www-browser # Gnome's shorthand
         firefox opera chromium epiphany # popular browsers by bin name
         x-www-browser www-browser # System terminal-based browsers
         elinks
-    )" || return 1
+    )
+    runtime="$(bincheck:get "${browser_options[@]}")" || return 1
 
-    runtime "$url"
+    if [[ -z "$runtim" ]]; then
+        "$runtime" "$url"
+        return
+    fi
+    return 127
 }
