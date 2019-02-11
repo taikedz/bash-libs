@@ -1,13 +1,13 @@
-##bash-libs: app/hovercraft.sh @ %COMMITHASH%
+##bash-libs: app/webbrowser.sh @ %COMMITHASH%
 
-### webbrowser Usage:bashdoc
+### webbrowser Usage:bbuild
 # Library to control web browsers
 ###
 
 #%include std/syntax-extensions.sh
 #%include std/bincheck.sh
 
-### webbrowser:visit URL Usage:bashdoc
+### webbrowser:visit URL Usage:bbuild
 # Visit a URL in a graphical web broswer.
 #
 # Will try to get the system's web browser, or try to locate any one of a wide selection of browsers.

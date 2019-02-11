@@ -5,7 +5,7 @@
 
 #%include app/webbrowser.sh
 
-### hovercraft:serve MAINFILE Usage:bashdoc
+### hovercraft:serve MAINFILE Usage:bbuild
 # Build the presentation based on MAINFILE
 #
 # Opens a browser session with the presentation

@@ -5,7 +5,7 @@
 
 BBUILD_PYTHONVENV=""
 
-### pyvenv:setup DIRNAME [PYTHONVERSION] Usage:bashdoc
+### pyvenv:setup DIRNAME [PYTHONVERSION] Usage:bbuild
 # Create a virtual environment directory
 #
 # DIRNAME - the name of the directory to be a virtual environment
@@ -21,7 +21,7 @@ $%function pyvenv:setup(venvdir ?pyversion) {
     virtualenv "${useversion[@]:1}" "$venvdir"
 }
 
-### pyvenv:ensure DIRNAME [PYTHONVERSION] Usage:bashdoc
+### pyvenv:ensure DIRNAME [PYTHONVERSION] Usage:bbuild
 # Ensure a virtual environment directory is present; if not, create it.
 #
 # DIRNAME - the name of the directory to be a virtual environment
@@ -39,7 +39,7 @@ $%function pyvenv:ensure(venvdir ?pyversion) {
     fi
 }
 
-### pyvenv:activate DIRNAME Usage:bashdoc
+### pyvenv:activate DIRNAME Usage:bbuild
 # Activate a virtual environment directory
 #
 # DIRNAME - the name of the virtual environment directory.
@@ -54,7 +54,7 @@ $%function pyvenv:activate(venvdir) {
     fi
 }
 
-### pyvenv:deactivate Usage:bashdoc
+### pyvenv:deactivate Usage:bbuild
 # Deactivate a virtual environment directory
 ###/doc
 pyvenv:deactivate() {
@@ -66,7 +66,7 @@ pyvenv:deactivate() {
     fi
 }
 
-### pyvenv:add LIBNAMES ... Usage:bashdoc
+### pyvenv:add LIBNAMES ... Usage:bbuild
 # Add libraries to the virtual environment and save in a sidecar requirements.txt file
 #
 # returns: virtualenv code on failure, or
