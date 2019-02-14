@@ -24,7 +24,7 @@ $%function webbrowser:visit(url) {
     )
     runtime="$(bincheck:get "${browser_options[@]}")" || return 1
 
-    if [[ -z "$runtim" ]]; then
+    if [[ -z "$runtime" ]]; then
         "$runtime" "$url"
         return
     fi
