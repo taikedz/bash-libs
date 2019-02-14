@@ -6,9 +6,7 @@
 #%include app/webbrowser.sh
 
 ### hovercraft:build MAINFILE Usage:bbuild
-# Build the presentation from the MAINFILE (.rst file)
-#
-# Prints the location of the presentation as a file:/// URL
+# Build the presentation from the MAINFILE (.rst file), and print the path of the compiled presentation
 ###/doc
 
 $%function hovercraft:build(mainfile) {
@@ -17,7 +15,7 @@ $%function hovercraft:build(mainfile) {
 
     hovercraft "$mainfile" "$pdir"
 
-    echo "file://$PWD/$pdir/index.html"
+    echo "$pdir/index.html"
 }
 
 ### hovercraft:serve MAINFILE [BROWSER] Usage:bbuild
@@ -29,7 +27,7 @@ $%function hovercraft:build(mainfile) {
 ###/doc
 
 $%function hovercraft:serve(mainfile ?browser) {
-    local presentation="$(hovercraft:build "$mainfile")"
+    local presentation="file://$PWD/$(hovercraft:build "$mainfile")"
 
     if [[ -z "$browser" ]]; then
         webbrowser:visit "$presentation"
