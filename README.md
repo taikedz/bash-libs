@@ -1,6 +1,6 @@
 # Bash Builder Standard Library Collection
 
-A set of "libraries" for bash.
+A set of "libraries" for bash. Conveyed to you under the terms of the LGPLv3.
 
 `std/` contains a collection of bash functions and definitions for inclusion in scripts using your bash scripts, as a "standard library" for Bash Builder.
 
