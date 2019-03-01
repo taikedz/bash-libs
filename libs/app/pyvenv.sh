@@ -24,6 +24,8 @@ $%function pyvenv:setup(venvdir ?pyversion) {
 ### pyvenv:ensure DIRNAME [PYTHONVERSION] Usage:bbuild
 # Ensure a virtual environment directory is present; if not, create it.
 #
+# If a ./requirements.txt file exists, install requirements during creation.
+#
 # DIRNAME - the name of the directory to be a virtual environment
 # PYTHONVERSION - version of python to use, uses virtualenv's default if not specified
 ###/doc
