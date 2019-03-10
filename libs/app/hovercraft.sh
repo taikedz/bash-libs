@@ -18,7 +18,7 @@ $%function hovercraft:build(mainfile) {
     echo "$pdir/index.html"
 }
 
-### hovercraft:serve MAINFILE [BROWSER] Usage:bbuild
+### hovercraft:show MAINFILE [BROWSER] Usage:bbuild
 # Build the presentation based on MAINFILE ;
 #
 # Opens a browser session with the presentation.
@@ -26,12 +26,34 @@ $%function hovercraft:build(mainfile) {
 # If browser is not specified, attempts to use the default system browser.
 ###/doc
 
-$%function hovercraft:serve(mainfile ?browser) {
+$%function hovercraft:show(mainfile ?browser) {
     local presentation="file://$PWD/$(hovercraft:build "$mainfile")"
 
     if [[ -z "$browser" ]]; then
         webbrowser:visit "$presentation"
     else
         "$browser" "$presentation"
+    fi
+}
+
+### hovercraft:serve MAINFILE [COMMAND ...] Usage:bbuild
+# Build the presentation base on MAINFILE ;
+#
+# Use the specified command to serve the presentation through a web server.
+#
+# By default, the command is `python3 -m http.server 8090`
+# run in the context of the built presentation's directory
+###/doc
+
+$%function hovercraft:serve(mainfile) {
+    local presentation_file="$(hovercraft:build "$mainfile")"
+    local presentation_dir="$(dirname "$presentation_file")"
+
+    cd "$presentation_dir"
+
+    if [[ -z "$*" ]]; then
+        python3 -m http.server 8090
+    else
+        "$@"
     fi
 }
