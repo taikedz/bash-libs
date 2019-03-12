@@ -17,6 +17,8 @@
 # 	test:forbid isgreater 3 5
 # 	test:forbid isgreater 5 5
 #
+# 	test:report
+#
 ###/doc
 
 TEST_testfailurecount=0
