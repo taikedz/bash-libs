@@ -2,33 +2,27 @@
 
 ##bash-libs: cdiff.sh @ %COMMITHASH%
 
-### cdiff FILE1 FILE2 Usage:bbuild
+### cdiff:cdiff FILE1 FILE2 Usage:bbuild
 #
 # Colour-print the differences from `FILE1` to `FILE2`
 #
 ###/doc
-cdiff() {
+cdiff:cdiff() {
     diff -u "$1" "$2" | colorize
 }
 
-### | colorize Usage:bbuild
+### cdiff:colorize Usage:bbuild
 #
-# Colour print diff input on stdin
+# Colourize unified diff stream on stdin. Use as piped command.
 #
 ###/doc
-colorize() {
-    local line
+cdiff:colorize() {
+    local sedrules=(
+        -e "s/^((\\+\\+\\+|---).+)/${CBTEA}\\1${CDEF}/g"
+        -e "s|^(\\+.*)|${CBGRN}\\1${CDEF}|g"
+        -e "s|^(-.*)|${CBRED}\\1${CDEF}|g"
+        -e "s|^(@@.*)|${CBBLU}\\1${CDEF}|g"
+    )
 
-    while read line; do
-        if [[ "$line" =~ ^\+ ]]; then
-            echo "${CBGRN}$line"
-        elif [[ "$line" =~ ^- ]]; then
-            echo "${CBRED}$line"
-        elif [[ "$line" =~ @@ ]]; then
-            echo "${CBYEL}$line"
-        else
-            echo "${CDEF}$line"
-        fi
-    done
-    echo "${CDEF}"
+    sed -r "${sedrules[@]}"
 }
