@@ -6,11 +6,11 @@
 ### config.sh Usage:bbuild
 # Read configuration from various locations.
 #
-# Declare multiple config file locations, in increasing order of authority, and read values from all, keeping only the most authoritative value.
+# Declare multiple config file locations in increasing order of authority, and read values from all, keeping only the most authoritative value.
 #
 ###/doc
 
-### config:declare Usage:bbuild
+### config:declare CONFIG FILES ... Usage:bbuild
 #
 # Declare a set of config files, more general file first, then read values from each file in turn.
 #
@@ -21,7 +21,8 @@
 #   echo -e "first=1\\nsecond=2\\nthird=3" > /etc/test.conf
 #   echo -e "second=two\\nthird=" > ./test.conf
 #
-#   # Declare the order to read values from, then read values
+#   # Declare the order to read values from
+#   # Later files have more authority over earlier files.
 #
 #   config:declare confs /etc/test.conf ./test.conf
 #
@@ -57,11 +58,11 @@ $%function config:_foreach_read(*configname key) {
     return "$res"
 }
 
-### config:read CONFIG KEY Uage:bbuild
+### config:read CONFIG KEY [DEFAULT] Usage:bbuild
 #
 # If an earlier file specifies a value, and a later file doesn't, the earlier file's value is used
 #
-# If a later file specifies a value empty, it overrides an earlier file's non-empty definition.
+# If a later file specifies an empty value, it overrides an earlier file's non-empty definition.
 #
 # Example, with the config files above
 #
@@ -74,15 +75,16 @@ $%function config:_foreach_read(*configname key) {
 #   config:read confs third
 #   # --> (empty string)
 #
-#   config:read confs nonexistent
+#   config:read confs non_existent_key
 #   # ------> ERROR
 #
 ###/doc
 
 $%function config:read(configname key ?default) {
     local value res
-    res=0
-    value="$(config:_foreach_read "$configname" "$key")" || res="$?"
+
+    value="$(config:_foreach_read "$configname" "$key")"
+    res="$?"
 
     if [[ "$res" != 0 ]] && [[ -z "$default" ]]; then
         return 1
@@ -93,24 +95,22 @@ $%function config:read(configname key ?default) {
     fi
 }
 
-### config:load NAMESPACE Usage:bbuild
+### config:load CONFIG Usage:bbuild
 #
-# Use config:load NAMESPACE to load all values into a global bash namespace
+# Use config:load CONFIG to load all values into a global bash namespace
 #
-# Example, with the config files above
+# Example usage
+#
+#   config:declare CONFSPACE file1 file2 file3
 #
 #   config:load CONFSPACE
-#   echo "CONFSPACE_second"
-#   # --> "two"
+#   echo "$CONFSPACE_second"
 #
 ###/doc
 
 $%function config:load(namespace) {
     local cfile value key keys
-
-    declare -n configname
-    configname="$namespace"
-
+    declare -n configname="$namespace"
 
     for cfile in "${configname[@]}"; do
         if [[ -e "$cfile" ]]; then

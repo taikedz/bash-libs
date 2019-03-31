@@ -22,9 +22,10 @@ confmatch() {
     return "$res"
 }
 
-valmatch() {
-    echo "$2"
-    [[ "$1" = "$2" ]]
+check-value-of() {
+    declare -n p_conf="$1"
+    echo "$p_conf"
+    [[ "$p_conf" = "$2" ]]
 }
 
 tfile config_main "first=alpha\nsecond=beta\nthird=gamma"
@@ -40,6 +41,7 @@ test:require confmatch "" config:read myconfs third
 test:forbid  config:read myconfs fourth
 test:require confmatch "defval" config:read myconfs fourth "defval"
 
+test:require check-value-of myconfs_first alpha
 test:forbid  config:read myconfs_bad first
 
 test:report
