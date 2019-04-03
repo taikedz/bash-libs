@@ -13,7 +13,7 @@
 #  that will be searched for wil then be "./tests/test-SOMEFILE"
 ###/doc
 
-##bash-libs: tty.sh @ 1c36f035 (2.1)
+##bash-libs: tty.sh @ ab570026 (2.1.5)
 
 tty:is_ssh() {
     [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CLIENT" ]] || [[ "$SSH_CONNECTION" ]]
@@ -23,7 +23,7 @@ tty:is_pipe() {
     [[ ! -t 1 ]]
 }
 
-##bash-libs: colours.sh @ 1c36f035 (2.1)
+##bash-libs: colours.sh @ ab570026 (2.1.5)
 
 ### Colours for terminal Usage:bbuild
 # A series of shorthand colour flags for use in outputs, and functions to set your own flags.
@@ -176,7 +176,7 @@ colours:auto() {
 
 colours:auto
 
-##bash-libs: out.sh @ 1c36f035 (2.1)
+##bash-libs: out.sh @ ab570026 (2.1.5)
 
 ### Console output handlers Usage:bbuild
 #
@@ -264,7 +264,7 @@ function out:error {
     echo "${CBRED}ERROR: ${CRED}$*$CDEF" 1>&2
 }
 
-##bash-libs: syntax-extensions.sh @ 1c36f035 (2.1)
+##bash-libs: syntax-extensions.sh @ ab570026 (2.1.5)
 
 ### Syntax Extensions Usage:syntax
 #
@@ -378,7 +378,7 @@ args:use:local() {
     syntax-extensions:use:local "$@"
 }
 
-##bash-libs: autohelp.sh @ 1c36f035 (2.1)
+##bash-libs: autohelp.sh @ ab570026 (2.1.5)
 
 ### Autohelp Usage:bbuild
 #
@@ -576,7 +576,7 @@ autohelp:check:section() {
         fi
     done
 }
-##bash-libs: runmain.sh @ 1c36f035 (2.1)
+##bash-libs: runmain.sh @ ab570026 (2.1.5)
 
 ### runmain SCRIPTNAME FUNCTION [ARGUMENTS ...] Usage:bbuild
 #
@@ -613,7 +613,6 @@ function runmain {
 }
 
 cd "$(dirname "$0")"
-export BUILDOUTD=/tmp
 export BBPATH=./libs
 
 items=0
@@ -664,10 +663,13 @@ run_unit_tests() {
     local scriptname="$1"; shift
     local testname="test-$scriptname"
     local testsfile="tests/$testname"
+    local testtarget="/tmp/$testname"
 
     if [[ -f "$testsfile" ]]; then
-        "$BBEXEC" "$testsfile"
-        bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
+        "$BBEXEC" "$testsfile" "$testtarget"
+        bash ${bashflags:-} "$testtarget" || VER_fails=$((VER_fails+1))
+
+        rmfile "$testtarget"
     else
         VER_fails=$((VER_fails+1))
         out:warn "There is no $testsfile test file."
@@ -680,11 +682,7 @@ run_verification() {
 
         items=$((items+1))
 
-        run_build_test "$scriptname" || continue
-
         run_unit_tests "$scriptname"
-
-        rmfile "/tmp/$scriptname"
     done
 }
 

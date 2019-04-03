@@ -19,7 +19,6 @@
 #%include std/runmain.sh
 
 cd "$(dirname "$0")"
-export BUILDOUTD=/tmp
 export BBPATH=./libs
 
 items=0
@@ -70,10 +69,13 @@ run_unit_tests() {
     local scriptname="$1"; shift
     local testname="test-$scriptname"
     local testsfile="tests/$testname"
+    local testtarget="/tmp/$testname"
 
     if [[ -f "$testsfile" ]]; then
-        "$BBEXEC" "$testsfile"
-        bash ${bashflags:-} "/tmp/$testname" || VER_fails=$((VER_fails+1))
+        "$BBEXEC" "$testsfile" "$testtarget"
+        bash ${bashflags:-} "$testtarget" || VER_fails=$((VER_fails+1))
+
+        rmfile "$testtarget"
     else
         VER_fails=$((VER_fails+1))
         out:warn "There is no $testsfile test file."
@@ -86,11 +88,7 @@ run_verification() {
 
         items=$((items+1))
 
-        run_build_test "$scriptname" || continue
-
         run_unit_tests "$scriptname"
-
-        rmfile "/tmp/$scriptname"
     done
 }
 
