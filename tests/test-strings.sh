@@ -14,12 +14,14 @@ test_join() {
 test_split() {
     local idx="$1"; shift
     local match="$1"; shift
+
+    local resarray
     
-    strings:split "$@"
+    strings:split resarray "$@"
 
-    echo "${STRINGS_ARR_SPLITS[$idx]}"
+    echo "${resarray[$idx]}"
 
-    [[ "${STRINGS_ARR_SPLITS[$idx]}" = "$match" ]]
+    [[ "${resarray[$idx]}" = "$match" ]]
 }
 
 test:require test_join "a+b+c" + a b c

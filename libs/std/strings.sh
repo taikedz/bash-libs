@@ -1,3 +1,5 @@
+#%include std/syntax-extensions.sh
+
 ##bash-libs: strings.sh @ %COMMITHASH%
 
 ### Strings library Usage:bbuild
@@ -9,6 +11,8 @@
 ### strings:join JOINER STRINGS ... Usage:bbuild
 #
 # Join multiple strings, separated by the JOINER string
+#
+# Write the joined string to stdout
 #
 ###/doc
 
@@ -33,19 +37,24 @@ strings:join() {
     echo "$finalstring"
 }
 
-### strings:split SPLITTER STRING Usage:bbuild
+### strings:split *RETURN_ARRAY SPLITTER STRING Usage:bbuild
 #
 # Split a STRING along each instance of SPLITTER
 #
-# Returns result in a STRINGS_ARR_SPLITS array
+# Write the result to the variable in RETURN_ARRAY (pass as name reference)
+#
+# e.g.
+#
+#   local my_array
+#
+#   strings:split my_array ":" "a:b c:d"
+#
+#   echo "${my_array[1]}" # --> "b c"
 #
 ###/doc
 
-strings:split() {
-    local splitter="$1"; shift || :
-    local string_to_split="$1"; shift || :
-
-    local items=("")
+$%function strings:split(*p_returnarray splitter string_to_split) {
+    local items=(:)
 
     while [[ -n "$string_to_split" ]]; do
         if [[ ! "$string_to_split" =~ "${splitter}" ]]; then
@@ -54,9 +63,9 @@ strings:split() {
         fi
 
         local token="$(echo "$string_to_split"|sed -r "s${splitter}.*$")"
-        items[${#items[@]}]="$token"
+        items+=("$token")
         string_to_split="$(echo "$string_to_split"|sed "s^${token}${splitter}")"
     done
 
-    STRINGS_ARR_SPLITS=("${items[@]:1}")
+    p_returnarray=("${items[@]:1}")
 }
