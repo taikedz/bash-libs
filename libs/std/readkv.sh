@@ -1,5 +1,8 @@
 ##bash-libs: readkv.sh @ %COMMITHASH%
 
+#%bbtags w:deprecated
+#%bbtags w:use_std_config.sh
+
 ### Key Value Pair Reader Usage:bbuild
 #
 # Read a value given the key, from a specified file

@@ -24,12 +24,12 @@
 #   # Declare the order to read values from
 #   # Later files have more authority over earlier files.
 #
-#   config:declare confs /etc/test.conf ./test.conf
+#   config:declare CONFS /etc/test.conf ./test.conf
 #
 ###/doc
 
-$%function config:declare(*configname) {
-    configname=("$@")
+$%function config:declare(*p_configname) {
+    p_configname=("$@")
 }
 
 $%function config:_read_value(key file) {
@@ -41,11 +41,11 @@ $%function config:_has_key(key file) {
     config:_read_value "$key" "$file" >/dev/null
 }
 
-$%function config:_foreach_read(*configname key) {
+$%function config:_foreach_read(*p_configname key) {
     local cfile value res
     res=1
 
-    for cfile in "${configname[@]}"; do
+    for cfile in "${p_configname[@]}"; do
         if [[ -e "$cfile" ]]; then
             if config:_has_key "$key" "$cfile"; then
                 value="$(config:_read_value "$key" "$cfile")"
@@ -66,25 +66,28 @@ $%function config:_foreach_read(*configname key) {
 #
 # Example, with the config files above
 #
-#   config:read confs first
+#   config:read CONFS first
 #   # --> 1
 #
-#   config:read confs second
+#   config:read CONFS second
 #   # --> "two"
 #
-#   config:read confs third
+#   config:read CONFS third
 #   # --> (empty string)
 #
-#   config:read confs non_existent_key
+#   config:read CONFS undefined_key
 #   # ------> ERROR
+#
+#   config:read CONFS undefined_key "some value"
+#   # --> "some value"
 #
 ###/doc
 
-$%function config:read(configname key ?default) {
+$%function config:read(namespace key ?default) {
     local value res
+    res=0
 
-    value="$(config:_foreach_read "$configname" "$key")"
-    res="$?"
+    value="$(config:_foreach_read "$namespace" "$key")" || res="$?"
 
     if [[ "$res" != 0 ]] && [[ -z "$default" ]]; then
         return 1
@@ -97,22 +100,22 @@ $%function config:read(configname key ?default) {
 
 ### config:load CONFIG Usage:bbuild
 #
-# Use config:load CONFIG to load all values into a global bash namespace
+# Use `config:load CONFIG` to load all values into a global namespace
 #
 # Example usage
 #
-#   config:declare CONFSPACE file1 file2 file3
+#   config:declare CONFS file1 file2 file3
 #
-#   config:load CONFSPACE
-#   echo "$CONFSPACE_second"
+#   config:load CONFS
+#   echo "$CONFS_second"
 #
 ###/doc
 
 $%function config:load(namespace) {
     local cfile value key keys
-    declare -n configname="$namespace"
+    declare -n p_configname="$namespace"
 
-    for cfile in "${configname[@]}"; do
+    for cfile in "${p_configname[@]}"; do
         if [[ -e "$cfile" ]]; then
             keys=($(grep -oP '^[a-zA-Z0-9_]+(?==)' "$cfile"))
             for key in "${keys[@]}"; do

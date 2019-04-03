@@ -107,10 +107,8 @@
 
 HELPCHAR='#'
 
-autohelp:print() {
+$%function autohelp:print(?section_string ?target_file) {
     local input_line
-    local section_string="${1:-}"; shift || :
-    local target_file="${1:-}"; shift || :
     [[ -n "$section_string" ]] || section_string=help
     [[ -n "$target_file" ]] || target_file="$0"
 
