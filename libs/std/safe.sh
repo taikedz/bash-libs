@@ -13,13 +13,10 @@
 # Splitting over spaces
 # ---------------------
 #
-# Using bash's defaults, array assignments split over any whitespace.
+# By default, array assignments and `read` command split over any whitespace.
 #
-# Using safe mode, arrays only split over newlines, not over spaces.
-#
-# Return to default unsafe behaviour using `safe:space-split on`
-#
-# Reactivate safe recommendation using `safe:space-split off`
+# You can deactivate space splitting using `safe:space-split off`
+# and reactivate it using `safe:space-split on`
 #
 # Globs
 # -------
@@ -59,4 +56,3 @@ safe:glob() {
 }
 
 set -eufo pipefail
-safe:space-split off

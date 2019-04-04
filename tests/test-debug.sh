@@ -7,7 +7,7 @@
 
 test_debug() {
     local res
-    lcaol dummy="haha"
+    local dummy="haha"
     local expect="$1"; shift
 
     local output="$("$@" 2>&1)"

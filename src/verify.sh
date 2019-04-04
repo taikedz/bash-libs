@@ -52,17 +52,6 @@ rmfile() {
     rm "$@" || :
 }
 
-run_build_test() {
-    local scriptname="$1"; shift
-
-    "$BBEXEC" ${bbflags:-} "$libscript" || {
-        VER_fails=$((VER_fails+1))
-        return 1
-    }
-
-    return 0
-}
-
 run_unit_tests() {
     [[ "${runtests:-}" = true ]] || return
 

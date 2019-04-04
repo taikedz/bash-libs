@@ -1,4 +1,5 @@
 #%include std/out.sh
+#%include std/safe.sh
 
 ##bash-libs: test.sh @ %COMMITHASH%
 
@@ -46,8 +47,9 @@ test:fail() {
 
 test:require() {
     local result=:
-    result="$("$@")"
-    if [[ "$?" = 0 ]] ; then
+    local status=0
+    result="$("$@")" || status="$?"
+    if [[ "$status" = 0 ]] ; then
         test:ok "REQUIRE: [ $* ]"
         if [[ "${ECHO_OK:-}" = true ]]; then
             echo -e "<--\n$result\n-->"
@@ -69,8 +71,9 @@ test:require() {
 
 test:forbid() {
     local result=:
-    result="$("$@")"
-    if [[ "$?" = 0 ]] ; then
+    local status=0
+    result="$("$@")" || status="$?"
+    if [[ "$status" = 0 ]] ; then
         test:fail "FORBID : [ $* ]"
         echo "$res => $result" | sed 's/^/  /'
     else
@@ -118,4 +121,14 @@ test:output() {
 
     echo "$output"
     [[ "$expect" = "$output" ]]
+}
+
+### test:set-unsafe Usage:bbuild
+# By default, test.sh applies safe mode with safe.sh.
+#
+# Call test:set-unsafe to assume running outside of safe mode.
+###/doc
+test:set-unsafe() {
+    set +euo pipefail
+    safe:glob on
 }
