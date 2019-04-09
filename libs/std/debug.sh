@@ -65,7 +65,7 @@ function debug:print {
 #
 # Or use this to mask a command's output unless in debug mode
 #
-#   which binary 2>&1 | debug:dump >/dev/null
+#   which binary 2>&1 | debug:dump
 #
 ###/doc
 function debug:dump {
@@ -90,7 +90,7 @@ function debug:dump {
 #
 # Type a variable name, with leading `$`, to dump it, e.g. `$myvar`
 #
-# Type a variable name, with leading `$`, follwoed by an assignment to change its value, e.g. `$myvar=new value`
+# Type a variable name, with leading `$`, followed by an assignment to change its value, e.g. `$myvar=new value`
 #  the new value will be seen by the script.
 #
 # Type 'env' to dump the current environment variables.
