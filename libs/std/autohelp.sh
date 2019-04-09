@@ -1,4 +1,5 @@
 #%include std/out.sh
+#%include std/format.sh
 #%include std/syntax-extensions.sh
 
 ##bash-libs: autohelp.sh @ %COMMITHASH%
@@ -192,8 +193,7 @@ autohelp:check:section() {
 
     for arg in "$@"; do
         if [[ "$arg" =~ --help ]]; then
-            cols="$(tput cols)"
-            autohelp:print "$section" | fold -w "$cols" -s || autohelp:print "$section"
+            autohelp:print "$section" | format:wrap
             exit 0
         fi
     done
