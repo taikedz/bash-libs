@@ -28,11 +28,16 @@ check-value-of() {
     [[ "$p_conf" = "$2" ]]
 }
 
-tfile config_main "first=alpha\nsecond=beta\nthird=gamma"
+tfile config_main "first=alpha\nsecond=beta\nthird=gamma\n#second=commented"
 tfile config_sub "second=two\nthird="
 
 config:declare myconfs "$config_main" "$config_sub"
 config:load myconfs
+
+echo ---
+read -p "Main: $config_main | Sub: $config_sub"
+config:read myconfs first|hd
+echo ---
 
 test:require confmatch "alpha" config:read myconfs first
 test:require confmatch "two" config:read myconfs second

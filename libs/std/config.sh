@@ -8,6 +8,8 @@
 #
 # Declare multiple config file locations in increasing order of authority, and read values from all, keeping only the most authoritative value.
 #
+# Config files can have comments in them, and so allow commenting out configuration lines individually.
+#
 ###/doc
 
 ### config:declare CONFIG FILES ... Usage:bbuild
@@ -34,7 +36,7 @@ $%function config:declare(*configname) {
 
 $%function config:_read_value(key file) {
     [[ "$key" =~ $PAT_cvar ]] || out:fail "Invalid config key '$key' -- must match '$PAT_cvar'"
-    grep -oP "(?<=$key=).*" "$file"
+    grep -oP "(?<=$key=).*" < <(config:strip "$file") | tail -n1
 }
 
 $%function config:_has_key(key file) {
@@ -63,6 +65,8 @@ $%function config:_foreach_read(*configname key) {
 # If an earlier file specifies a value, and a later file doesn't, the earlier file's value is used
 #
 # If a later file specifies an empty value, it overrides an earlier file's non-empty definition.
+#
+# If a file specifies a configuration twice, only the last one is returned.
 #
 # Example, with the config files above
 #
@@ -101,21 +105,24 @@ $%function config:read(configname key ?default) {
 #
 # Example usage
 #
-#   config:declare CONFSPACE file1 file2 file3
+#   config:declare myconf file1 file2 file3
 #
-#   config:load CONFSPACE
-#   echo "$CONFSPACE_second"
+#   config:load myconf
+#   echo "${myconf_second}"
 #
 ###/doc
 
 $%function config:load(namespace) {
     local cfile value key keys
+
+    # Access the namespace as an array
     declare -n configname="$namespace"
 
     for cfile in "${configname[@]}"; do
         if [[ -e "$cfile" ]]; then
             keys=($(grep -oP '^[a-zA-Z0-9_]+(?==)' "$cfile"))
             for key in "${keys[@]}"; do
+                # TODO - this causes a fresh file access every time, which is not great for very large config files.
                 if config:_has_key "$key" "$cfile"; then
                     value="$(config:_read_value "$key" "$cfile")" || continue
                     . <(echo "${namespace}_${key}=\"$(echo "$value"|sed 's/"/\"/g')\"")
@@ -123,4 +130,14 @@ $%function config:load(namespace) {
             done
         fi
     done
+}
+
+### config:strip FILE Usage:bbuild
+#
+# Strip comment and empty lines from a config file
+#
+###/doc
+
+$%function config:strip(configfile) {
+    grep -vP '^(\s*(#.*)?)$' "$configfile"
 }

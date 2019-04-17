@@ -45,16 +45,18 @@ test:fail() {
 ###/doc
 
 test:require() {
-    local result=:
+    local result res
     result="$("$@")"
-    if [[ "$?" = 0 ]] ; then
+    res="$?"
+    if [[ "$res" = 0 ]] ; then
         test:ok "REQUIRE: [ $* ]"
         if [[ "${ECHO_OK:-}" = true ]]; then
-            echo -e "<--\n$result\n-->"
+            echo -n "$result"|hd
         fi
     else
         test:fail "REQUIRE: [ $* ]"
-        echo -e "<<< ---\n$result\n--- >>>"
+        echo "[$res] =>"
+        echo -n "$result"|hd
     fi
 }
 
@@ -68,11 +70,14 @@ test:require() {
 ###/doc
 
 test:forbid() {
-    local result=:
+    local result res
+
     result="$("$@")"
-    if [[ "$?" = 0 ]] ; then
+    res="$?"
+    if [[ "$res" = 0 ]] ; then
         test:fail "FORBID : [ $* ]"
-        echo "$res => $result" | sed 's/^/  /'
+        echo "[$res] =>"
+        echo -n "$result"|hd
     else
         test:ok "FORBID : [ $* ]"
     fi
