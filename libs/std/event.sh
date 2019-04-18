@@ -1,4 +1,5 @@
 #%include std/syntax-extensions.sh
+#%include std/args.sh
 
 ##bash-libs: event.sh @ %COMMITHASH%
 
@@ -111,8 +112,13 @@ $%function event:_append_function(eventname funcname) {
     [[ "$eventname" =~ ^[a-zA-Z0-9_.,:-]+$ ]] || return 1
     [[ "$funcname" =~ ^[a-zA-Z0-9_.,:-]+$ ]] || return 2
 
-    local f_list="${STD_EVENT_LIB_EVENTS["$eventname"]}"
-    STD_EVENT_LIB_EVENTS["$eventname"]="$f_list $funcname"
+    local f_string="${STD_EVENT_LIB_EVENTS["$eventname"]}"
+    local f_list=($(echo "$f_string"|sed -r 's/\s+/\n/'))
+
+    if ! args:has "$funcname" "${f_list[@]}"; then
+        STD_EVENT_LIB_EVENTS["$eventname"]="$f_string $funcname"
+    fi
+    return 0
 }
 
 $%function event:_remove_function(eventname funcname) {
