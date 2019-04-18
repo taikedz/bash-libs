@@ -2,11 +2,11 @@
 #%include std/event.sh
 
 print_foo() {
-    echo -n "foo:$1/$2|"
+    echo -n "foo@$1:$2/$3|"
 }
 
 print_bar() {
-    echo -n "bar:$1/$2|"
+    echo -n "bar@$1:$2/$3|"
 }
 
 event_has() {
@@ -38,8 +38,8 @@ test:require event_has a print_bar
 test:forbid  event:subscribe "bad function" b c
 test:forbid event:subscribe print_foo "bad event"
 
-test:require trigger_output a one two "foo:one/two|bar:one/two|"
-test:require trigger_output b one two "foo:one/two|"
+test:require trigger_output a one two "foo@a:one/two|bar@a:one/two|"
+test:require trigger_output b one two "foo@b:one/two|"
 test:forbid  trigger_output "bad event"
 
 test:report

@@ -78,6 +78,8 @@ $%function event:ubsubscribe(funcname) {
 #
 # Run every function associated with the event, directly passing arguments if specified.
 #
+# When called, the function can access the triggered event through $1
+#
 ###/doc
 $%function event:trigger(eventname) {
     # Lookup event, call each function in turn with the remaining arguments
@@ -88,7 +90,7 @@ $%function event:trigger(eventname) {
     local funcname
 
     for funcname in "${f_list[@]}"; do
-        "$funcname" "$@"
+        "$funcname" "$eventname" "$@"
     done
 }
 
